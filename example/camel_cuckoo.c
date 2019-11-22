@@ -1,9 +1,3 @@
-// Better variant of caMel
-// Instead of a working buffer,
-// read everything onto the stack from the backup buffer
-// Work in the stack, then enter "commit" phase
-// CRC stack, commit it to backup buffer
-
 #include <stdio.h>
 
 #include <msp430.h>
@@ -119,9 +113,6 @@ struct Camel
   camel_buffer_t buf1;
   camel_buffer_t buf2;
 } camel;
-
-// Wasn't declared as a const before, should have been...
-const value_t init_key = 0x0001;
 
 extern void     __crt0_start();
 extern uint16_t __fast_hw_crc(void* ptr, uint16_t len, uint16_t init);
