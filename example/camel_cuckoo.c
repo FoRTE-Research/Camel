@@ -60,6 +60,10 @@ uint16_t tmp_stack_buf_crc;
 #define cpaso(x, y) unsafe->globals.x[y] = safe->globals.x[y]
 #define cpa(x,y) memcpy(unsafe->globals.x,safe->globals.x,y)
 
+#if (CRC_ON && CRC_OFF) || !(CRC_ON || CRC_OFF)
+#error You must define exactly one of CRC_ON and CRC_OFF
+#endif
+
 #ifdef CRC_ON
 #define commit() do{                                                                                                      \
                     _Pragma("GCC diagnostic ignored \"-Wint-conversion\"")                                                \
@@ -210,6 +214,9 @@ void camel_recover(){
 }
 
 // End Camel stuff
+
+// Wasn't declared as a const before, should have been...
+const value_t init_key = 0x0001;
 
 static hash_t djb_hash(uint8_t* data, unsigned len)
 {
