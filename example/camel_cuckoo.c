@@ -12,7 +12,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "checkpoint/camel_ckpt_defines.h"
+#include "../checkpoint/camel_ckpt_defines.h"
 
 #define NUM_BUCKETS 128 // must be a power of 2
 #define NUM_INSERTS (NUM_BUCKETS / 4) // shoot for 25% occupancy
@@ -66,7 +66,8 @@ uint16_t tmp_stack_buf_crc;
 #define cpaso(x, y) unsafe->globals.x[y] = safe->globals.x[y]
 #define cpa(x,y) memcpy(unsafe->globals.x,safe->globals.x,y)
 
-#define commit() do{ 																																									    	              \
+#ifdef CRC_ON
+#define commit() do{                                                                                                      \
                     _Pragma("GCC diagnostic ignored \"-Wint-conversion\"")                                                \
 										if(camel.flag == CKPT_1_FLG){																																					\
 											safe = &(camel.buf2);																																								\
@@ -86,7 +87,24 @@ uint16_t tmp_stack_buf_crc;
 											camel.flag = CKPT_1_FLG;																																						\
 										}																																																			\
                     _Pragma("GCC diagnostic warning \"-Wint-conversion\"")                                                \
-									}	while(0)
+                  }	while(0)
+#elif CRC_OFF
+#define commit() do{                                                                                                      \
+                    _Pragma("GCC diagnostic ignored \"-Wint-conversion\"")                                                \
+										if(camel.flag == CKPT_1_FLG){																																					\
+											safe = &(camel.buf2);																																								\
+											unsafe = &(camel.buf1);																																							\
+											__dump_registers(safe->reg_file);																																		\
+											camel.flag = CKPT_2_FLG;																																						\
+										} else{																																																\
+											safe = &(camel.buf1);																																								\
+											unsafe = &(camel.buf2);																																							\
+											__dump_registers(safe->reg_file);																																		\
+											camel.flag = CKPT_1_FLG;																																						\
+										}																																																			\
+                    _Pragma("GCC diagnostic warning \"-Wint-conversion\"")                                                \
+                  }	while(0)
+#endif
 
 // Globals
 typedef struct camel_global_t
@@ -169,6 +187,14 @@ void camel_recover(){
     } else {
         __crt0_start();
     }
+
+    // If the CRC is off, just assume data integrity
+    #if CRC_OFF
+    // memcpy(unsafe, safe, sizeof(camel_buffer_t));
+    _set_SP_register(safe->reg_file[R1_POS / 2]);
+    camel_init();
+    __restore_registers(safe->reg_file);
+    #elif CRC_ON
 		// Need to set stack pointer before we call things
     // Calling it before we verify, but if it's incorrect the CRC will fail anyway
     // TODO: Could potentially cause an error if the saved SP is so
@@ -189,6 +215,7 @@ void camel_recover(){
 		} else{
 			__crt0_start();
 		}
+    #endif
 }
 
 // End Camel stuff
@@ -226,6 +253,8 @@ static fingerprint_t hash_to_fingerprint(value_t key)
     #define prepare_task_init() ; // copy everything read by task
 #elif IDEM
     #define prepare_task_init() ; // copy everything in both read first and writes lists
+#elif NONE
+    #define prepare_task_init() ;
 #else
     #error type of system not defined
 #endif
@@ -254,6 +283,8 @@ void task_init()
     #define prepare_task_generate_key() cps(key) // copy everything read by task
 #elif IDEM
     #define prepare_task_generate_key() cps(key) // copy everything that is present in both read first and writes lists
+#elif NONE
+    #define prepare_task_generate_key() ;
 #else
     #error type of system not defined
 #endif
@@ -274,6 +305,8 @@ void task_generate_key()
     #define prepare_task_calc_indexes() cps(key) // copy everything read by task
 #elif IDEM
     #define prepare_task_calc_indexes() ; // copy everything that is present in both read first and writes lists
+#elif NONE
+    #define prepare_task_calc_indexes() ;
 #else
     #error type of system not defined
 #endif
@@ -293,6 +326,8 @@ void task_calc_indexes()
     #define prepare_task_calc_indexes_index_1() cps(key) // copy everything read by task
 #elif IDEM
     #define prepare_task_calc_indexes_index_1() ; // copy everything that is present in both read first and writes lists
+#elif NONE
+    #define prepare_task_calc_indexes_index_1() ;
 #else
     #error type of system not defined
 #endif
@@ -312,6 +347,8 @@ void task_calc_indexes_index_1()
     #define prepare_task_calc_indexes_index_2() cps(fingerprint); cps(index1) // copy everything read by task
 #elif IDEM
     #define prepare_task_calc_indexes_index_2() ; // copy everything that is present in both read first and writes lists
+#elif NONE
+    #define prepare_task_calc_indexes_index_2() ;
 #else
     #error type of system not defined
 #endif
@@ -332,6 +369,8 @@ void task_calc_indexes_index_2()
     #define prepare_task_add() cpa(filter, sizeof(fingerprint_t)*NUM_BUCKETS); cps(index1); cps(index2); cps(fingerprint) // copy everything read by task
 #elif IDEM
     #define prepare_task_add() cpas(filter,index1); cpas(filter,index2); cps(index1) // copy everything that is present in both read first and writes lists
+#elif NONE
+    #define prepare_task_add() ;
 #else
     #error type of system not defined
 #endif
@@ -375,6 +414,8 @@ void task_add()
     #define prepare_task_relocate() cps(fingerprint); cps(index1); cpa(filter, sizeof(fingerprint_t)*NUM_BUCKETS); cps(relocation_count) // copy everything read by task
 #elif IDEM
     #define prepare_task_relocate() cps(fingerprint); cps(index1); cps(relocation_count) // cpa(filter, sizeof(fingerprint_t)*NUM_BUCKETS); opt below; copy everything that is present in both read first and writes lists
+#elif NONE
+    #define prepare_task_relocate() ;
 #else
     #error type of system not defined
 #endif
@@ -416,6 +457,8 @@ void task_relocate()
     #define prepare_task_insert_done() cps(insert_count); cps(success); cps(inserted_count) // copy everything read by task
 #elif IDEM
     #define prepare_task_insert_done() cps(insert_count); cps(inserted_count) // copy everything that is present in both read first and writes lists
+#elif NONE
+    #define prepare_task_insert_done() ;
 #else
     #error type of system not defined
 #endif
@@ -441,6 +484,8 @@ void task_insert_done()
     #define prepare_task_lookup_search() cpa(filter, sizeof(fingerprint_t)*NUM_BUCKETS); cps(index1); cps(index2); cps(fingerprint) // copy everything read by task
 #elif IDEM
     #define prepare_task_lookup_search() ; // copy everything that is present in both read first and writes lists
+#elif NONE
+    #define prepare_task_lookup_search() ;
 #else
     #error type of system not defined
 #endif
@@ -472,6 +517,8 @@ void task_lookup_search()
     #define prepare_task_lookup_done() cps(lookup_count); cps(lookup_count); cps(lookup_count) // copy everything read by task
 #elif IDEM
     #define prepare_task_lookup_done() cps(lookup_count); cps(member_count) // copy everything that is present in both read first and writes lists
+#elif NONE
+    #define prepare_task_lookup_done() ;
 #else
     #error type of system not defined
 #endif
