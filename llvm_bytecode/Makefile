@@ -44,8 +44,8 @@ camel_cuckoo.ll : camel_cuckoo.bc
 	$(DIS) $< -o $@
 
 camel_cuckoo_mod.bc: camel_cuckoo.bc
-	cd ../llvm_pass && make && cd ../llvm_bytecode
-#	$(OPT) -load $(CAMEL) --TaskAnalysis $< > $@
+	cd ../llvm_pass && cmake . && make && cd ../llvm_bytecode
+	$(OPT) -load $(CAMEL) --TaskAnalysis $< > $@
 
 	
 clean:
