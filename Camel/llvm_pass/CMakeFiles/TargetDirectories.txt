@@ -1,0 +1,16 @@
+/home/saim/Desktop/Camel/llvm_pass/CMakeFiles/install/strip.dir
+/home/saim/Desktop/Camel/llvm_pass/CMakeFiles/edit_cache.dir
+/home/saim/Desktop/Camel/llvm_pass/CMakeFiles/intrinsics_gen.dir
+/home/saim/Desktop/Camel/llvm_pass/CMakeFiles/rebuild_cache.dir
+/home/saim/Desktop/Camel/llvm_pass/CMakeFiles/list_install_components.dir
+/home/saim/Desktop/Camel/llvm_pass/CMakeFiles/install/local.dir
+/home/saim/Desktop/Camel/llvm_pass/CMakeFiles/install.dir
+/home/saim/Desktop/Camel/llvm_pass/camel/CMakeFiles/install/strip.dir
+/home/saim/Desktop/Camel/llvm_pass/camel/CMakeFiles/install/local.dir
+/home/saim/Desktop/Camel/llvm_pass/camel/CMakeFiles/install.dir
+/home/saim/Desktop/Camel/llvm_pass/camel/CMakeFiles/install-camel.dir
+/home/saim/Desktop/Camel/llvm_pass/camel/CMakeFiles/camel.dir
+/home/saim/Desktop/Camel/llvm_pass/camel/CMakeFiles/install-camel-stripped.dir
+/home/saim/Desktop/Camel/llvm_pass/camel/CMakeFiles/edit_cache.dir
+/home/saim/Desktop/Camel/llvm_pass/camel/CMakeFiles/rebuild_cache.dir
+/home/saim/Desktop/Camel/llvm_pass/camel/CMakeFiles/list_install_components.dir
