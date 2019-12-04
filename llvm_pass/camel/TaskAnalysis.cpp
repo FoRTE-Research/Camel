@@ -35,14 +35,26 @@ void TaskAnalysis::AnalyzeTask(Function &F){
 
 void TaskAnalysis::traverseLoad(LoadInst *load){
 
-    if (auto gep = dyn_cast<GEPOperator>(load->getOperand(0))){
+    GEPOperator *gep;
+    if (gep = dyn_cast<GEPOperator>(load->getOperand(0))){
 
+        while (gep) {
+
+            gep = dyn_cast<GEPOperator>(gep->getOperand(0));
+
+        }
     }
 }
 
 void TaskAnalysis::traverseStore(StoreInst *store){
     
-    if (auto gep = dyn_cast<GEPOperator>(store->getOperand(1))){
+    GEPOperator *gep;
+    if (gep = dyn_cast<GEPOperator>(store->getOperand(1))){
 
+        while (gep) {
+
+            gep = dyn_cast<GEPOperator>(gep->getOperand(0));
+
+        }
     }
 }

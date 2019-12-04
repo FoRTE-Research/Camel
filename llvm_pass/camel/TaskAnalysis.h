@@ -6,15 +6,19 @@ class TaskAnalysis : public ModulePass {
 
     public:
 
+        // methods
         static char ID;
         TaskAnalysis() : ModulePass(ID) {}
         void AnalyzeModule(Module &M);
         void AnalyzeTask(Function &F);
         void traverseLoad(LoadInst *load);
-        void traverseStore(StoreInst *store);
+        void traverseStore(StoreInst *store); 
 
-    private: 
 
+        // variables
         Module* myModule;
-        
+        // need a map of writes for a task
+        // need a map of reads for a task
+        // need a map of writes first ?
+        // need a map of reads first ?         
 };
