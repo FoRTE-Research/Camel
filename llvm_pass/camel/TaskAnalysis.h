@@ -12,7 +12,9 @@ class TaskAnalysis : public ModulePass {
         void AnalyzeModule(Module &M);
         void AnalyzeTask(Function &F);
         void traverseLoad(LoadInst *load);
-        void traverseStore(StoreInst *store); 
+        void traverseStore(StoreInst *store);
+        bool isGlobalStructAccess(GEPOperator *gep, StringRef name);
+        bool runOnModule(Module &M); // for testing purposes
 
 
         // variables
@@ -22,3 +24,4 @@ class TaskAnalysis : public ModulePass {
         // need a map of writes first ?
         // need a map of reads first ?         
 };
+

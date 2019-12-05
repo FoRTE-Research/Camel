@@ -1,5 +1,10 @@
 #include "global.h"
 
+// header file globals
+map <StringRef, GlobalVariable*> globals;
+
+
+// functions
 void getGlobals(Module *M){
 
    for (auto &G : M->getGlobalList()) {

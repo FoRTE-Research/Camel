@@ -35,26 +35,65 @@ void TaskAnalysis::AnalyzeTask(Function &F){
 
 void TaskAnalysis::traverseLoad(LoadInst *load){
 
+    GEPOperator *index;
     GEPOperator *gep;
+
     if (gep = dyn_cast<GEPOperator>(load->getOperand(0))){
 
-        while (gep) {
+        if (isGlobalStructAccess(gep, "unsafe")) {
 
-            gep = dyn_cast<GEPOperator>(gep->getOperand(0));
+            if (gep->getSourceElementType()->isArrayTy()) {
 
+                index = gep;
+                gep = dyn_cast<GEPOperator>(gep->getOperand(0));
+
+            }
         }
     }
 }
 
 void TaskAnalysis::traverseStore(StoreInst *store){
     
+    GEPOperator *index;
     GEPOperator *gep;
+
     if (gep = dyn_cast<GEPOperator>(store->getOperand(1))){
 
-        while (gep) {
+        if (isGlobalStructAccess(gep, "unsafe")) {
 
-            gep = dyn_cast<GEPOperator>(gep->getOperand(0));
+            if (gep->getSourceElementType()->isArrayTy()) {
 
+                index = gep;
+                gep = dyn_cast<GEPOperator>(gep->getOperand(0));
+
+            }
+
+            gep->dump();
         }
     }
 }
+
+bool TaskAnalysis::runOnModule(Module &M){
+
+    AnalyzeModule(M);
+    return false;
+
+}
+
+bool TaskAnalysis::isGlobalStructAccess(GEPOperator *gep, StringRef name){
+
+    GEPOperator *prev;
+    GEPOperator *iter = gep;
+    while (iter) {
+
+        prev = iter;
+        iter = dyn_cast<GEPOperator>(iter->getOperand(0));
+
+    }
+
+    LoadInst *temp = dyn_cast<LoadInst>(prev->getOperand(0));
+    return temp->getOperand(0)->getName().contains(name);
+}
+
+char TaskAnalysis::ID = 0;
+static RegisterPass<TaskAnalysis> X("TaskAnalysis", "camel pass");
