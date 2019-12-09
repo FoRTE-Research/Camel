@@ -21,3 +21,10 @@ bool isTask(Function *F){
     
 }
 
+StringRef getParentTask(GEPOperator *gep){
+
+    Instruction *temp = dyn_cast<Instruction>(gep);
+    return temp->getParent()->getParent()->getName();
+
+}
+

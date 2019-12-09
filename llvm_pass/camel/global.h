@@ -24,5 +24,6 @@ extern map <StringRef, GlobalVariable*> globals;
 
 // global functions
 
+StringRef getParentTask(GEPOperator *gep);
 void getGlobals(Module *M);
 bool isTask(Function *F);
