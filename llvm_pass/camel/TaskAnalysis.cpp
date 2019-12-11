@@ -6,9 +6,13 @@ void TaskAnalysis::AnalyzeModule(Module &M){
 
         if (isTask(&F)) {
 
-            //do something with the task
+            //initialize read, write, readfirst and writefirst lists for a given task
             initializeTaskLists(F);
+            //get all reads and writes in a task
             AnalyzeTask(F);
+            //functions to track array reads and writes in a task
+            trackWrittenIndexes(F);
+            trackReadIndexes(F);
 
         }
     }
@@ -51,19 +55,27 @@ void TaskAnalysis::traverseLoad(LoadInst *load){
                 gep = dyn_cast<GEPOperator>(gep->getOperand(0));
 
                 // index->dump();
+                // index->getOperand(2)->dump();
+                // dyn_cast<Instruction>(index->getOperand(2))->getOperand(0)->dump();
                 inst.push_back(index);
                 
             }
 
-            // gep->dump();
-            // errs () << "\n";
+            //gep->dump();
             inst.push_back(gep);
+
+            // errs() << "Read index of struct ";
+            // gep->getOperand(2)->dump();
+            // errs() << "\n";
 
             reads[getParentTask(gep)].push_back(inst);
 
             if (!isPartOfList(inst, writeFirst, getParentTask(gep))){
+              //  errs() << "READFIRST\n" ;
                 readFirst[getParentTask(gep)].push_back(inst);
             }
+
+            //errs () << "\n";
         }
     }
 }
@@ -86,18 +98,57 @@ void TaskAnalysis::traverseStore(StoreInst *store){
                 gep = dyn_cast<GEPOperator>(gep->getOperand(0));
 
                 // index->dump();
+                // index->getOperand(2)->dump();
+                // dyn_cast<Instruction>(index->getOperand(2))->getOperand(0)->dump();
                 inst.push_back(index);
             }
 
-            // gep->dump();
-            // errs () << "\n";
+            //gep->dump();
+
+            // errs() << "wrote index of struct ";
+            // gep->getOperand(2)->dump();
+            // errs() << "\n";
+        
             inst.push_back(gep);
 
             writes[getParentTask(gep)].push_back(inst);
 
             if (!isPartOfList(inst, readFirst, getParentTask(gep))){
+                //errs() << "WRITEFIRST\n" ;
                 writeFirst[getParentTask(gep)].push_back(inst);
             }
+
+            //errs () << "\n";
+        }
+    }
+}
+
+void TaskAnalysis::trackWrittenIndexes(Function &F){
+
+    StringRef taskName = F.getName();
+    vector < vector<GEPOperator*> > taskList = writes[taskName];
+
+    for (vector<GEPOperator*> iter : taskList){
+        
+        if (iter.size() == 2){
+
+            // process array index to find out all written indexes
+        }
+
+    }
+}
+
+void TaskAnalysis::trackReadIndexes(Function &F){
+
+    StringRef taskName = F.getName();
+    vector < vector<GEPOperator*> > taskList = writes[taskName];
+    
+    for (vector<GEPOperator*> iter : taskList){
+        
+        if (iter.size() == 2){
+
+            // process array index to find out all read indexes
+
         }
     }
 }
@@ -135,8 +186,10 @@ bool TaskAnalysis::isPartOfList(vector<GEPOperator*> vec, map < StringRef, vecto
 
     for (vector<GEPOperator*> iter : taskList){
         
-        if (iter == vec)
+        if (iter == vec){
+            //errs() << "PART OF LIST\n";
             return true;
+        }
     }
 
     return false;

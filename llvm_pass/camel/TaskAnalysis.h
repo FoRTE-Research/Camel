@@ -16,6 +16,8 @@ class TaskAnalysis : public ModulePass {
         bool isGlobalStructAccess(GEPOperator *gep, StringRef name);
         void initializeTaskLists(Function &F);
         bool isPartOfList(vector<GEPOperator*> vec, map < StringRef, vector<vector<GEPOperator*>> > list, StringRef task);
+        void trackWrittenIndexes(Function &F);
+        void trackReadIndexes(Function &F);
         bool runOnModule(Module &M); // for testing purposes
 
         // variables
