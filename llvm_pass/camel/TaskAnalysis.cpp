@@ -145,7 +145,7 @@ void TaskAnalysis::trackReadIndexes(Function &F){
     
     for (vector<GEPOperator*> iter : taskList){
         
-        if (iter.size() == 2){
+        if (iter.size() == 2){ 
 
             // process array index to find out all read indexes
 
@@ -195,12 +195,12 @@ bool TaskAnalysis::isPartOfList(vector<GEPOperator*> vec, map < StringRef, vecto
     return false;
 }
 
-bool TaskAnalysis::runOnModule(Module &M){
+// bool TaskAnalysis::runOnModule(Module &M){
 
-    AnalyzeModule(M);
-    return false;
+//     AnalyzeModule(M);
+//     return false;
 
-}
+// }
 
-char TaskAnalysis::ID = 0;
-static RegisterPass<TaskAnalysis> X("TaskAnalysis", "camel pass");
+// char TaskAnalysis::ID = 0;
+// static RegisterPass<TaskAnalysis> X("TaskAnalysis", "camel pass");

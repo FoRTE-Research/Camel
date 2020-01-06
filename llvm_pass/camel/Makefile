@@ -201,6 +201,33 @@ install-camel-stripped/fast:
 	cd /home/saim/Desktop/Camel/llvm_pass && $(MAKE) -f camel/CMakeFiles/install-camel-stripped.dir/build.make camel/CMakeFiles/install-camel-stripped.dir/build
 .PHONY : install-camel-stripped/fast
 
+Modify.o: Modify.cpp.o
+
+.PHONY : Modify.o
+
+# target to build an object file
+Modify.cpp.o:
+	cd /home/saim/Desktop/Camel/llvm_pass && $(MAKE) -f camel/CMakeFiles/camel.dir/build.make camel/CMakeFiles/camel.dir/Modify.cpp.o
+.PHONY : Modify.cpp.o
+
+Modify.i: Modify.cpp.i
+
+.PHONY : Modify.i
+
+# target to preprocess a source file
+Modify.cpp.i:
+	cd /home/saim/Desktop/Camel/llvm_pass && $(MAKE) -f camel/CMakeFiles/camel.dir/build.make camel/CMakeFiles/camel.dir/Modify.cpp.i
+.PHONY : Modify.cpp.i
+
+Modify.s: Modify.cpp.s
+
+.PHONY : Modify.s
+
+# target to generate assembly for a file
+Modify.cpp.s:
+	cd /home/saim/Desktop/Camel/llvm_pass && $(MAKE) -f camel/CMakeFiles/camel.dir/build.make camel/CMakeFiles/camel.dir/Modify.cpp.s
+.PHONY : Modify.cpp.s
+
 TaskAnalysis.o: TaskAnalysis.cpp.o
 
 .PHONY : TaskAnalysis.o
@@ -270,6 +297,9 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... list_install_components"
+	@echo "... Modify.o"
+	@echo "... Modify.i"
+	@echo "... Modify.s"
 	@echo "... TaskAnalysis.o"
 	@echo "... TaskAnalysis.i"
 	@echo "... TaskAnalysis.s"

@@ -18,10 +18,9 @@ class TaskAnalysis : public ModulePass {
         bool isPartOfList(vector<GEPOperator*> vec, map < StringRef, vector<vector<GEPOperator*>> > list, StringRef task);
         void trackWrittenIndexes(Function &F);
         void trackReadIndexes(Function &F);
-        bool runOnModule(Module &M); // for testing purposes
+        //bool runOnModule(Module &M); // for testing purposes
 
         // variables
-        Module* myModule;
         map < StringRef, vector<vector<GEPOperator*>> > writes;
         map < StringRef, vector<vector<GEPOperator*>> > reads;
         map < StringRef, vector<vector<GEPOperator*>> > writeFirst;

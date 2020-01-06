@@ -4,6 +4,7 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
+  "/home/saim/Desktop/Camel/llvm_pass/camel/Modify.cpp" "/home/saim/Desktop/Camel/llvm_pass/camel/CMakeFiles/camel.dir/Modify.cpp.o"
   "/home/saim/Desktop/Camel/llvm_pass/camel/TaskAnalysis.cpp" "/home/saim/Desktop/Camel/llvm_pass/camel/CMakeFiles/camel.dir/TaskAnalysis.cpp.o"
   "/home/saim/Desktop/Camel/llvm_pass/camel/global.cpp" "/home/saim/Desktop/Camel/llvm_pass/camel/CMakeFiles/camel.dir/global.cpp.o"
   )

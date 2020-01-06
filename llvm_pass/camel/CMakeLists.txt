@@ -2,7 +2,8 @@
 # from the hello plugin.
 
 
-add_llvm_library(camel MODULE 
+add_llvm_library(camel MODULE
+	Modify.cpp
 	TaskAnalysis.cpp
 	global.cpp
 	)

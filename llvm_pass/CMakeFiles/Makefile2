@@ -127,7 +127,7 @@ camel/CMakeFiles/install-camel.dir/all: camel/CMakeFiles/camel.dir/all
 
 # Build rule for subdir invocation for target.
 camel/CMakeFiles/install-camel.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/saim/Desktop/Camel/llvm_pass/CMakeFiles 3
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/saim/Desktop/Camel/llvm_pass/CMakeFiles 4
 	$(MAKE) -f CMakeFiles/Makefile2 camel/CMakeFiles/install-camel.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/saim/Desktop/Camel/llvm_pass/CMakeFiles 0
 .PHONY : camel/CMakeFiles/install-camel.dir/rule
@@ -149,7 +149,7 @@ camel/CMakeFiles/install-camel.dir/clean:
 camel/CMakeFiles/camel.dir/all:
 	$(MAKE) -f camel/CMakeFiles/camel.dir/build.make camel/CMakeFiles/camel.dir/depend
 	$(MAKE) -f camel/CMakeFiles/camel.dir/build.make camel/CMakeFiles/camel.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/saim/Desktop/Camel/llvm_pass/CMakeFiles --progress-num=1,2,3 "Built target camel"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/saim/Desktop/Camel/llvm_pass/CMakeFiles --progress-num=1,2,3,4 "Built target camel"
 .PHONY : camel/CMakeFiles/camel.dir/all
 
 # Include target in all.
@@ -159,7 +159,7 @@ all: camel/CMakeFiles/camel.dir/all
 
 # Build rule for subdir invocation for target.
 camel/CMakeFiles/camel.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/saim/Desktop/Camel/llvm_pass/CMakeFiles 3
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/saim/Desktop/Camel/llvm_pass/CMakeFiles 4
 	$(MAKE) -f CMakeFiles/Makefile2 camel/CMakeFiles/camel.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/saim/Desktop/Camel/llvm_pass/CMakeFiles 0
 .PHONY : camel/CMakeFiles/camel.dir/rule
@@ -186,7 +186,7 @@ camel/CMakeFiles/install-camel-stripped.dir/all: camel/CMakeFiles/camel.dir/all
 
 # Build rule for subdir invocation for target.
 camel/CMakeFiles/install-camel-stripped.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/saim/Desktop/Camel/llvm_pass/CMakeFiles 3
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/saim/Desktop/Camel/llvm_pass/CMakeFiles 4
 	$(MAKE) -f CMakeFiles/Makefile2 camel/CMakeFiles/install-camel-stripped.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/saim/Desktop/Camel/llvm_pass/CMakeFiles 0
 .PHONY : camel/CMakeFiles/install-camel-stripped.dir/rule

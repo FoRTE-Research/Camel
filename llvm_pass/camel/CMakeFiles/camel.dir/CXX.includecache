@@ -6,6 +6,14 @@
 
 #IncludeRegexTransform: 
 
+/home/saim/Desktop/Camel/llvm_pass/camel/Modify.cpp
+Modify.h
+/home/saim/Desktop/Camel/llvm_pass/camel/Modify.h
+
+/home/saim/Desktop/Camel/llvm_pass/camel/Modify.h
+TaskAnalysis.h
+/home/saim/Desktop/Camel/llvm_pass/camel/TaskAnalysis.h
+
 /home/saim/Desktop/Camel/llvm_pass/camel/TaskAnalysis.cpp
 TaskAnalysis.h
 /home/saim/Desktop/Camel/llvm_pass/camel/TaskAnalysis.h
