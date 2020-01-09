@@ -2,9 +2,13 @@
 
 void TaskAnalysis::AnalyzeModule(Module &M){
 
+    errs() << "STARTING ANALYSIS\n"; 
+
     for (auto &F: M) {
 
         if (isTask(&F)) {
+
+            errs() << "Analyzing task: " + F.getName() + "\n";
 
             //initialize read, write, readfirst and writefirst lists for a given task
             initializeTaskLists(F);
@@ -14,6 +18,10 @@ void TaskAnalysis::AnalyzeModule(Module &M){
             trackWrittenIndexes(F);
             trackReadIndexes(F);
 
+        } else if (isMain(&F)){
+
+            getTaskCalls(F);
+            
         }
     }
 }
@@ -195,6 +203,28 @@ bool TaskAnalysis::isPartOfList(vector<GEPOperator*> vec, map < StringRef, vecto
     return false;
 }
 
+void TaskAnalysis::getTaskCalls(Function &F){
+
+    for (BasicBlock &B : F) {
+
+        for (Instruction &I : B) {
+
+            if (CallInst *call = dyn_cast<CallInst>(&I)) {
+
+                Function *func = call->getCalledFunction();
+
+                if (func && isTask(func)){
+
+                    taskCallList.push_back(&I);
+                    
+                }
+            }
+        }
+    }
+}
+
+
+// testing purposes only
 // bool TaskAnalysis::runOnModule(Module &M){
 
 //     AnalyzeModule(M);

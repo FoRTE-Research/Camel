@@ -2,13 +2,17 @@
 
 using namespace llvm;
 
-class TaskAnalysis : public ModulePass {
+class TaskAnalysis {
 
     public:
 
         // methods
-        static char ID;
-        TaskAnalysis() : ModulePass(ID) {}
+
+        // for testing purposes
+        // static char ID;
+        // TaskAnalysis() : ModulePass(ID) {}
+        // bool runOnModule(Module &M); 
+
         void AnalyzeModule(Module &M);
         void AnalyzeTask(Function &F);
         void traverseLoad(LoadInst *load);
@@ -16,19 +20,16 @@ class TaskAnalysis : public ModulePass {
         bool isGlobalStructAccess(GEPOperator *gep, StringRef name);
         void initializeTaskLists(Function &F);
         bool isPartOfList(vector<GEPOperator*> vec, map < StringRef, vector<vector<GEPOperator*>> > list, StringRef task);
+        void getTaskCalls(Function &F);
         void trackWrittenIndexes(Function &F);
         void trackReadIndexes(Function &F);
-        //bool runOnModule(Module &M); // for testing purposes
 
         // variables
+        vector <Instruction*> taskCallList;
         map < StringRef, vector<vector<GEPOperator*>> > writes;
         map < StringRef, vector<vector<GEPOperator*>> > reads;
         map < StringRef, vector<vector<GEPOperator*>> > writeFirst;
         map < StringRef, vector<vector<GEPOperator*>> > readFirst;
-
-        // need a map of writes for a task
-        // need a map of reads for a task
-        // need a map of writes first ?
-        // need a map of reads first ?         
+                
 };
 
