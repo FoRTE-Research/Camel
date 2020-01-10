@@ -1,20 +1,16 @@
-#include "TaskAnalysis.h"
+#include "global.h"
 
 using namespace llvm;
 
-class Modify : public ModulePass {
+class Modify {
 
     public:
     
         // methods
-        static char ID;
-        Modify() : ModulePass(ID) {}
-        bool runOnModule(Module &M);
         Function* getIntrinsicMemcpy();
-        void copyBuffers();
+        void copyBuffers(Instruction *before, string to, string from);
+        void copyVariables(Instruction *before, string to , string from);
 
         //variables
-        TaskAnalysis analysisInfo;
         Module *myModule;
-     
 };

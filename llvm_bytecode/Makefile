@@ -45,7 +45,7 @@ camel_cuckoo.ll : camel_cuckoo.bc
 
 camel_cuckoo_mod.bc: camel_cuckoo.bc
 	cd ../llvm_pass && cmake . && make && cd ../llvm_bytecode
-	$(OPT) -load $(CAMEL) --Modify $< > $@
+	$(OPT) -load $(CAMEL) --CamelPass $< > $@
 
 	
 clean:

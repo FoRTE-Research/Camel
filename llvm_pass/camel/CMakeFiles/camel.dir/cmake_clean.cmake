@@ -1,4 +1,5 @@
 file(REMOVE_RECURSE
+  "CMakeFiles/camel.dir/CamelPass.cpp.o"
   "CMakeFiles/camel.dir/Modify.cpp.o"
   "CMakeFiles/camel.dir/TaskAnalysis.cpp.o"
   "CMakeFiles/camel.dir/global.cpp.o"

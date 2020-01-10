@@ -3,6 +3,7 @@
 
 
 add_llvm_library(camel MODULE
+	CamelPass.cpp
 	Modify.cpp
 	TaskAnalysis.cpp
 	global.cpp

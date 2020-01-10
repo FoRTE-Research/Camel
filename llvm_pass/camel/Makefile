@@ -201,6 +201,33 @@ install-camel-stripped/fast:
 	cd /home/saim/Desktop/Camel/llvm_pass && $(MAKE) -f camel/CMakeFiles/install-camel-stripped.dir/build.make camel/CMakeFiles/install-camel-stripped.dir/build
 .PHONY : install-camel-stripped/fast
 
+CamelPass.o: CamelPass.cpp.o
+
+.PHONY : CamelPass.o
+
+# target to build an object file
+CamelPass.cpp.o:
+	cd /home/saim/Desktop/Camel/llvm_pass && $(MAKE) -f camel/CMakeFiles/camel.dir/build.make camel/CMakeFiles/camel.dir/CamelPass.cpp.o
+.PHONY : CamelPass.cpp.o
+
+CamelPass.i: CamelPass.cpp.i
+
+.PHONY : CamelPass.i
+
+# target to preprocess a source file
+CamelPass.cpp.i:
+	cd /home/saim/Desktop/Camel/llvm_pass && $(MAKE) -f camel/CMakeFiles/camel.dir/build.make camel/CMakeFiles/camel.dir/CamelPass.cpp.i
+.PHONY : CamelPass.cpp.i
+
+CamelPass.s: CamelPass.cpp.s
+
+.PHONY : CamelPass.s
+
+# target to generate assembly for a file
+CamelPass.cpp.s:
+	cd /home/saim/Desktop/Camel/llvm_pass && $(MAKE) -f camel/CMakeFiles/camel.dir/build.make camel/CMakeFiles/camel.dir/CamelPass.cpp.s
+.PHONY : CamelPass.cpp.s
+
 Modify.o: Modify.cpp.o
 
 .PHONY : Modify.o
@@ -297,6 +324,9 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... list_install_components"
+	@echo "... CamelPass.o"
+	@echo "... CamelPass.i"
+	@echo "... CamelPass.s"
 	@echo "... Modify.o"
 	@echo "... Modify.i"
 	@echo "... Modify.s"
