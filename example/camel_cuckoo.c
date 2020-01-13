@@ -539,66 +539,69 @@ void task_done()
 }
 
 int main(){
+
     camel.flag = CKPT_1_FLG;
     safe = &(camel.buf1);
     unsafe = &(camel.buf2);
     camel_init();
 
-    prepare_task_init();
+    cps(key);
+
+   // prepare_task_init();
     task_init();
     memcpy(&(safe->globals), &(unsafe->globals), sizeof(camel_global_t)); // concise version of writes_task_init()
     // The buffers are equal
 
   while(MGV(lookup_count) < NUM_LOOKUPS) {
-        prepare_task_generate_key();
+        //prepare_task_generate_key();
         task_generate_key();
-        //commit();
-        writes_task_generate_key();
+        commit();
+        //writes_task_generate_key();
 
-        prepare_task_calc_indexes();
+        //prepare_task_calc_indexes();
         task_calc_indexes();
         commit();
-        writes_task_calc_indexes();
+        //writes_task_calc_indexes();
 
-        prepare_task_calc_indexes_index_1();
+        //prepare_task_calc_indexes_index_1();
         task_calc_indexes_index_1();
         commit();
-        writes_task_calc_indexes_index_1();
+        //writes_task_calc_indexes_index_1();
 
-        prepare_task_calc_indexes_index_2();
+        //prepare_task_calc_indexes_index_2();
         task_calc_indexes_index_2();
         commit();
-        writes_task_calc_indexes_index_2();
+        //writes_task_calc_indexes_index_2();
 
         if(MGV(insert_count) < NUM_INSERTS) {
-            prepare_task_add();
+            //prepare_task_add();
             task_add();
             commit();
-            writes_task_calc_indexes();
+            //writes_task_calc_indexes();
 
             if(MGV(filter)[MGV(index1)] && MGV(filter)[MGV(index2)]) {
                 while(MGV(success) == false && (MGV(relocation_count) < MAX_RELOCATIONS)) {
-                    prepare_task_relocate();
+                    //prepare_task_relocate();
                     task_relocate();
                     commit();
-                    writes_task_relocate();
+                    //writes_task_relocate();
                 }
             }
 
-            prepare_task_insert_done();
+            //prepare_task_insert_done();
             task_insert_done();
             commit();
-            writes_task_insert_done();
+            //writes_task_insert_done();
         } else {
-            prepare_task_lookup_search();
+            //prepare_task_lookup_search();
             task_lookup_search();
             commit();
-            writes_task_lookup_search();
+            //writes_task_lookup_search();
 
-            prepare_task_lookup_done();
+            //prepare_task_lookup_done();
             task_lookup_done();
             commit();
-            writes_task_lookup_done();
+            //writes_task_lookup_done();
         }
     }
 

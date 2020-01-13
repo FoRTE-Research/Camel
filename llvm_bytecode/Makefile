@@ -1,4 +1,4 @@
-outputs = camel_cuckoo.bc camel_cuckoo.ll camel_cuckoo_mod.bc
+outputs = camel_cuckoo.bc camel_cuckoo.ll camel_cuckoo_mod.bc camel_cuckoo_mod.ll
 VPATH = ../example
 
 GCC_DIR =  /home/saim/ti/msp430-gcc
@@ -47,7 +47,9 @@ camel_cuckoo_mod.bc: camel_cuckoo.bc
 	cd ../llvm_pass && cmake . && make && cd ../llvm_bytecode
 	$(OPT) -load $(CAMEL) --CamelPass $< > $@
 
-	
+camel_cuckoo_mod.ll : camel_cuckoo_mod.bc
+	$(DIS) $< -o $@
+
 clean:
 	$(RM) *.bc *.ll
 

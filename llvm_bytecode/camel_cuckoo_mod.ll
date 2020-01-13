@@ -1,4 +1,4 @@
-; ModuleID = 'camel_cuckoo.bc'
+; ModuleID = 'camel_cuckoo_mod.bc'
 source_filename = "../example/camel_cuckoo.c"
 target datalayout = "e-m:e-p:16:16-i32:16-i64:16-f32:16-f64:16-a:8-n8:16-S16"
 target triple = "msp430"
@@ -838,6 +838,14 @@ while.cond:                                       ; preds = %if.end289, %entry
   br i1 %cmp, label %while.body, label %while.end290, !dbg !419
 
 while.body:                                       ; preds = %while.cond
+  %tmp1 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2
+  %global = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp1, i32 0, i32 1
+  %global2 = getelementptr %struct.camel_global_t, %struct.camel_global_t* %global, i32 0, i32 1
+  %tmp3 = load i16, i16* %global2, align 2
+  %tmp4 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
+  %global5 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp4, i32 0, i32 1
+  %global6 = getelementptr %struct.camel_global_t, %struct.camel_global_t* %global5, i32 0, i32 1
+  store i16 %tmp3, i16* %global6, align 2
   call void @task_generate_key(), !dbg !422
   br label %do.body, !dbg !424
 

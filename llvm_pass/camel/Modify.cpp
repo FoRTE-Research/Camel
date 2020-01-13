@@ -64,24 +64,80 @@ void Modify::copyBuffers(Instruction *before, string to, string from) {
     CallInst *call = CallInst::Create(fun, memcpyArgs, "", before);
 
     // printing for debugging
-    loadUnsafe->dump();
-    GEP1->dump();
-    bCast1->dump();
-    loadSafe->dump();
-    GEP2->dump();
-    bCast2->dump();
-    call->dump();
+    // loadUnsafe->dump();
+    // GEP1->dump();
+    // bCast1->dump();
+    // loadSafe->dump();
+    // GEP2->dump();
+    // bCast2->dump();
+    // call->dump();
     
 }
 
-void Modify::copyVariable(Instruction* before, map < StringRef, vector<vector<GEPOperator*>> > list) {
+void Modify::copyVariables(Instruction* before, map < StringRef, vector<vector<GEPOperator*>> > list) {
 
     CallInst *call = dyn_cast<CallInst>(before);
     StringRef task = call->getCalledFunction()->getName();
     vector<vector<GEPOperator*>> writesList = list[task];
 
-    errs () << task + "\n";
+    // errs () << task + "\n";
 
-    errs () << writesList.size() << "\n";
+    // errs () << writesList.size() << "\n";
 
+    // writesList[0][0]->dump();
+    // writesList[0][0]->getOperand(2)->dump();
+
+    GetElementPtrInst *Struct = accessStruct(before, "safe");
+    GetElementPtrInst *structVar = accessStructVar(before, Struct,  writesList[0][0]->getOperand(1),  writesList[0][0]->getOperand(2));
+    LoadInst *loadVar = new LoadInst(structVar->getType()->getContainedType(0), structVar, "tmp", before);
+    loadVar->setAlignment(MaybeAlign(2));
+    loadVar->dump();
+
+    GetElementPtrInst *Struct2 = accessStruct(before, "unsafe");
+    GetElementPtrInst *structVar2 = accessStructVar(before, Struct2,  writesList[0][0]->getOperand(1),  writesList[0][0]->getOperand(2));
+    StoreInst *storeVar = new StoreInst(loadVar, structVar2, before);
+    storeVar->setAlignment(MaybeAlign(2));
+    storeVar->dump();
+
+    
+}
+
+GetElementPtrInst* Modify::accessStruct(Instruction *before, StringRef name) {
+
+    Type *i32_type = IntegerType::getInt32Ty(myModule->getContext());
+    Constant *arg1 = ConstantInt::get(i32_type, 0);
+    Constant *arg2 = ConstantInt::get(i32_type, 1);
+    vector<Value *> index; 
+    index.push_back(arg1);
+    index.push_back(arg2);
+
+    Value *ptr = globals[name];
+    Type *Ty = ptr->getType()->getContainedType(0); 
+    LoadInst *loadStruct = new LoadInst(Ty, ptr, "tmp", before);
+    loadStruct->setAlignment(MaybeAlign(2));
+    GetElementPtrInst *GEP = GetElementPtrInst::Create(Ty->getContainedType(0), loadStruct, index, "global", before);
+
+    // Instruction* access[2];
+    // access[0] = loadStruct;
+    // access[1] = GEP;
+
+    // debugging
+    loadStruct->dump();
+    GEP->dump();
+
+    return GEP;
+}
+
+GetElementPtrInst* Modify::accessStructVar(Instruction *before, GetElementPtrInst* Struct, Value* index1, Value* index2) {
+
+    vector<Value*> index;
+    index.push_back(index1);
+    index.push_back(index2);
+
+    GetElementPtrInst *GEP = GetElementPtrInst::Create(Struct->getType()->getContainedType(0), Struct, index, "global", before);
+
+    //debugging
+    GEP->dump();
+
+    return GEP;
 }

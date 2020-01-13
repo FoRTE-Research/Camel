@@ -7,14 +7,16 @@ bool CamelPass::runOnModule(Module &M){
     modifyTasks.myModule = myModule;
     analysisInfo.AnalyzeModule(M);
 
-    // code injection for versioning
+    // MODE ALL
+    // for (int i=0; i<analysisInfo.taskCallList.size(); i++)
+    //     modifyTasks.copyBuffers(analysisInfo.taskCallList[i], "unsafe", "safe");
 
+    // MODE "LIST"
+    // for( int i=0; i<analysisInfo.taskCallList.size(); i++)
+    //     modifyTasks.copyVariables(analysisInfo.taskCallList[i], analysisInfo.writes);
 
-    modifyTasks.copyBuffers(analysisInfo.taskCallList[0], "unsafe", "safe");
-
-
-
-    return false;
+    modifyTasks.copyVariables(analysisInfo.taskCallList[1], analysisInfo.writes);
+    return true;
 }
 
 char CamelPass::ID = 0;
