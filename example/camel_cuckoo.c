@@ -53,6 +53,7 @@ uint16_t tmp_stack_buf_crc;
 
 // Macros and macro redefinitions!
 #define GV(x) unsafe->globals.x
+#define MGV(x) safe->globals.x //to be used only in main with conditionals
 
 // Macros that define how prepare statements copy variables and arrays
 #define cps(x) unsafe->globals.x = safe->globals.x
@@ -548,10 +549,10 @@ int main(){
     memcpy(&(safe->globals), &(unsafe->globals), sizeof(camel_global_t)); // concise version of writes_task_init()
     // The buffers are equal
 
-  while(GV(lookup_count) < NUM_LOOKUPS) {
+  while(MGV(lookup_count) < NUM_LOOKUPS) {
         prepare_task_generate_key();
         task_generate_key();
-        commit();
+        //commit();
         writes_task_generate_key();
 
         prepare_task_calc_indexes();
@@ -569,14 +570,14 @@ int main(){
         commit();
         writes_task_calc_indexes_index_2();
 
-        if(GV(insert_count) < NUM_INSERTS) {
+        if(MGV(insert_count) < NUM_INSERTS) {
             prepare_task_add();
             task_add();
             commit();
             writes_task_calc_indexes();
 
-            if(GV(filter)[GV(index1)] && GV(filter)[GV(index2)]) {
-                while(GV(success) == false && (GV(relocation_count) < MAX_RELOCATIONS)) {
+            if(MGV(filter)[MGV(index1)] && MGV(filter)[MGV(index2)]) {
+                while(MGV(success) == false && (MGV(relocation_count) < MAX_RELOCATIONS)) {
                     prepare_task_relocate();
                     task_relocate();
                     commit();

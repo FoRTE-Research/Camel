@@ -9,7 +9,7 @@ class Modify {
         // methods
         Function* getIntrinsicMemcpy();
         void copyBuffers(Instruction *before, string to, string from);
-        void copyVariables(Instruction *before, string to , string from);
+        void copyVariable(Instruction* before, map < StringRef, vector<vector<GEPOperator*>> > list);
 
         //variables
         Module *myModule;

@@ -74,6 +74,14 @@ void Modify::copyBuffers(Instruction *before, string to, string from) {
     
 }
 
-void Modify::copyVariables(Instruction* before, string to, string from) {
+void Modify::copyVariable(Instruction* before, map < StringRef, vector<vector<GEPOperator*>> > list) {
+
+    CallInst *call = dyn_cast<CallInst>(before);
+    StringRef task = call->getCalledFunction()->getName();
+    vector<vector<GEPOperator*>> writesList = list[task];
+
+    errs () << task + "\n";
+
+    errs () << writesList.size() << "\n";
 
 }
