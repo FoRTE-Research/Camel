@@ -2,11 +2,11 @@
 
 bool CamelPass::runOnModule(Module &M){
 
-    // myModule = &M;
-
-    // getGlobals(&M);
-    // analysisInfo.AnalyzeModule(M);
-
+    myModule = &M;
+    getGlobals(&M);
+    modifyTasks.myModule = myModule;
+    analysisInfo.AnalyzeModule(M);
+    
     return false;
 }
 

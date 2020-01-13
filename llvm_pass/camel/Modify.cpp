@@ -17,7 +17,6 @@ Function* Modify::getIntrinsicMemcpy() {
     
 }
 
-
 void Modify::copyBuffers(Instruction *before, string to, string from) {
 
     // pointer to copy
@@ -72,6 +71,7 @@ void Modify::copyBuffers(Instruction *before, string to, string from) {
     GEP2->dump();
     bCast2->dump();
     call->dump();
+    
 }
 
 void Modify::copyVariables(Instruction* before, string to, string from) {
