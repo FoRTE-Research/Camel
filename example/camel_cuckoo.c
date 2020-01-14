@@ -545,8 +545,11 @@ int main(){
     unsafe = &(camel.buf2);
     camel_init();
 
+    // llvm testing start
     //cps(key);
-    cpas(filter, key);
+    //cpas(filter, key);
+    cpa(filter, sizeof(fingerprint_t)*NUM_BUCKETS);
+    // llvm testing end
 
    // prepare_task_init();
     task_init();

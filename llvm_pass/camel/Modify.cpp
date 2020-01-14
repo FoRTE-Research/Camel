@@ -18,6 +18,7 @@ Function* Modify::getIntrinsicMemcpy() {
 }
 
 void Modify::copyBuffers(Instruction *before, string to, string from) {
+    //add functionality for cpa to this function
 
     // pointer to copy
     Value *unsafePtr = globals[to];
@@ -95,6 +96,36 @@ void Modify::copyVariables(Instruction* before, map < StringRef, vector<vector<G
     // GetElementPtrInst *Struct = accessStruct(before, "safe"); // access struct
     // GetElementPtrInst *structVar = accessStructVar(before, Struct,  writesList[0][0]->getOperand(1),  writesList[0][0]->getOperand(2)); //access array
 
+    // cpa
+    // Type *i16_type = IntegerType::getInt16Ty(myModule->getContext());
+    // Constant *arg1 = ConstantInt::get(i16_type, 0);
+    // Type *pi8 = Type::getInt8PtrTy(myModule->getContext());
+
+    // vector<Value *> index; 
+    // index.push_back(arg1);
+    // index.push_back(arg1);
+
+    // GetElementPtrInst *Struct = accessStruct(before, "unsafe");
+    // GetElementPtrInst *structVar = accessStructVar(before, Struct,  writesList[0][0]->getOperand(1),  writesList[0][0]->getOperand(2));
+    // GetElementPtrInst *arraydecay = GetElementPtrInst::Create(structVar->getType()->getContainedType(0), StructVar, index, "array", before);
+    // auto bCast1 = new BitCastInst(arraydecay, pi8, "cast", before);
+
+    // GetElementPtrInst *Struct1 = accessStruct(before, "safe");
+    // GetElementPtrInst *structVar1 = accessStructVar(before, Struct1,  writesList[0][0]->getOperand(1),  writesList[0][0]->getOperand(2));
+    // GetElementPtrInst *arraydecay1 = GetElementPtrInst::Create(structVar1->getType()->getContainedType(0), StructVar1, index, "array", before);
+    // auto bCast2 = new BitCastInst(arraydecay1, pi8, "cast", before);
+
+    //get intrinsic memcpy here to copy the two arrays
+
+    // Function *fun = getIntrinsicMemcpy();
+    // vector<Value*> memcpyArgs;
+    // memcpyArgs.push_back(bCast1);
+    // memcpyArgs.push_back(bCast2);
+    // memcpyArgs.push_back(arg3);
+    // memcpyArgs.push_back(arg4);
+
+    // insert memcpy
+    CallInst *call = CallInst::Create(fun, memcpyArgs, "", before);
 
 
     // debugging
