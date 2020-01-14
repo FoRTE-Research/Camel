@@ -15,7 +15,7 @@ bool CamelPass::runOnModule(Module &M){
     // for( int i=0; i<analysisInfo.taskCallList.size(); i++)
     //     modifyTasks.copyVariables(analysisInfo.taskCallList[i], analysisInfo.writes);
 
-    modifyTasks.copyVariables(analysisInfo.taskCallList[1], analysisInfo.writes);
+    //modifyTasks.copyVariables(analysisInfo.taskCallList[1], analysisInfo.writes); //test
     return true;
 }
 

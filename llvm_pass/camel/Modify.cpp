@@ -80,25 +80,29 @@ void Modify::copyVariables(Instruction* before, map < StringRef, vector<vector<G
     StringRef task = call->getCalledFunction()->getName();
     vector<vector<GEPOperator*>> writesList = list[task];
 
+    // cps
+    // GetElementPtrInst *Struct = accessStruct(before, "safe");
+    // GetElementPtrInst *structVar = accessStructVar(before, Struct,  writesList[0][0]->getOperand(1),  writesList[0][0]->getOperand(2));
+    // LoadInst *loadVar = new LoadInst(structVar->getType()->getContainedType(0), structVar, "tmp", before);
+    // loadVar->setAlignment(MaybeAlign(2));
+
+    // GetElementPtrInst *Struct2 = accessStruct(before, "unsafe");
+    // GetElementPtrInst *structVar2 = accessStructVar(before, Struct2,  writesList[0][0]->getOperand(1),  writesList[0][0]->getOperand(2));
+    // StoreInst *storeVar = new StoreInst(loadVar, structVar2, before);
+    // storeVar->setAlignment(MaybeAlign(2));
+
+    // cpas
+    // GetElementPtrInst *Struct = accessStruct(before, "safe"); // access struct
+    // GetElementPtrInst *structVar = accessStructVar(before, Struct,  writesList[0][0]->getOperand(1),  writesList[0][0]->getOperand(2)); //access array
+
+
+
+    // debugging
+    // loadVar->dump();
+    // storeVar->dump();
+
     // errs () << task + "\n";
-
     // errs () << writesList.size() << "\n";
-
-    // writesList[0][0]->dump();
-    // writesList[0][0]->getOperand(2)->dump();
-
-    GetElementPtrInst *Struct = accessStruct(before, "safe");
-    GetElementPtrInst *structVar = accessStructVar(before, Struct,  writesList[0][0]->getOperand(1),  writesList[0][0]->getOperand(2));
-    LoadInst *loadVar = new LoadInst(structVar->getType()->getContainedType(0), structVar, "tmp", before);
-    loadVar->setAlignment(MaybeAlign(2));
-    loadVar->dump();
-
-    GetElementPtrInst *Struct2 = accessStruct(before, "unsafe");
-    GetElementPtrInst *structVar2 = accessStructVar(before, Struct2,  writesList[0][0]->getOperand(1),  writesList[0][0]->getOperand(2));
-    StoreInst *storeVar = new StoreInst(loadVar, structVar2, before);
-    storeVar->setAlignment(MaybeAlign(2));
-    storeVar->dump();
-
     
 }
 
@@ -121,9 +125,9 @@ GetElementPtrInst* Modify::accessStruct(Instruction *before, StringRef name) {
     // access[0] = loadStruct;
     // access[1] = GEP;
 
-    // debugging
-    loadStruct->dump();
-    GEP->dump();
+    //  debugging
+    // loadStruct->dump();
+    // GEP->dump();
 
     return GEP;
 }
@@ -136,8 +140,28 @@ GetElementPtrInst* Modify::accessStructVar(Instruction *before, GetElementPtrIns
 
     GetElementPtrInst *GEP = GetElementPtrInst::Create(Struct->getType()->getContainedType(0), Struct, index, "global", before);
 
-    //debugging
+    // debugging
+    // GEP->dump();
+
+    return GEP;
+}
+
+GetElementPtrInst* Modify::accessIndex(Instruction *before, GetElementPtrInst* index, GetElementPtrInst* ar) {
+
+    Type *i16_type = IntegerType::getInt16Ty(myModule->getContext());
+    Constant *start = ConstantInt::get(i16_type, 0);
+
+    vector<Value*> indices;
+    indices.push_back(start);
+    indices.push_back(index);
+
+    LoadInst *load = new LoadInst(index->getType()->getContainedType(0), index, "load", before);
+    GetElementPtrInst *GEP = GetElementPtrInst::Create(ar->getType()->getContainedType(0), ar, indices, "access", before);
+
+    // debugging
+    load->dump();
     GEP->dump();
 
     return GEP;
+
 }

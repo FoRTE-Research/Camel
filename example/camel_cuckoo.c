@@ -545,7 +545,8 @@ int main(){
     unsafe = &(camel.buf2);
     camel_init();
 
-    cps(key);
+    //cps(key);
+    cpas(filter, key);
 
    // prepare_task_init();
     task_init();

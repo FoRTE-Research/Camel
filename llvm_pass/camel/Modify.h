@@ -12,6 +12,7 @@ class Modify {
         void copyVariables(Instruction* before, map < StringRef, vector<vector<GEPOperator*>> > list);
         GetElementPtrInst* accessStruct(Instruction *before, StringRef name);
         GetElementPtrInst* accessStructVar(Instruction *before, GetElementPtrInst* Struct, Value* index1, Value* index2);
+        GetElementPtrInst* accessIndex(Instruction *before, GetElementPtrInst* index, GetElementPtrInst* ar);
 
         //variables
         Module *myModule;

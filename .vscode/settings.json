@@ -4,6 +4,9 @@
         "deque": "cpp",
         "string": "cpp",
         "vector": "cpp",
-        "map": "cpp"
+        "map": "cpp",
+        "array": "cpp",
+        "tuple": "cpp",
+        "utility": "cpp"
     }
 }
