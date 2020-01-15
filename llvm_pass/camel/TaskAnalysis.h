@@ -24,12 +24,17 @@ class TaskAnalysis {
         void trackWrittenIndexes(Function &F);
         void trackReadIndexes(Function &F);
 
+        // add function to determite idempotent list of variables for a given task
+        // remove redundancy from lists
+
         // variables
         vector <Instruction*> taskCallList;
         map < StringRef, vector<vector<GEPOperator*>> > writes;
         map < StringRef, vector<vector<GEPOperator*>> > reads;
         map < StringRef, vector<vector<GEPOperator*>> > writeFirst;
         map < StringRef, vector<vector<GEPOperator*>> > readFirst;
+
+        //add idempotent list
                 
 };
 
