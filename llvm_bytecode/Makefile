@@ -1,4 +1,4 @@
-outputs = camel_cuckoo.bc camel_cuckoo.ll camel_cuckoo_mod.bc camel_cuckoo_mod.ll 
+outputs = camel_cuckoo.bc camel_cuckoo.ll camel_cuckoo_mod.bc camel_cuckoo_mod.ll camel_cuckoo_mod.s
 VPATH = ../example
 
 GCC_DIR =  /home/saim/ti/msp430-gcc
@@ -50,6 +50,9 @@ camel_cuckoo_mod.bc: camel_cuckoo.bc
 
 camel_cuckoo_mod.ll : camel_cuckoo_mod.bc
 	$(DIS) $< -o $@
+
+camel_cuckoo_mod.s : camel_cuckoo_mod.bc
+	$(LLC) $< -o $@
 
 clean:
 	$(RM) *.bc *.ll *.s
