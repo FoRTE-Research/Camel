@@ -1,4 +1,4 @@
-outputs = camel_cuckoo.bc camel_cuckoo.ll camel_cuckoo_mod.bc camel_cuckoo_mod.ll
+outputs = camel_cuckoo.bc camel_cuckoo.ll camel_cuckoo_mod.bc camel_cuckoo_mod.ll 
 VPATH = ../example
 
 GCC_DIR =  /home/saim/ti/msp430-gcc
@@ -8,6 +8,7 @@ CAMEL = ../llvm_pass/camel/camel.so
 CLANG = $(LLVM_DIR)/bin/clang
 DIS = $(LLVM_DIR)/bin/llvm-dis
 OPT = $(LLVM_DIR)/bin/opt
+LLC = $(LLVM_DIR)/bin/llc
 
 GCC_BIN =  $(GCC_DIR)/bin
 GCC_INCLUDE = $(GCC_DIR)/include
@@ -51,7 +52,7 @@ camel_cuckoo_mod.ll : camel_cuckoo_mod.bc
 	$(DIS) $< -o $@
 
 clean:
-	$(RM) *.bc *.ll
+	$(RM) *.bc *.ll *.s
 
 
 
