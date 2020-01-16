@@ -1,5 +1,24 @@
 #include "Modify.h"
 
+void Modify::copyVariables(Instruction* before, map < StringRef, vector<vector<GEPOperator*>> > list) {
+
+    CallInst *taskCall = dyn_cast<CallInst>(before);
+    StringRef taskName = taskCall->getCalledFunction()->getName();
+    vector<vector<GEPOperator*>> varList = list[taskName];
+
+    errs () << taskName + "\n";
+
+    for (int i=0; i<varList.size(); i++){
+        
+        if (varList[i].size() == 1) {
+            cps(before, varList[i]);
+        } else if (varList[i].size() == 2){
+            cpas(before, varList[i]);
+        }
+
+    }    
+}
+
 Function* Modify::getIntrinsicMemcpy() {
 
     vector<Type*> arg_type; //a vector for the type of arguements memcpy has
@@ -75,79 +94,6 @@ void Modify::copyBuffers(Instruction *before, string to, string from) {
     
 }
 
-void Modify::copyVariables(Instruction* before, map < StringRef, vector<vector<GEPOperator*>> > list) {
-
-    CallInst *taskCall = dyn_cast<CallInst>(before);
-    StringRef taskName = taskCall->getCalledFunction()->getName();
-    vector<vector<GEPOperator*>> varList = list[taskName];
-
-    errs () << taskName + "\n";
-
-    for (int i=0; i<varList.size(); i++){
-        
-        if (varList[i].size() == 1) {
-            cps(before, varList[i]);
-        } else if (varList[i].size() == 2){
-            cpas(before, varList[i]);
-        }
-
-    }
-    // //cps
-    // GetElementPtrInst *Struct = accessStruct(before, "safe");
-    // GetElementPtrInst *structVar = accessStructVar(before, Struct,  varList[0][0]->getOperand(1),  varList[0][0]->getOperand(2));
-    // LoadInst *loadVar = new LoadInst(structVar->getType()->getContainedType(0), structVar, "tmp", before);
-    // loadVar->setAlignment(MaybeAlign(2));
-
-    // GetElementPtrInst *Struct2 = accessStruct(before, "unsafe");
-    // GetElementPtrInst *structVar2 = accessStructVar(before, Struct2,  writesList[0][0]->getOperand(1),  writesList[0][0]->getOperand(2));
-    // StoreInst *storeVar = new StoreInst(loadVar, structVar2, before);
-    // storeVar->setAlignment(MaybeAlign(2));
-
-    // cpas
-    // GetElementPtrInst *Struct = accessStruct(before, "safe"); // access struct
-    // GetElementPtrInst *structVar = accessStructVar(before, Struct,  writesList[0][0]->getOperand(1),  writesList[0][0]->getOperand(2)); //access array
-
-    // cpa
-    // Type *i16_type = IntegerType::getInt16Ty(myModule->getContext());
-    // Constant *arg1 = ConstantInt::get(i16_type, 0);
-    // Type *pi8 = Type::getInt8PtrTy(myModule->getContext());
-
-    // vector<Value *> index; 
-    // index.push_back(arg1);
-    // index.push_back(arg1);
-
-    // GetElementPtrInst *Struct = accessStruct(before, "unsafe");
-    // GetElementPtrInst *structVar = accessStructVar(before, Struct,  writesList[0][0]->getOperand(1),  writesList[0][0]->getOperand(2));
-    // GetElementPtrInst *arraydecay = GetElementPtrInst::Create(structVar->getType()->getContainedType(0), StructVar, index, "array", before);
-    // auto bCast1 = new BitCastInst(arraydecay, pi8, "cast", before);
-
-    // GetElementPtrInst *Struct1 = accessStruct(before, "safe");
-    // GetElementPtrInst *structVar1 = accessStructVar(before, Struct1,  writesList[0][0]->getOperand(1),  writesList[0][0]->getOperand(2));
-    // GetElementPtrInst *arraydecay1 = GetElementPtrInst::Create(structVar1->getType()->getContainedType(0), StructVar1, index, "array", before);
-    // auto bCast2 = new BitCastInst(arraydecay1, pi8, "cast", before);
-
-    //get intrinsic memcpy here to copy the two arrays
-
-    // Function *fun = getIntrinsicMemcpy();
-    // vector<Value*> memcpyArgs;
-    // memcpyArgs.push_back(bCast1);
-    // memcpyArgs.push_back(bCast2);
-    // memcpyArgs.push_back(arg3);
-    // memcpyArgs.push_back(arg4);
-
-    // insert memcpy
-   // CallInst *call = CallInst::Create(fun, memcpyArgs, "", before);
-
-
-    // debugging
-    // loadVar->dump();
-    // storeVar->dump();
-
-    // errs () << task + "\n";
-    // errs () << writesList.size() << "\n";
-    
-}
-
 GetElementPtrInst* Modify::accessStruct(Instruction *before, StringRef name) {
 
     Type *i32_type = IntegerType::getInt32Ty(myModule->getContext());
@@ -163,10 +109,6 @@ GetElementPtrInst* Modify::accessStruct(Instruction *before, StringRef name) {
     loadStruct->setAlignment(MaybeAlign(2));
     GetElementPtrInst *GEP = GetElementPtrInst::Create(Ty->getContainedType(0), loadStruct, index, "global", before);
 
-    // Instruction* access[2];
-    // access[0] = loadStruct;
-    // access[1] = GEP;
-
     //  debugging
     // loadStruct->dump();
     // GEP->dump();
@@ -180,9 +122,6 @@ GetElementPtrInst* Modify::accessStructVar(Instruction *before, GetElementPtrIns
     index.push_back(index1);
     index.push_back(index2);
 
-    // Struct->getType()->dump(); 
-    // index1->dump();
-    // index2->dump();
     GetElementPtrInst *GEP = GetElementPtrInst::Create(Struct->getType()->getContainedType(0), Struct, index, "global", before);
 
     // debugging
@@ -222,21 +161,31 @@ void Modify::cps(Instruction* before, vector<GEPOperator*> varList) {
     LoadInst *loadVar = new LoadInst(structVar->getType()->getContainedType(0), structVar, "tmp", before);
     loadVar->setAlignment(MaybeAlign(2));
 
+    //debugging
+    // loadVar->dump();
+
     GetElementPtrInst *Struct2 = accessStruct(before, "unsafe");
     GetElementPtrInst *structVar2 = accessStructVar(before, Struct2,  varList[0]->getOperand(1),  varList[0]->getOperand(2));
     StoreInst *storeVar = new StoreInst(loadVar, structVar2, before);
     storeVar->setAlignment(MaybeAlign(2));
+
+    //debugging
+    // storeVar->dump();
 
 }
 
 void Modify::cpas(Instruction *before, vector<GEPOperator*> varList) {
 
     errs() << "CPAS\n";
+
+    // might wanna move this preprocessing to TaskAnalysis
+    // preprocessing start
     LoadInst *myLoad = dyn_cast<LoadInst>(varList[0]->getOperand(2));
     GEPOperator *index1 = dyn_cast<GEPOperator>(myLoad->getOperand(0));
     GEPOperator *index = dyn_cast<GEPOperator>(varList[0]->getOperand(0));
     varList[0] = index;
     varList[1] = index1;
+    // preprocessing end
 
     GetElementPtrInst *Struct = accessStruct(before, "safe");
     GetElementPtrInst *structVar = accessStructVar(before, Struct,  varList[0]->getOperand(1),  varList[0]->getOperand(2));
@@ -246,6 +195,9 @@ void Modify::cpas(Instruction *before, vector<GEPOperator*> varList) {
     LoadInst *load = new LoadInst(arrayidx->getType()->getContainedType(0), arrayidx, "tmp", before);
     load->setAlignment(MaybeAlign(2));
 
+    //debugging
+    //load->dump();
+
     GetElementPtrInst *Struct2 = accessStruct(before, "unsafe");
     GetElementPtrInst *structVar2 = accessStructVar(before, Struct2,  varList[0]->getOperand(1),  varList[0]->getOperand(2));
     GetElementPtrInst *Struct3 = accessStruct(before, "unsafe");
@@ -254,8 +206,65 @@ void Modify::cpas(Instruction *before, vector<GEPOperator*> varList) {
     StoreInst *store = new StoreInst(load, arrayidx2, before);
     store->setAlignment(MaybeAlign(2));
 
+    //debugging
+    //store->dump();
+
 }
 
-void Modify::cpa() {
+void Modify::cpa(Instruction* before, vector<GEPOperator*> varList) {
+
+    errs () << "CPA\n";
+
+    // might wanna move this preprocessing to TaskAnalysis
+    // preprocessing start
+    GEPOperator *index1 = dyn_cast<GEPOperator>(varList[0]->getOperand(0));
+    varList[0] = index1;
+    // preprocessing end
+
+    Type *i16_type = IntegerType::getInt16Ty(myModule->getContext());
+    Constant *arg1 = ConstantInt::get(i16_type, 0);
+    Type *pi8 = Type::getInt8PtrTy(myModule->getContext());
+
+    vector<Value *> index; 
+    index.push_back(arg1);
+    index.push_back(arg1);
+
+    GetElementPtrInst *Struct = accessStruct(before, "unsafe");
+    GetElementPtrInst *structVar = accessStructVar(before, Struct,  varList[0]->getOperand(1),  varList[0]->getOperand(2));
+    GetElementPtrInst *arraydecay = GetElementPtrInst::Create(structVar->getType()->getContainedType(0), structVar, index, "array", before);
+    auto bCast1 = new BitCastInst(arraydecay, pi8, "cast", before);
+
+    // debugging
+    //bCast1->dump();
+
+    GetElementPtrInst *Struct1 = accessStruct(before, "safe");
+    GetElementPtrInst *structVar1 = accessStructVar(before, Struct1,  varList[0]->getOperand(1),  varList[0]->getOperand(2));
+    GetElementPtrInst *arraydecay1 = GetElementPtrInst::Create(structVar1->getType()->getContainedType(0), structVar1, index, "array", before);
+    auto bCast2 = new BitCastInst(arraydecay1, pi8, "cast", before);
+
+    // debugging
+    //bCast2->dump();
+
+    // set memcpy arguments
+    auto dl = myModule->getDataLayout();
+    auto size_of_struct = dl.getTypeAllocSize(arraydecay->getType()->getContainedType(0));
+
+    Type *i64_type = IntegerType::getInt64Ty(myModule->getContext());
+    Constant *arg3 = ConstantInt::get(i64_type, size_of_struct);
+    Constant *arg4 = ConstantInt::getFalse(myModule->getContext());
+
+    //get intrinsic memcpy here to copy the two arrays
+    Function *fun = getIntrinsicMemcpy();
+    vector<Value*> memcpyArgs;
+    memcpyArgs.push_back(bCast1);
+    memcpyArgs.push_back(bCast2);
+    memcpyArgs.push_back(arg3);
+    memcpyArgs.push_back(arg4);
+
+    //insert memcpy
+    CallInst *call = CallInst::Create(fun, memcpyArgs, "", before);
+
+    // debugging
+    //call->dump();
 
 }

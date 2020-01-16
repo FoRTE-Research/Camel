@@ -16,7 +16,7 @@ class Modify {
 
         void cps(Instruction* before, vector<GEPOperator*> varList);
         void cpas(Instruction *before, vector<GEPOperator*> varList);
-        void cpa();
+        void cpa(Instruction* before, vector<GEPOperator*> varList);
 
         // variables
         Module *myModule;

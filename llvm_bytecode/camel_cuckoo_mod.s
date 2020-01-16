@@ -594,19 +594,11 @@ main:                                   ; @main
 	mov	#camel+2, &safe
 	mov	#camel+302, &unsafe
 	call	#camel_init
-	mov	&safe, r12
-	mov	&unsafe, r13
-	mov	278(r13), r14
-	add	r14, r14
-	add	r14, r12
-	add	r14, r13
-	mov	22(r12), r12
-	mov	r12, 22(r13)
 	mov	&unsafe, r12
 	add	#22, r12
 	mov	&safe, r13
 	add	#22, r13
-	mov	#276, r14
+	mov	#256, r14
 	call	#memcpy
 	call	#task_init
 	mov	&safe, r12
@@ -629,12 +621,6 @@ main:                                   ; @main
 	jmp	.LBB15_3
 .LBB15_3:                               ; %while.body
                                         ;   in Loop: Header=BB15_1 Depth=1
-	mov	&unsafe, r12
-	add	#22, r12
-	mov	&safe, r13
-	add	#22, r13
-	mov	#276, r14
-	call	#memcpy
 	call	#task_generate_key
 	jmp	.LBB15_4
 .LBB15_4:                               ; %do.body
@@ -720,21 +706,15 @@ main:                                   ; @main
 	jmp	.LBB15_8
 .LBB15_8:                               ; %do.end
                                         ;   in Loop: Header=BB15_1 Depth=1
-	mov	&unsafe, r12
-	add	#22, r12
-	mov	&safe, r13
-	add	#22, r13
-	mov	#276, r14
-	call	#memcpy
 	call	#task_calc_indexes
 	jmp	.LBB15_9
-.LBB15_9:                               ; %do.body27
+.LBB15_9:                               ; %do.body25
                                         ;   in Loop: Header=BB15_1 Depth=1
 	mov	&camel, r12
 	cmp	#1, r12
 	jne	.LBB15_11
 	jmp	.LBB15_10
-.LBB15_10:                              ; %if.then29
+.LBB15_10:                              ; %if.then27
                                         ;   in Loop: Header=BB15_1 Depth=1
 	mov	#camel+302, &safe
 	mov	#camel+2, &unsafe
@@ -770,7 +750,7 @@ main:                                   ; @main
 	mov	r12, 298(r13)
 	mov	#2, &camel
 	jmp	.LBB15_12
-.LBB15_11:                              ; %if.else42
+.LBB15_11:                              ; %if.else40
                                         ;   in Loop: Header=BB15_1 Depth=1
 	mov	#camel+2, &safe
 	mov	#camel+302, &unsafe
@@ -806,26 +786,20 @@ main:                                   ; @main
 	mov	r12, 298(r13)
 	mov	#1, &camel
 	jmp	.LBB15_12
-.LBB15_12:                              ; %if.end55
+.LBB15_12:                              ; %if.end53
                                         ;   in Loop: Header=BB15_1 Depth=1
 	jmp	.LBB15_13
-.LBB15_13:                              ; %do.end56
+.LBB15_13:                              ; %do.end54
                                         ;   in Loop: Header=BB15_1 Depth=1
-	mov	&unsafe, r12
-	add	#22, r12
-	mov	&safe, r13
-	add	#22, r13
-	mov	#276, r14
-	call	#memcpy
 	call	#task_calc_indexes_index_1
 	jmp	.LBB15_14
-.LBB15_14:                              ; %do.body57
+.LBB15_14:                              ; %do.body55
                                         ;   in Loop: Header=BB15_1 Depth=1
 	mov	&camel, r12
 	cmp	#1, r12
 	jne	.LBB15_16
 	jmp	.LBB15_15
-.LBB15_15:                              ; %if.then59
+.LBB15_15:                              ; %if.then57
                                         ;   in Loop: Header=BB15_1 Depth=1
 	mov	#camel+302, &safe
 	mov	#camel+2, &unsafe
@@ -861,7 +835,7 @@ main:                                   ; @main
 	mov	r12, 298(r13)
 	mov	#2, &camel
 	jmp	.LBB15_17
-.LBB15_16:                              ; %if.else72
+.LBB15_16:                              ; %if.else70
                                         ;   in Loop: Header=BB15_1 Depth=1
 	mov	#camel+2, &safe
 	mov	#camel+302, &unsafe
@@ -897,26 +871,20 @@ main:                                   ; @main
 	mov	r12, 298(r13)
 	mov	#1, &camel
 	jmp	.LBB15_17
-.LBB15_17:                              ; %if.end85
+.LBB15_17:                              ; %if.end83
                                         ;   in Loop: Header=BB15_1 Depth=1
 	jmp	.LBB15_18
-.LBB15_18:                              ; %do.end86
+.LBB15_18:                              ; %do.end84
                                         ;   in Loop: Header=BB15_1 Depth=1
-	mov	&unsafe, r12
-	add	#22, r12
-	mov	&safe, r13
-	add	#22, r13
-	mov	#276, r14
-	call	#memcpy
 	call	#task_calc_indexes_index_2
 	jmp	.LBB15_19
-.LBB15_19:                              ; %do.body87
+.LBB15_19:                              ; %do.body85
                                         ;   in Loop: Header=BB15_1 Depth=1
 	mov	&camel, r12
 	cmp	#1, r12
 	jne	.LBB15_21
 	jmp	.LBB15_20
-.LBB15_20:                              ; %if.then89
+.LBB15_20:                              ; %if.then87
                                         ;   in Loop: Header=BB15_1 Depth=1
 	mov	#camel+302, &safe
 	mov	#camel+2, &unsafe
@@ -952,7 +920,7 @@ main:                                   ; @main
 	mov	r12, 298(r13)
 	mov	#2, &camel
 	jmp	.LBB15_22
-.LBB15_21:                              ; %if.else102
+.LBB15_21:                              ; %if.else100
                                         ;   in Loop: Header=BB15_1 Depth=1
 	mov	#camel+2, &safe
 	mov	#camel+302, &unsafe
@@ -988,33 +956,27 @@ main:                                   ; @main
 	mov	r12, 298(r13)
 	mov	#1, &camel
 	jmp	.LBB15_22
-.LBB15_22:                              ; %if.end115
+.LBB15_22:                              ; %if.end113
                                         ;   in Loop: Header=BB15_1 Depth=1
 	jmp	.LBB15_23
-.LBB15_23:                              ; %do.end116
+.LBB15_23:                              ; %do.end114
                                         ;   in Loop: Header=BB15_1 Depth=1
 	mov	&safe, r12
 	mov	288(r12), r12
 	cmp	#32, r12
 	jhs	.LBB15_48
 	jmp	.LBB15_24
-.LBB15_24:                              ; %if.then119
+.LBB15_24:                              ; %if.then117
                                         ;   in Loop: Header=BB15_1 Depth=1
-	mov	&unsafe, r12
-	add	#22, r12
-	mov	&safe, r13
-	add	#22, r13
-	mov	#276, r14
-	call	#memcpy
 	call	#task_add
 	jmp	.LBB15_25
-.LBB15_25:                              ; %do.body120
+.LBB15_25:                              ; %do.body118
                                         ;   in Loop: Header=BB15_1 Depth=1
 	mov	&camel, r12
 	cmp	#1, r12
 	jne	.LBB15_27
 	jmp	.LBB15_26
-.LBB15_26:                              ; %if.then122
+.LBB15_26:                              ; %if.then120
                                         ;   in Loop: Header=BB15_1 Depth=1
 	mov	#camel+302, &safe
 	mov	#camel+2, &unsafe
@@ -1050,7 +1012,7 @@ main:                                   ; @main
 	mov	r12, 298(r13)
 	mov	#2, &camel
 	jmp	.LBB15_28
-.LBB15_27:                              ; %if.else135
+.LBB15_27:                              ; %if.else133
                                         ;   in Loop: Header=BB15_1 Depth=1
 	mov	#camel+2, &safe
 	mov	#camel+302, &unsafe
@@ -1086,10 +1048,10 @@ main:                                   ; @main
 	mov	r12, 298(r13)
 	mov	#1, &camel
 	jmp	.LBB15_28
-.LBB15_28:                              ; %if.end148
+.LBB15_28:                              ; %if.end146
                                         ;   in Loop: Header=BB15_1 Depth=1
 	jmp	.LBB15_29
-.LBB15_29:                              ; %do.end149
+.LBB15_29:                              ; %do.end147
                                         ;   in Loop: Header=BB15_1 Depth=1
 	mov	&safe, r12
 	mov	282(r12), r13
@@ -1109,10 +1071,10 @@ main:                                   ; @main
 	tst	r12
 	jeq	.LBB15_42
 	jmp	.LBB15_31
-.LBB15_31:                              ; %if.then159
+.LBB15_31:                              ; %if.then156
                                         ;   in Loop: Header=BB15_1 Depth=1
 	jmp	.LBB15_32
-.LBB15_32:                              ; %while.cond160
+.LBB15_32:                              ; %while.cond157
                                         ;   Parent Loop BB15_1 Depth=1
                                         ; =>  This Inner Loop Header: Depth=2
 	mov	&safe, r12
@@ -1134,23 +1096,17 @@ main:                                   ; @main
 	bit	#1, r12
 	jeq	.LBB15_41
 	jmp	.LBB15_35
-.LBB15_35:                              ; %while.body168
+.LBB15_35:                              ; %while.body165
                                         ;   in Loop: Header=BB15_32 Depth=2
-	mov	&unsafe, r12
-	add	#22, r12
-	mov	&safe, r13
-	add	#22, r13
-	mov	#276, r14
-	call	#memcpy
 	call	#task_relocate
 	jmp	.LBB15_36
-.LBB15_36:                              ; %do.body169
+.LBB15_36:                              ; %do.body166
                                         ;   in Loop: Header=BB15_32 Depth=2
 	mov	&camel, r12
 	cmp	#1, r12
 	jne	.LBB15_38
 	jmp	.LBB15_37
-.LBB15_37:                              ; %if.then172
+.LBB15_37:                              ; %if.then169
                                         ;   in Loop: Header=BB15_32 Depth=2
 	mov	#camel+302, &safe
 	mov	#camel+2, &unsafe
@@ -1186,7 +1142,7 @@ main:                                   ; @main
 	mov	r12, 298(r13)
 	mov	#2, &camel
 	jmp	.LBB15_39
-.LBB15_38:                              ; %if.else185
+.LBB15_38:                              ; %if.else182
                                         ;   in Loop: Header=BB15_32 Depth=2
 	mov	#camel+2, &safe
 	mov	#camel+302, &unsafe
@@ -1222,32 +1178,26 @@ main:                                   ; @main
 	mov	r12, 298(r13)
 	mov	#1, &camel
 	jmp	.LBB15_39
-.LBB15_39:                              ; %if.end198
+.LBB15_39:                              ; %if.end195
                                         ;   in Loop: Header=BB15_32 Depth=2
 	jmp	.LBB15_40
-.LBB15_40:                              ; %do.end199
+.LBB15_40:                              ; %do.end196
                                         ;   in Loop: Header=BB15_32 Depth=2
 	jmp	.LBB15_32
 .LBB15_41:                              ; %while.end
                                         ;   in Loop: Header=BB15_1 Depth=1
 	jmp	.LBB15_42
-.LBB15_42:                              ; %if.end200
+.LBB15_42:                              ; %if.end197
                                         ;   in Loop: Header=BB15_1 Depth=1
-	mov	&unsafe, r12
-	add	#22, r12
-	mov	&safe, r13
-	add	#22, r13
-	mov	#276, r14
-	call	#memcpy
 	call	#task_insert_done
 	jmp	.LBB15_43
-.LBB15_43:                              ; %do.body201
+.LBB15_43:                              ; %do.body198
                                         ;   in Loop: Header=BB15_1 Depth=1
 	mov	&camel, r12
 	cmp	#1, r12
 	jne	.LBB15_45
 	jmp	.LBB15_44
-.LBB15_44:                              ; %if.then204
+.LBB15_44:                              ; %if.then201
                                         ;   in Loop: Header=BB15_1 Depth=1
 	mov	#camel+302, &safe
 	mov	#camel+2, &unsafe
@@ -1283,7 +1233,7 @@ main:                                   ; @main
 	mov	r12, 298(r13)
 	mov	#2, &camel
 	jmp	.LBB15_46
-.LBB15_45:                              ; %if.else217
+.LBB15_45:                              ; %if.else214
                                         ;   in Loop: Header=BB15_1 Depth=1
 	mov	#camel+2, &safe
 	mov	#camel+302, &unsafe
@@ -1319,29 +1269,23 @@ main:                                   ; @main
 	mov	r12, 298(r13)
 	mov	#1, &camel
 	jmp	.LBB15_46
-.LBB15_46:                              ; %if.end230
+.LBB15_46:                              ; %if.end227
                                         ;   in Loop: Header=BB15_1 Depth=1
 	jmp	.LBB15_47
-.LBB15_47:                              ; %do.end231
+.LBB15_47:                              ; %do.end228
                                         ;   in Loop: Header=BB15_1 Depth=1
 	jmp	.LBB15_59
-.LBB15_48:                              ; %if.else232
+.LBB15_48:                              ; %if.else229
                                         ;   in Loop: Header=BB15_1 Depth=1
-	mov	&unsafe, r12
-	add	#22, r12
-	mov	&safe, r13
-	add	#22, r13
-	mov	#276, r14
-	call	#memcpy
 	call	#task_lookup_search
 	jmp	.LBB15_49
-.LBB15_49:                              ; %do.body233
+.LBB15_49:                              ; %do.body230
                                         ;   in Loop: Header=BB15_1 Depth=1
 	mov	&camel, r12
 	cmp	#1, r12
 	jne	.LBB15_51
 	jmp	.LBB15_50
-.LBB15_50:                              ; %if.then236
+.LBB15_50:                              ; %if.then233
                                         ;   in Loop: Header=BB15_1 Depth=1
 	mov	#camel+302, &safe
 	mov	#camel+2, &unsafe
@@ -1377,7 +1321,7 @@ main:                                   ; @main
 	mov	r12, 298(r13)
 	mov	#2, &camel
 	jmp	.LBB15_52
-.LBB15_51:                              ; %if.else249
+.LBB15_51:                              ; %if.else246
                                         ;   in Loop: Header=BB15_1 Depth=1
 	mov	#camel+2, &safe
 	mov	#camel+302, &unsafe
@@ -1413,26 +1357,20 @@ main:                                   ; @main
 	mov	r12, 298(r13)
 	mov	#1, &camel
 	jmp	.LBB15_52
-.LBB15_52:                              ; %if.end262
+.LBB15_52:                              ; %if.end259
                                         ;   in Loop: Header=BB15_1 Depth=1
 	jmp	.LBB15_53
-.LBB15_53:                              ; %do.end263
+.LBB15_53:                              ; %do.end260
                                         ;   in Loop: Header=BB15_1 Depth=1
-	mov	&unsafe, r12
-	add	#22, r12
-	mov	&safe, r13
-	add	#22, r13
-	mov	#276, r14
-	call	#memcpy
 	call	#task_lookup_done
 	jmp	.LBB15_54
-.LBB15_54:                              ; %do.body264
+.LBB15_54:                              ; %do.body261
                                         ;   in Loop: Header=BB15_1 Depth=1
 	mov	&camel, r12
 	cmp	#1, r12
 	jne	.LBB15_56
 	jmp	.LBB15_55
-.LBB15_55:                              ; %if.then267
+.LBB15_55:                              ; %if.then264
                                         ;   in Loop: Header=BB15_1 Depth=1
 	mov	#camel+302, &safe
 	mov	#camel+2, &unsafe
@@ -1468,7 +1406,7 @@ main:                                   ; @main
 	mov	r12, 298(r13)
 	mov	#2, &camel
 	jmp	.LBB15_57
-.LBB15_56:                              ; %if.else280
+.LBB15_56:                              ; %if.else277
                                         ;   in Loop: Header=BB15_1 Depth=1
 	mov	#camel+2, &safe
 	mov	#camel+302, &unsafe
@@ -1504,22 +1442,16 @@ main:                                   ; @main
 	mov	r12, 298(r13)
 	mov	#1, &camel
 	jmp	.LBB15_57
-.LBB15_57:                              ; %if.end293
+.LBB15_57:                              ; %if.end290
                                         ;   in Loop: Header=BB15_1 Depth=1
 	jmp	.LBB15_58
-.LBB15_58:                              ; %do.end294
+.LBB15_58:                              ; %do.end291
                                         ;   in Loop: Header=BB15_1 Depth=1
 	jmp	.LBB15_59
-.LBB15_59:                              ; %if.end295
+.LBB15_59:                              ; %if.end292
                                         ;   in Loop: Header=BB15_1 Depth=1
 	br	#.LBB15_1
-.LBB15_60:                              ; %while.end296
-	mov	&unsafe, r12
-	add	#22, r12
-	mov	&safe, r13
-	add	#22, r13
-	mov	#276, r14
-	call	#memcpy
+.LBB15_60:                              ; %while.end293
 	call	#task_done
 	mov	144(r1), r12
 	add	#146, r1

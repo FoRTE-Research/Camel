@@ -547,8 +547,8 @@ int main(){
 
     // llvm testing start
     //cps(key);
-    cpas(filter, key);
-    //cpa(filter, sizeof(fingerprint_t)*NUM_BUCKETS);
+    //cpas(filter, key);
+    cpa(filter, sizeof(fingerprint_t)*NUM_BUCKETS);
     // llvm testing end
 
    // prepare_task_init();

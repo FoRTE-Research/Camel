@@ -9,8 +9,8 @@ bool CamelPass::runOnModule(Module &M){
 
     // MODE ALL
     // The Mode "ALL" adds code to copy the safe buffer to the unsafe before every task call
-    for (int i=0; i<analysisInfo.taskCallList.size(); i++)
-        modifyTasks.copyBuffers(analysisInfo.taskCallList[i], "unsafe", "safe");
+    // for (int i=0; i<analysisInfo.taskCallList.size(); i++)
+    //     modifyTasks.copyBuffers(analysisInfo.taskCallList[i], "unsafe", "safe");
 
     // MODE "LIST"
     // LIST can equal Reads, Writes. TO DO: Add idempotent list
