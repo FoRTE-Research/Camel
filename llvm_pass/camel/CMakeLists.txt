@@ -8,4 +8,3 @@ add_llvm_library(camel MODULE
 	TaskAnalysis.cpp
 	global.cpp
 	)
-

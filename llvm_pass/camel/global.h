@@ -13,6 +13,7 @@
 #include "llvm/Analysis/AliasAnalysis.h"
 #include "llvm/Analysis/BasicAliasAnalysis.h"
 #include <map>
+#include <set>
 #include <algorithm>
 
 using namespace llvm;

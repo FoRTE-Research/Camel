@@ -14,8 +14,8 @@ bool CamelPass::runOnModule(Module &M){
 
     // MODE "LIST"
     // LIST can equal Reads, Writes. TO DO: Add idempotent list
-    // for( int i=0; i<analysisInfo.taskCallList.size(); i++)
-    //     modifyTasks.copyVariables(analysisInfo.taskCallList[i], analysisInfo.reads);
+    for( int i=0; i<analysisInfo.taskCallList.size(); i++)
+        modifyTasks.copyVariables(analysisInfo.taskCallList[i], analysisInfo.reads);
 
     //modifyTasks.copyVariables(analysisInfo.taskCallList[1], analysisInfo.writes); //test
 

@@ -12,7 +12,8 @@ void Modify::copyVariables(Instruction* before, map < StringRef, vector<vector<G
         
         if (varList[i].size() == 1) {
             cps(before, varList[i]);
-        } else if (varList[i].size() == 2){
+        }
+        else if (varList[i].size() == 2){
             cpas(before, varList[i]);
         }
 
@@ -180,11 +181,11 @@ void Modify::cpas(Instruction *before, vector<GEPOperator*> varList) {
 
     // might wanna move this preprocessing to TaskAnalysis
     // preprocessing start
-    LoadInst *myLoad = dyn_cast<LoadInst>(varList[0]->getOperand(2));
-    GEPOperator *index1 = dyn_cast<GEPOperator>(myLoad->getOperand(0));
-    GEPOperator *index = dyn_cast<GEPOperator>(varList[0]->getOperand(0));
-    varList[0] = index;
-    varList[1] = index1;
+    // LoadInst *myLoad = dyn_cast<LoadInst>(varList[0]->getOperand(2));
+    // GEPOperator *index1 = dyn_cast<GEPOperator>(myLoad->getOperand(0));
+    // GEPOperator *index = dyn_cast<GEPOperator>(varList[0]->getOperand(0));
+    // varList[0] = index;
+    // varList[1] = index1;
     // preprocessing end
 
     GetElementPtrInst *Struct = accessStruct(before, "safe");
@@ -217,8 +218,8 @@ void Modify::cpa(Instruction* before, vector<GEPOperator*> varList) {
 
     // might wanna move this preprocessing to TaskAnalysis
     // preprocessing start
-    GEPOperator *index1 = dyn_cast<GEPOperator>(varList[0]->getOperand(0));
-    varList[0] = index1;
+    // GEPOperator *index1 = dyn_cast<GEPOperator>(varList[0]->getOperand(0));
+    // varList[0] = index1;
     // preprocessing end
 
     Type *i16_type = IntegerType::getInt16Ty(myModule->getContext());

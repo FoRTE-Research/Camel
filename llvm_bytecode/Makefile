@@ -56,8 +56,3 @@ camel_cuckoo_mod.s : camel_cuckoo_mod.bc
 
 clean:
 	$(RM) *.bc *.ll *.s
-
-
-
-
-
