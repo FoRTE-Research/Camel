@@ -15,7 +15,7 @@ void TaskAnalysis::AnalyzeModule(Module &M){
             //get all reads and writes in a task
             AnalyzeTask(F);
             //functions to track array reads and writes in a task
-            generateIdem(F.getName());
+            generateIdem(F);
             trackWrittenIndexes(F);
             trackReadIndexes(F);
 
@@ -69,10 +69,9 @@ void TaskAnalysis::traverseLoad(LoadInst *load){
                 inst[0] = index;
                 inst.push_back(index1);
 
-                // index = gep;
-                // gep = dyn_cast<GEPOperator>(gep->getOperand(0));
-                // inst.push_back(index);
-                
+                if (index1 == NULL){
+                    return;
+                }
             }
 
             if (checkLoad.find(gep->getOperand(2)) == checkLoad.end()){
@@ -109,11 +108,10 @@ void TaskAnalysis::traverseStore(StoreInst *store){
                 GEPOperator *index = dyn_cast<GEPOperator>(inst[0]->getOperand(0));
                 inst[0] = index;
                 inst.push_back(index1);
-
-                // index = gep;
-                // gep = dyn_cast<GEPOperator>(gep->getOperand(0));
-                // inst.push_back(index);
                 
+                if (index1 == NULL){
+                    return;
+                }
             }
         
             if (checkStore.find(gep->getOperand(2)) == checkStore.end()){
@@ -191,8 +189,9 @@ void TaskAnalysis::initializeTaskLists(Function &F){
     
 }
 
-void TaskAnalysis::generateIdem(StringRef task) {
+void TaskAnalysis::generateIdem(Function &taskFunc) {
 
+    StringRef task = taskFunc.getName();
     for (int i=0; i<writes[task].size(); i++){
 
         for (int j=0; j<readFirst[task].size(); j++){

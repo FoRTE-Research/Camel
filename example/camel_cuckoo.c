@@ -427,7 +427,7 @@ void task_relocate()
     index_t index2_victim = GV(index1) ^ fp_hash_victim;
 
         writeOpt = index2_victim;
-        cpaso(filter,writeOpt); // Opt: cross function boundary with part of prepare statement to make it more precise (lower overhead)
+        //cpaso(filter,writeOpt); // Opt: cross function boundary with part of prepare statement to make it more precise (lower overhead)
         if (!GV(filter)[index2_victim]) { // slot was free
             GV(success) = true;
             GV(filter)[index2_victim] = fp_victim;
@@ -548,7 +548,9 @@ int main(){
     // llvm testing start
     //cps(key);
     //cpas(filter, key);
-    cpa(filter, sizeof(fingerprint_t)*NUM_BUCKETS);
+    //cpa(filter, sizeof(fingerprint_t)*NUM_BUCKETS);
+    int x=0;
+    cpaso(filter,x);
     // llvm testing end
 
    // prepare_task_init();

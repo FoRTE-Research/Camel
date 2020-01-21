@@ -14,7 +14,9 @@ void Modify::copyVariables(Instruction* before, map < StringRef, vector<vector<G
             cps(before, varList[i]);
         }
         else if (varList[i].size() == 2){
+            
             cpas(before, varList[i]);
+
         }
 
     }    
@@ -28,7 +30,6 @@ Function* Modify::getIntrinsicMemcpy() {
     arg_type.push_back(Type::getInt8PtrTy(myModule->getContext()));
     arg_type.push_back(Type::getInt8PtrTy(myModule->getContext()));
     arg_type.push_back(Type::getInt64Ty(myModule->getContext()));
-    // arg_type.push_back(Type::getInt1Ty(myModule->getContext()));
 
     //getDeclaration gets the function memcpy
     Function *fun = Intrinsic::getDeclaration(myModule, Intrinsic::memcpy, arg_type);
@@ -131,7 +132,7 @@ GetElementPtrInst* Modify::accessStructVar(Instruction *before, GetElementPtrIns
     return GEP;
 }
 
-GetElementPtrInst* Modify::accessIndex(Instruction *before, GetElementPtrInst* index, GetElementPtrInst* ar) {
+GetElementPtrInst* Modify::accessIndex(Instruction *before, GetElementPtrInst* index, Instruction* ar) {
 
     Type *i16_type = IntegerType::getInt16Ty(myModule->getContext());
     Constant *start = ConstantInt::get(i16_type, 0);
@@ -155,7 +156,6 @@ GetElementPtrInst* Modify::accessIndex(Instruction *before, GetElementPtrInst* i
 void Modify::cps(Instruction* before, vector<GEPOperator*> varList) {
 
     errs() << "CPS\n";
-    //varList[0]->getOperand(2)->dump();
 
     GetElementPtrInst *Struct = accessStruct(before, "safe");
     GetElementPtrInst *structVar = accessStructVar(before, Struct,  varList[0]->getOperand(1),  varList[0]->getOperand(2));
@@ -163,7 +163,7 @@ void Modify::cps(Instruction* before, vector<GEPOperator*> varList) {
     loadVar->setAlignment(MaybeAlign(2));
 
     //debugging
-    // loadVar->dump();
+    //loadVar->dump();
 
     GetElementPtrInst *Struct2 = accessStruct(before, "unsafe");
     GetElementPtrInst *structVar2 = accessStructVar(before, Struct2,  varList[0]->getOperand(1),  varList[0]->getOperand(2));
@@ -171,22 +171,13 @@ void Modify::cps(Instruction* before, vector<GEPOperator*> varList) {
     storeVar->setAlignment(MaybeAlign(2));
 
     //debugging
-    // storeVar->dump();
+    //storeVar->dump();
 
 }
 
 void Modify::cpas(Instruction *before, vector<GEPOperator*> varList) {
 
     errs() << "CPAS\n";
-
-    // might wanna move this preprocessing to TaskAnalysis
-    // preprocessing start
-    // LoadInst *myLoad = dyn_cast<LoadInst>(varList[0]->getOperand(2));
-    // GEPOperator *index1 = dyn_cast<GEPOperator>(myLoad->getOperand(0));
-    // GEPOperator *index = dyn_cast<GEPOperator>(varList[0]->getOperand(0));
-    // varList[0] = index;
-    // varList[1] = index1;
-    // preprocessing end
 
     GetElementPtrInst *Struct = accessStruct(before, "safe");
     GetElementPtrInst *structVar = accessStructVar(before, Struct,  varList[0]->getOperand(1),  varList[0]->getOperand(2));
@@ -215,12 +206,6 @@ void Modify::cpas(Instruction *before, vector<GEPOperator*> varList) {
 void Modify::cpa(Instruction* before, vector<GEPOperator*> varList) {
 
     errs () << "CPA\n";
-
-    // might wanna move this preprocessing to TaskAnalysis
-    // preprocessing start
-    // GEPOperator *index1 = dyn_cast<GEPOperator>(varList[0]->getOperand(0));
-    // varList[0] = index1;
-    // preprocessing end
 
     Type *i16_type = IntegerType::getInt16Ty(myModule->getContext());
     Constant *arg1 = ConstantInt::get(i16_type, 0);
@@ -267,5 +252,26 @@ void Modify::cpa(Instruction* before, vector<GEPOperator*> varList) {
 
     // debugging
     //call->dump();
+}
+
+void Modify::cpaso(Instruction* before, vector<GEPOperator*> varList){
+
+     errs() << "CPASO\n";
+
+    GetElementPtrInst *Struct = accessStruct(before, "safe");
+    GetElementPtrInst *structVar = accessStructVar(before, Struct,  varList[0]->getOperand(1),  varList[0]->getOperand(2));
+    LoadInst *load = new LoadInst(varList[1]->getType()->getContainedType(0), varList[1], "tmp", before);
+    load->setAlignment(MaybeAlign(2));
+    GetElementPtrInst* arrayidx = accessIndex(before, structVar, load);
+    LoadInst *loadArray = new LoadInst(arrayidx->getType()->getContainedType(0), arrayidx, "tmp", before);
+    loadArray->setAlignment(MaybeAlign(2));
+
+    GetElementPtrInst *Struct1 = accessStruct(before, "unsafe");
+    GetElementPtrInst *structVar1 = accessStructVar(before, Struct1,  varList[0]->getOperand(1),  varList[0]->getOperand(2));
+    LoadInst *load1 = new LoadInst(varList[1]->getType()->getContainedType(0), varList[1], "tmp", before);
+    load1->setAlignment(MaybeAlign(2));
+    GetElementPtrInst* arrayidx1 = accessIndex(before, structVar1, load1);
+    StoreInst *store = new StoreInst(loadArray, arrayidx1, before);
+    store->setAlignment(MaybeAlign(2));
 
 }

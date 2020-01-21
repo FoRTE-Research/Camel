@@ -15,7 +15,7 @@ class TaskAnalysis {
         void getTaskCalls(Function &F);
         void trackWrittenIndexes(Function &F);
         void trackReadIndexes(Function &F);
-        void generateIdem(StringRef task);
+        void generateIdem(Function &taskFunc);
 
         vector <Instruction*> taskCallList;
         map < StringRef, vector<vector<GEPOperator*>> > writes;
