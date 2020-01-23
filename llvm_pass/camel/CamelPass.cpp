@@ -1,8 +1,7 @@
 #include "CamelPass.h"
 
 // talk to Matt about filter in task_add and task_relocate (camel_cuckoo.c)
-// add code after tasks. Talk to Matt
-// One solution: Add an indentifying function call. task_commit_done()
+
 // How to insert a commit? function call or leave it as a macro? Ask Harrison
 
 // need to differentiate between cpas && cpa
