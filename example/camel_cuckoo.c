@@ -41,6 +41,7 @@ void task_lookup_search();
 void task_lookup_done();
 void task_done();
 void task_init_array();
+void task_commit_done();
 
 // Camel stuff
 
@@ -87,6 +88,7 @@ uint16_t tmp_stack_buf_crc;
 										}																																																			\
                     _Pragma("GCC diagnostic warning \"-Wint-conversion\"")                                                \
                   }	while(0)
+
 #elif CRC_OFF
 #define commit() do{                                                                                                      \
                     _Pragma("GCC diagnostic ignored \"-Wint-conversion\"")                                                \
@@ -103,6 +105,7 @@ uint16_t tmp_stack_buf_crc;
 										}																																																			\
                     _Pragma("GCC diagnostic warning \"-Wint-conversion\"")                                                \
                   }	while(0)
+
 #endif
 
 // Globals
@@ -538,6 +541,10 @@ void task_done()
     exit(0);
 }
 
+void task_commit_done() {
+
+}
+
 int main(){
 
     camel.flag = CKPT_1_FLG;
@@ -549,40 +556,46 @@ int main(){
     //cps(key);
     //cpas(filter, key);
     //cpa(filter, sizeof(fingerprint_t)*NUM_BUCKETS);
-    int x=0;
-    cpaso(filter,x);
+    // int x=0;
+    // cpaso(filter,x);
     // llvm testing end
 
    // prepare_task_init();
     task_init();
     memcpy(&(safe->globals), &(unsafe->globals), sizeof(camel_global_t)); // concise version of writes_task_init()
+    task_commit_done();
     // The buffers are equal
 
   while(MGV(lookup_count) < NUM_LOOKUPS) {
         //prepare_task_generate_key();
         task_generate_key();
         commit();
+        task_commit_done();
         //writes_task_generate_key();
 
         //prepare_task_calc_indexes();
         task_calc_indexes();
         commit();
+        task_commit_done();
         //writes_task_calc_indexes();
 
         //prepare_task_calc_indexes_index_1();
         task_calc_indexes_index_1();
         commit();
+        task_commit_done();
         //writes_task_calc_indexes_index_1();
 
         //prepare_task_calc_indexes_index_2();
         task_calc_indexes_index_2();
         commit();
+        task_commit_done();
         //writes_task_calc_indexes_index_2();
 
         if(MGV(insert_count) < NUM_INSERTS) {
             //prepare_task_add();
             task_add();
             commit();
+            task_commit_done();
             //writes_task_calc_indexes();
 
             if(MGV(filter)[MGV(index1)] && MGV(filter)[MGV(index2)]) {
@@ -590,6 +603,7 @@ int main(){
                     //prepare_task_relocate();
                     task_relocate();
                     commit();
+                    task_commit_done();
                     //writes_task_relocate();
                 }
             }
@@ -597,21 +611,26 @@ int main(){
             //prepare_task_insert_done();
             task_insert_done();
             commit();
+            task_commit_done();
             //writes_task_insert_done();
         } else {
             //prepare_task_lookup_search();
             task_lookup_search();
             commit();
+            task_commit_done();
             //writes_task_lookup_search();
 
             //prepare_task_lookup_done();
             task_lookup_done();
             commit();
+            task_commit_done();
             //writes_task_lookup_done();
         }
     }
 
     task_done();
+    task_commit_done();
+
 }
 
 

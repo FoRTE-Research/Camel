@@ -2,7 +2,7 @@
 
 void TaskAnalysis::AnalyzeModule(Module &M){
 
-    errs() << "STARTING ANALYSIS\n"; 
+    errs() << "\nSTARTING ANALYSIS\n"; 
 
     for (auto &F: M) {
 
@@ -14,8 +14,8 @@ void TaskAnalysis::AnalyzeModule(Module &M){
             initializeTaskLists(F);
             //get all reads and writes in a task
             AnalyzeTask(F);
-            //functions to track array reads and writes in a task
             generateIdem(F);
+            //functions to track array reads and writes in a task
             trackWrittenIndexes(F);
             trackReadIndexes(F);
 

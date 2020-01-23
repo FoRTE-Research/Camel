@@ -9,7 +9,7 @@ class Modify {
         // methods
         Function* getIntrinsicMemcpy();
         void copyBuffers(Instruction *before, string to, string from);
-        void copyVariables(Instruction* before, map < StringRef, vector<vector<GEPOperator*>> > list);
+        void copyVariables(StringRef task, Instruction* before, map < StringRef, vector<vector<GEPOperator*>> > list);
         GetElementPtrInst* accessStruct(Instruction *before, StringRef name);
         GetElementPtrInst* accessStructVar(Instruction *before, GetElementPtrInst* Struct, Value* index1, Value* index2);
         GetElementPtrInst* accessIndex(Instruction *before, GetElementPtrInst* index, Instruction* ar); 

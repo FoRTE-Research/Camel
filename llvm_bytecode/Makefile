@@ -38,7 +38,7 @@ override CFLAGS += \
 all: $(outputs)
 
 camel_cuckoo.bc : camel_cuckoo.c ../checkpoint/camel_helpers.S
-	$(CLANG) -emit-llvm -c -fheinous-gnu-extensions $(CFLAGS) -D$(CRC) -D$(MODE) $< -o $@
+	$(CLANG) -emit-llvm -o0 -c -fheinous-gnu-extensions $(CFLAGS) -D$(CRC) -D$(MODE) $< -o $@
 	$(RM) camel_cuckoo.d
 	
 camel_cuckoo.ll : camel_cuckoo.bc

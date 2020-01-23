@@ -1,12 +1,13 @@
 #include "Modify.h"
 
-void Modify::copyVariables(Instruction* before, map < StringRef, vector<vector<GEPOperator*>> > list) {
+void Modify::copyVariables(StringRef task, Instruction* before, map < StringRef, vector<vector<GEPOperator*>> > list) {
 
-    CallInst *taskCall = dyn_cast<CallInst>(before);
-    StringRef taskName = taskCall->getCalledFunction()->getName();
+    // CallInst *taskCall = dyn_cast<CallInst>(before);
+    // StringRef taskName = taskCall->getCalledFunction()->getName();
+    StringRef taskName = task;
     vector<vector<GEPOperator*>> varList = list[taskName];
 
-    errs () << taskName + "\n";
+    // errs () << taskName + "\n";
 
     for (int i=0; i<varList.size(); i++){
         
@@ -16,7 +17,6 @@ void Modify::copyVariables(Instruction* before, map < StringRef, vector<vector<G
         else if (varList[i].size() == 2){
             
             cpas(before, varList[i]);
-
         }
 
     }    

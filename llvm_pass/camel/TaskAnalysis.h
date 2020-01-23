@@ -24,8 +24,8 @@ class TaskAnalysis {
 
     private: 
 
-        set<Value*> checkLoad;
-        set<Value*> checkStore;
+        set <Value*> checkLoad;
+        set <Value*> checkStore;
         map < StringRef, vector<vector<GEPOperator*>> > writeFirst;
         map < StringRef, vector<vector<GEPOperator*>> > readFirst;
                 
