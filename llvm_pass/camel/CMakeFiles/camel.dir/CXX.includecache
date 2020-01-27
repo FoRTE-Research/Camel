@@ -6,21 +6,11 @@
 
 #IncludeRegexTransform: 
 
-/home/saim/Desktop/Camel/llvm_pass/camel/CamelPass.cpp
-CamelPass.h
-/home/saim/Desktop/Camel/llvm_pass/camel/CamelPass.h
-
-/home/saim/Desktop/Camel/llvm_pass/camel/CamelPass.h
-TaskAnalysis.h
-/home/saim/Desktop/Camel/llvm_pass/camel/TaskAnalysis.h
+/home/saim/Desktop/Camel/llvm_pass/camel/Modify.cpp
 Modify.h
 /home/saim/Desktop/Camel/llvm_pass/camel/Modify.h
 
 /home/saim/Desktop/Camel/llvm_pass/camel/Modify.h
-global.h
-/home/saim/Desktop/Camel/llvm_pass/camel/global.h
-
-/home/saim/Desktop/Camel/llvm_pass/camel/TaskAnalysis.h
 global.h
 /home/saim/Desktop/Camel/llvm_pass/camel/global.h
 
@@ -53,6 +43,10 @@ llvm/Analysis/AliasAnalysis.h
 /home/saim/Desktop/Camel/llvm_pass/camel/llvm/Analysis/AliasAnalysis.h
 llvm/Analysis/BasicAliasAnalysis.h
 /home/saim/Desktop/Camel/llvm_pass/camel/llvm/Analysis/BasicAliasAnalysis.h
+llvm/Analysis/LoopInfo.h
+/home/saim/Desktop/Camel/llvm_pass/camel/llvm/Analysis/LoopInfo.h
+llvm/IR/Dominators.h
+/home/saim/Desktop/Camel/llvm_pass/camel/llvm/IR/Dominators.h
 map
 -
 set
@@ -746,6 +740,34 @@ llvm/Support/GenericDomTree.h
 functional
 -
 vector
+-
+
+/home/saim/Desktop/llvm-project/llvm/include/llvm/Analysis/LoopInfo.h
+llvm/ADT/DenseMap.h
+/home/saim/Desktop/llvm-project/llvm/include/llvm/Analysis/llvm/ADT/DenseMap.h
+llvm/ADT/DenseSet.h
+/home/saim/Desktop/llvm-project/llvm/include/llvm/Analysis/llvm/ADT/DenseSet.h
+llvm/ADT/GraphTraits.h
+/home/saim/Desktop/llvm-project/llvm/include/llvm/Analysis/llvm/ADT/GraphTraits.h
+llvm/ADT/SmallPtrSet.h
+/home/saim/Desktop/llvm-project/llvm/include/llvm/Analysis/llvm/ADT/SmallPtrSet.h
+llvm/ADT/SmallVector.h
+/home/saim/Desktop/llvm-project/llvm/include/llvm/Analysis/llvm/ADT/SmallVector.h
+llvm/IR/CFG.h
+/home/saim/Desktop/llvm-project/llvm/include/llvm/Analysis/llvm/IR/CFG.h
+llvm/IR/Instruction.h
+/home/saim/Desktop/llvm-project/llvm/include/llvm/Analysis/llvm/IR/Instruction.h
+llvm/IR/Instructions.h
+/home/saim/Desktop/llvm-project/llvm/include/llvm/Analysis/llvm/IR/Instructions.h
+llvm/IR/PassManager.h
+/home/saim/Desktop/llvm-project/llvm/include/llvm/Analysis/llvm/IR/PassManager.h
+llvm/Pass.h
+/home/saim/Desktop/llvm-project/llvm/include/llvm/Analysis/llvm/Pass.h
+llvm/Support/Allocator.h
+/home/saim/Desktop/llvm-project/llvm/include/llvm/Analysis/llvm/Support/Allocator.h
+algorithm
+-
+utility
 -
 
 /home/saim/Desktop/llvm-project/llvm/include/llvm/Analysis/MemoryLocation.h

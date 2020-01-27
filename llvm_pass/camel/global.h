@@ -12,6 +12,8 @@
 #include "llvm/IR/SymbolTableListTraits.h"
 #include "llvm/Analysis/AliasAnalysis.h"
 #include "llvm/Analysis/BasicAliasAnalysis.h"
+#include "llvm/Analysis/LoopInfo.h" 
+#include"llvm/IR/Dominators.h"
 #include <map>
 #include <set>
 #include <algorithm>

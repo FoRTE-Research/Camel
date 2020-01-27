@@ -13,20 +13,20 @@ class TaskAnalysis {
         bool isGlobalStructAccess(GEPOperator *gep, StringRef name);
         void initializeTaskLists(Function &F);
         void getTaskCalls(Function &F);
-        void trackWrittenIndexes(Function &F);
-        void trackReadIndexes(Function &F);
-        void generateIdem(Function &taskFunc);
+
+        void generateTaskIdem(Function &taskFunc);
+        LoopInfoBase<BasicBlock, Loop>* getTaskLoops(Function &F);
 
         vector <Instruction*> taskCallList;
-        map < StringRef, vector<vector<GEPOperator*>> > writes;
-        map < StringRef, vector<vector<GEPOperator*>> > reads;
-        map < StringRef, vector<vector<GEPOperator*>> > idem;
+        map < StringRef, vector<vector<Instruction*>> > writes;
+        map < StringRef, vector<vector<Instruction*>> > reads;
+        map < StringRef, vector<vector<Instruction*>> > idem;
 
     private: 
 
         set <Value*> checkLoad;
         set <Value*> checkStore;
-        map < StringRef, vector<vector<GEPOperator*>> > writeFirst;
-        map < StringRef, vector<vector<GEPOperator*>> > readFirst;
+        map < StringRef, vector<vector<Instruction*>> > writeFirst;
+        map < StringRef, vector<vector<Instruction*>> > readFirst;
                 
 };

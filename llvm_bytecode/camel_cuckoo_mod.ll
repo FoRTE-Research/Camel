@@ -813,46 +813,6 @@ entry:
   %globals1 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %2, i32 0, i32 1, !dbg !418
   %3 = bitcast %struct.camel_global_t* %globals1 to i8*, !dbg !416
   call void @llvm.memcpy.p0i8.p0i8.i16(i8* align 2 %1, i8* align 2 %3, i16 276, i1 false), !dbg !416
-  %tmp1 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2
-  %global = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp1, i32 0, i32 1
-  %global2 = getelementptr %struct.camel_global_t, %struct.camel_global_t* %global, i32 0, i32 6
-  %tmp3 = load i16, i16* %global2, align 2
-  %tmp4 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
-  %global5 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp4, i32 0, i32 1
-  %global6 = getelementptr %struct.camel_global_t, %struct.camel_global_t* %global5, i32 0, i32 6
-  store i16 %tmp3, i16* %global6, align 2
-  %tmp7 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2
-  %global8 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp7, i32 0, i32 1
-  %global9 = getelementptr %struct.camel_global_t, %struct.camel_global_t* %global8, i32 0, i32 8
-  %tmp10 = load i16, i16* %global9, align 2
-  %tmp12 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
-  %global13 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp12, i32 0, i32 1
-  %global14 = getelementptr %struct.camel_global_t, %struct.camel_global_t* %global13, i32 0, i32 8
-  store i16 %tmp10, i16* %global14, align 2
-  %tmp15 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2
-  %global16 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp15, i32 0, i32 1
-  %global17 = getelementptr %struct.camel_global_t, %struct.camel_global_t* %global16, i32 0, i32 7
-  %tmp18 = load i16, i16* %global17, align 2
-  %tmp19 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
-  %global20 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp19, i32 0, i32 1
-  %global21 = getelementptr %struct.camel_global_t, %struct.camel_global_t* %global20, i32 0, i32 7
-  store i16 %tmp18, i16* %global21, align 2
-  %tmp22 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2
-  %global23 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp22, i32 0, i32 1
-  %global24 = getelementptr %struct.camel_global_t, %struct.camel_global_t* %global23, i32 0, i32 9
-  %tmp25 = load i16, i16* %global24, align 2
-  %tmp27 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
-  %global28 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp27, i32 0, i32 1
-  %global29 = getelementptr %struct.camel_global_t, %struct.camel_global_t* %global28, i32 0, i32 9
-  store i16 %tmp25, i16* %global29, align 2
-  %tmp30 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2
-  %global31 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp30, i32 0, i32 1
-  %global32 = getelementptr %struct.camel_global_t, %struct.camel_global_t* %global31, i32 0, i32 1
-  %tmp33 = load i16, i16* %global32, align 2
-  %tmp34 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
-  %global35 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp34, i32 0, i32 1
-  %global36 = getelementptr %struct.camel_global_t, %struct.camel_global_t* %global35, i32 0, i32 1
-  store i16 %tmp33, i16* %global36, align 2
   call void @task_commit_done(), !dbg !419
   br label %while.cond, !dbg !420
 
@@ -865,14 +825,6 @@ while.cond:                                       ; preds = %if.end286, %entry
   br i1 %cmp, label %while.body, label %while.end287, !dbg !420
 
 while.body:                                       ; preds = %while.cond
-  %tmp37 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2
-  %global38 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp37, i32 0, i32 1
-  %global39 = getelementptr %struct.camel_global_t, %struct.camel_global_t* %global38, i32 0, i32 1
-  %tmp40 = load i16, i16* %global39, align 2
-  %tmp41 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
-  %global42 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp41, i32 0, i32 1
-  %global43 = getelementptr %struct.camel_global_t, %struct.camel_global_t* %global42, i32 0, i32 1
-  store i16 %tmp40, i16* %global43, align 2
   call void @task_generate_key(), !dbg !423
   br label %do.body, !dbg !425
 
@@ -959,14 +911,6 @@ if.end:                                           ; preds = %if.else, %if.then
   br label %do.end, !dbg !429
 
 do.end:                                           ; preds = %if.end
-  %tmp44 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2
-  %global45 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp44, i32 0, i32 1
-  %global46 = getelementptr %struct.camel_global_t, %struct.camel_global_t* %global45, i32 0, i32 1
-  %tmp47 = load i16, i16* %global46, align 2
-  %tmp48 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
-  %global49 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp48, i32 0, i32 1
-  %global50 = getelementptr %struct.camel_global_t, %struct.camel_global_t* %global49, i32 0, i32 1
-  store i16 %tmp47, i16* %global50, align 2
   call void @task_commit_done(), !dbg !450
   call void @task_calc_indexes(), !dbg !451
   br label %do.body20, !dbg !452
@@ -1054,14 +998,6 @@ if.end48:                                         ; preds = %if.else35, %if.then
   br label %do.end49, !dbg !456
 
 do.end49:                                         ; preds = %if.end48
-  %tmp51 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2
-  %global52 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp51, i32 0, i32 1
-  %global53 = getelementptr %struct.camel_global_t, %struct.camel_global_t* %global52, i32 0, i32 2
-  %tmp54 = load i16, i16* %global53, align 2
-  %tmp55 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
-  %global56 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp55, i32 0, i32 1
-  %global57 = getelementptr %struct.camel_global_t, %struct.camel_global_t* %global56, i32 0, i32 2
-  store i16 %tmp54, i16* %global57, align 2
   call void @task_commit_done(), !dbg !477
   call void @task_calc_indexes_index_1(), !dbg !478
   br label %do.body50, !dbg !479
@@ -1149,14 +1085,6 @@ if.end78:                                         ; preds = %if.else65, %if.then
   br label %do.end79, !dbg !483
 
 do.end79:                                         ; preds = %if.end78
-  %tmp58 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2
-  %global59 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp58, i32 0, i32 1
-  %global60 = getelementptr %struct.camel_global_t, %struct.camel_global_t* %global59, i32 0, i32 3
-  %tmp61 = load i16, i16* %global60, align 2
-  %tmp62 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
-  %global63 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp62, i32 0, i32 1
-  %global64 = getelementptr %struct.camel_global_t, %struct.camel_global_t* %global63, i32 0, i32 3
-  store i16 %tmp61, i16* %global64, align 2
   call void @task_commit_done(), !dbg !504
   call void @task_calc_indexes_index_2(), !dbg !505
   br label %do.body80, !dbg !506
@@ -1244,14 +1172,6 @@ if.end108:                                        ; preds = %if.else95, %if.then
   br label %do.end109, !dbg !510
 
 do.end109:                                        ; preds = %if.end108
-  %tmp65 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2
-  %global66 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp65, i32 0, i32 1
-  %global67 = getelementptr %struct.camel_global_t, %struct.camel_global_t* %global66, i32 0, i32 4
-  %tmp68 = load i16, i16* %global67, align 2
-  %tmp70 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
-  %global71 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp70, i32 0, i32 1
-  %global72 = getelementptr %struct.camel_global_t, %struct.camel_global_t* %global71, i32 0, i32 4
-  store i16 %tmp68, i16* %global72, align 2
   call void @task_commit_done(), !dbg !531
   %114 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2, !dbg !532
   %globals110 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %114, i32 0, i32 1, !dbg !532
@@ -1261,58 +1181,6 @@ do.end109:                                        ; preds = %if.end108
   br i1 %cmp111, label %if.then112, label %if.else223, !dbg !535
 
 if.then112:                                       ; preds = %do.end109
-  %tmp73 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2
-  %global74 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp73, i32 0, i32 1
-  %global75 = getelementptr %struct.camel_global_t, %struct.camel_global_t* %global74, i32 0, i32 0
-  %tmp76 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
-  %global77 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp76, i32 0, i32 1
-  %global78 = getelementptr %struct.camel_global_t, %struct.camel_global_t* %global77, i32 0, i32 3
-  %load = load i16, i16* %global78, align 2
-  %access = getelementptr [128 x i16], [128 x i16]* %global75, i16 0, i16 %load
-  %tmp79 = load i16, i16* %access, align 2
-  %tmp80 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
-  %global81 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp80, i32 0, i32 1
-  %global82 = getelementptr %struct.camel_global_t, %struct.camel_global_t* %global81, i32 0, i32 0
-  %tmp83 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
-  %global84 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp83, i32 0, i32 1
-  %global85 = getelementptr %struct.camel_global_t, %struct.camel_global_t* %global84, i32 0, i32 3
-  %load86 = load i16, i16* %global85, align 2
-  %access87 = getelementptr [128 x i16], [128 x i16]* %global82, i16 0, i16 %load86
-  store i16 %tmp79, i16* %access87, align 2
-  %tmp88 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2
-  %global89 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp88, i32 0, i32 1
-  %global90 = getelementptr %struct.camel_global_t, %struct.camel_global_t* %global89, i32 0, i32 0
-  %tmp91 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
-  %global92 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp91, i32 0, i32 1
-  %global93 = getelementptr %struct.camel_global_t, %struct.camel_global_t* %global92, i32 0, i32 4
-  %load94 = load i16, i16* %global93, align 2
-  %access95 = getelementptr [128 x i16], [128 x i16]* %global90, i16 0, i16 %load94
-  %tmp96 = load i16, i16* %access95, align 2
-  %tmp97 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
-  %global98 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp97, i32 0, i32 1
-  %global99 = getelementptr %struct.camel_global_t, %struct.camel_global_t* %global98, i32 0, i32 0
-  %tmp100 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
-  %global101 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp100, i32 0, i32 1
-  %global102 = getelementptr %struct.camel_global_t, %struct.camel_global_t* %global101, i32 0, i32 4
-  %load103 = load i16, i16* %global102, align 2
-  %access104 = getelementptr [128 x i16], [128 x i16]* %global99, i16 0, i16 %load103
-  store i16 %tmp96, i16* %access104, align 2
-  %tmp105 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2
-  %global106 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp105, i32 0, i32 1
-  %global107 = getelementptr %struct.camel_global_t, %struct.camel_global_t* %global106, i32 0, i32 3
-  %tmp108 = load i16, i16* %global107, align 2
-  %tmp109 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
-  %global110 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp109, i32 0, i32 1
-  %global111 = getelementptr %struct.camel_global_t, %struct.camel_global_t* %global110, i32 0, i32 3
-  store i16 %tmp108, i16* %global111, align 2
-  %tmp112 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2
-  %global113 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp112, i32 0, i32 1
-  %global114 = getelementptr %struct.camel_global_t, %struct.camel_global_t* %global113, i32 0, i32 2
-  %tmp115 = load i16, i16* %global114, align 2
-  %tmp116 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
-  %global117 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp116, i32 0, i32 1
-  %global118 = getelementptr %struct.camel_global_t, %struct.camel_global_t* %global117, i32 0, i32 2
-  store i16 %tmp115, i16* %global118, align 2
   call void @task_add(), !dbg !536
   br label %do.body113, !dbg !538
 
@@ -1399,74 +1267,6 @@ if.end141:                                        ; preds = %if.else128, %if.the
   br label %do.end142, !dbg !542
 
 do.end142:                                        ; preds = %if.end141
-  %tmp120 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2
-  %global121 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp120, i32 0, i32 1
-  %global122 = getelementptr %struct.camel_global_t, %struct.camel_global_t* %global121, i32 0, i32 10
-  %tmp123 = load i8, i8* %global122, align 2
-  %tmp124 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
-  %global125 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp124, i32 0, i32 1
-  %global126 = getelementptr %struct.camel_global_t, %struct.camel_global_t* %global125, i32 0, i32 10
-  store i8 %tmp123, i8* %global126, align 2
-  %tmp127 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2
-  %global128 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp127, i32 0, i32 1
-  %global129 = getelementptr %struct.camel_global_t, %struct.camel_global_t* %global128, i32 0, i32 0
-  %tmp130 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
-  %global131 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp130, i32 0, i32 1
-  %global132 = getelementptr %struct.camel_global_t, %struct.camel_global_t* %global131, i32 0, i32 3
-  %load133 = load i16, i16* %global132, align 2
-  %access134 = getelementptr [128 x i16], [128 x i16]* %global129, i16 0, i16 %load133
-  %tmp136 = load i16, i16* %access134, align 2
-  %tmp137 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
-  %global138 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp137, i32 0, i32 1
-  %global139 = getelementptr %struct.camel_global_t, %struct.camel_global_t* %global138, i32 0, i32 0
-  %tmp140 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
-  %global141 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp140, i32 0, i32 1
-  %global142 = getelementptr %struct.camel_global_t, %struct.camel_global_t* %global141, i32 0, i32 3
-  %load143 = load i16, i16* %global142, align 2
-  %access144 = getelementptr [128 x i16], [128 x i16]* %global139, i16 0, i16 %load143
-  store i16 %tmp136, i16* %access144, align 2
-  %tmp145 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2
-  %global146 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp145, i32 0, i32 1
-  %global147 = getelementptr %struct.camel_global_t, %struct.camel_global_t* %global146, i32 0, i32 0
-  %tmp148 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
-  %global149 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp148, i32 0, i32 1
-  %global150 = getelementptr %struct.camel_global_t, %struct.camel_global_t* %global149, i32 0, i32 4
-  %load151 = load i16, i16* %global150, align 2
-  %access152 = getelementptr [128 x i16], [128 x i16]* %global147, i16 0, i16 %load151
-  %tmp153 = load i16, i16* %access152, align 2
-  %tmp154 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
-  %global155 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp154, i32 0, i32 1
-  %global156 = getelementptr %struct.camel_global_t, %struct.camel_global_t* %global155, i32 0, i32 0
-  %tmp157 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
-  %global158 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp157, i32 0, i32 1
-  %global159 = getelementptr %struct.camel_global_t, %struct.camel_global_t* %global158, i32 0, i32 4
-  %load160 = load i16, i16* %global159, align 2
-  %access161 = getelementptr [128 x i16], [128 x i16]* %global156, i16 0, i16 %load160
-  store i16 %tmp153, i16* %access161, align 2
-  %tmp162 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2
-  %global163 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp162, i32 0, i32 1
-  %global164 = getelementptr %struct.camel_global_t, %struct.camel_global_t* %global163, i32 0, i32 3
-  %tmp165 = load i16, i16* %global164, align 2
-  %tmp166 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
-  %global167 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp166, i32 0, i32 1
-  %global168 = getelementptr %struct.camel_global_t, %struct.camel_global_t* %global167, i32 0, i32 3
-  store i16 %tmp165, i16* %global168, align 2
-  %tmp169 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2
-  %global170 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp169, i32 0, i32 1
-  %global171 = getelementptr %struct.camel_global_t, %struct.camel_global_t* %global170, i32 0, i32 2
-  %tmp172 = load i16, i16* %global171, align 2
-  %tmp173 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
-  %global174 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp173, i32 0, i32 1
-  %global175 = getelementptr %struct.camel_global_t, %struct.camel_global_t* %global174, i32 0, i32 2
-  store i16 %tmp172, i16* %global175, align 2
-  %tmp176 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2
-  %global177 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp176, i32 0, i32 1
-  %global178 = getelementptr %struct.camel_global_t, %struct.camel_global_t* %global177, i32 0, i32 5
-  %tmp179 = load i16, i16* %global178, align 2
-  %tmp181 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
-  %global182 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp181, i32 0, i32 1
-  %global183 = getelementptr %struct.camel_global_t, %struct.camel_global_t* %global182, i32 0, i32 5
-  store i16 %tmp179, i16* %global183, align 2
   call void @task_commit_done(), !dbg !563
   %143 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2, !dbg !564
   %globals143 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %143, i32 0, i32 1, !dbg !564
@@ -1519,30 +1319,6 @@ land.end:                                         ; preds = %land.rhs, %while.co
   br i1 %155, label %while.body159, label %while.end, !dbg !571
 
 while.body159:                                    ; preds = %land.end
-  %tmp184 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2
-  %global185 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp184, i32 0, i32 1
-  %global186 = getelementptr %struct.camel_global_t, %struct.camel_global_t* %global185, i32 0, i32 5
-  %tmp187 = load i16, i16* %global186, align 2
-  %tmp188 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
-  %global189 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp188, i32 0, i32 1
-  %global190 = getelementptr %struct.camel_global_t, %struct.camel_global_t* %global189, i32 0, i32 5
-  store i16 %tmp187, i16* %global190, align 2
-  %tmp191 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2
-  %global192 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp191, i32 0, i32 1
-  %global193 = getelementptr %struct.camel_global_t, %struct.camel_global_t* %global192, i32 0, i32 3
-  %tmp194 = load i16, i16* %global193, align 2
-  %tmp195 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
-  %global196 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp195, i32 0, i32 1
-  %global197 = getelementptr %struct.camel_global_t, %struct.camel_global_t* %global196, i32 0, i32 3
-  store i16 %tmp194, i16* %global197, align 2
-  %tmp198 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2
-  %global199 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp198, i32 0, i32 1
-  %global200 = getelementptr %struct.camel_global_t, %struct.camel_global_t* %global199, i32 0, i32 2
-  %tmp201 = load i16, i16* %global200, align 2
-  %tmp203 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
-  %global204 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp203, i32 0, i32 1
-  %global205 = getelementptr %struct.camel_global_t, %struct.camel_global_t* %global204, i32 0, i32 2
-  store i16 %tmp201, i16* %global205, align 2
   call void @task_relocate(), !dbg !579
   br label %do.body160, !dbg !581
 
@@ -1629,38 +1405,6 @@ if.end189:                                        ; preds = %if.else176, %if.the
   br label %do.end190, !dbg !585
 
 do.end190:                                        ; preds = %if.end189
-  %tmp206 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2
-  %global207 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp206, i32 0, i32 1
-  %global208 = getelementptr %struct.camel_global_t, %struct.camel_global_t* %global207, i32 0, i32 10
-  %tmp209 = load i8, i8* %global208, align 2
-  %tmp210 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
-  %global211 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp210, i32 0, i32 1
-  %global212 = getelementptr %struct.camel_global_t, %struct.camel_global_t* %global211, i32 0, i32 10
-  store i8 %tmp209, i8* %global212, align 2
-  %tmp213 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2
-  %global214 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp213, i32 0, i32 1
-  %global215 = getelementptr %struct.camel_global_t, %struct.camel_global_t* %global214, i32 0, i32 5
-  %tmp216 = load i16, i16* %global215, align 2
-  %tmp217 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
-  %global218 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp217, i32 0, i32 1
-  %global219 = getelementptr %struct.camel_global_t, %struct.camel_global_t* %global218, i32 0, i32 5
-  store i16 %tmp216, i16* %global219, align 2
-  %tmp220 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2
-  %global221 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp220, i32 0, i32 1
-  %global222 = getelementptr %struct.camel_global_t, %struct.camel_global_t* %global221, i32 0, i32 3
-  %tmp223 = load i16, i16* %global222, align 2
-  %tmp224 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
-  %global225 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp224, i32 0, i32 1
-  %global226 = getelementptr %struct.camel_global_t, %struct.camel_global_t* %global225, i32 0, i32 3
-  store i16 %tmp223, i16* %global226, align 2
-  %tmp227 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2
-  %global228 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp227, i32 0, i32 1
-  %global229 = getelementptr %struct.camel_global_t, %struct.camel_global_t* %global228, i32 0, i32 2
-  %tmp230 = load i16, i16* %global229, align 2
-  %tmp232 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
-  %global233 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp232, i32 0, i32 1
-  %global234 = getelementptr %struct.camel_global_t, %struct.camel_global_t* %global233, i32 0, i32 2
-  store i16 %tmp230, i16* %global234, align 2
   call void @task_commit_done(), !dbg !606
   br label %while.cond151, !dbg !571, !llvm.loop !607
 
@@ -1668,22 +1412,6 @@ while.end:                                        ; preds = %land.end
   br label %if.end191, !dbg !609
 
 if.end191:                                        ; preds = %while.end, %land.lhs.true, %do.end142
-  %tmp235 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2
-  %global236 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp235, i32 0, i32 1
-  %global237 = getelementptr %struct.camel_global_t, %struct.camel_global_t* %global236, i32 0, i32 6
-  %tmp238 = load i16, i16* %global237, align 2
-  %tmp239 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
-  %global240 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp239, i32 0, i32 1
-  %global241 = getelementptr %struct.camel_global_t, %struct.camel_global_t* %global240, i32 0, i32 6
-  store i16 %tmp238, i16* %global241, align 2
-  %tmp242 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2
-  %global243 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp242, i32 0, i32 1
-  %global244 = getelementptr %struct.camel_global_t, %struct.camel_global_t* %global243, i32 0, i32 7
-  %tmp245 = load i16, i16* %global244, align 2
-  %tmp246 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
-  %global247 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp246, i32 0, i32 1
-  %global248 = getelementptr %struct.camel_global_t, %struct.camel_global_t* %global247, i32 0, i32 7
-  store i16 %tmp245, i16* %global248, align 2
   call void @task_insert_done(), !dbg !610
   br label %do.body192, !dbg !611
 
@@ -1770,30 +1498,6 @@ if.end221:                                        ; preds = %if.else208, %if.the
   br label %do.end222, !dbg !615
 
 do.end222:                                        ; preds = %if.end221
-  %tmp249 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2
-  %global250 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp249, i32 0, i32 1
-  %global251 = getelementptr %struct.camel_global_t, %struct.camel_global_t* %global250, i32 0, i32 6
-  %tmp252 = load i16, i16* %global251, align 2
-  %tmp253 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
-  %global254 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp253, i32 0, i32 1
-  %global255 = getelementptr %struct.camel_global_t, %struct.camel_global_t* %global254, i32 0, i32 6
-  store i16 %tmp252, i16* %global255, align 2
-  %tmp256 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2
-  %global257 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp256, i32 0, i32 1
-  %global258 = getelementptr %struct.camel_global_t, %struct.camel_global_t* %global257, i32 0, i32 7
-  %tmp259 = load i16, i16* %global258, align 2
-  %tmp260 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
-  %global261 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp260, i32 0, i32 1
-  %global262 = getelementptr %struct.camel_global_t, %struct.camel_global_t* %global261, i32 0, i32 7
-  store i16 %tmp259, i16* %global262, align 2
-  %tmp263 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2
-  %global264 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp263, i32 0, i32 1
-  %global265 = getelementptr %struct.camel_global_t, %struct.camel_global_t* %global264, i32 0, i32 1
-  %tmp266 = load i16, i16* %global265, align 2
-  %tmp267 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
-  %global268 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp267, i32 0, i32 1
-  %global269 = getelementptr %struct.camel_global_t, %struct.camel_global_t* %global268, i32 0, i32 1
-  store i16 %tmp266, i16* %global269, align 2
   call void @task_commit_done(), !dbg !636
   br label %if.end286, !dbg !637
 
@@ -1884,31 +1588,7 @@ if.end253:                                        ; preds = %if.else240, %if.the
   br label %do.end254, !dbg !644
 
 do.end254:                                        ; preds = %if.end253
-  %tmp270 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2
-  %global271 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp270, i32 0, i32 1
-  %global272 = getelementptr %struct.camel_global_t, %struct.camel_global_t* %global271, i32 0, i32 11
-  %tmp273 = load i8, i8* %global272, align 2
-  %tmp274 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
-  %global275 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp274, i32 0, i32 1
-  %global276 = getelementptr %struct.camel_global_t, %struct.camel_global_t* %global275, i32 0, i32 11
-  store i8 %tmp273, i8* %global276, align 2
   call void @task_commit_done(), !dbg !665
-  %tmp277 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2
-  %global278 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp277, i32 0, i32 1
-  %global279 = getelementptr %struct.camel_global_t, %struct.camel_global_t* %global278, i32 0, i32 8
-  %tmp280 = load i16, i16* %global279, align 2
-  %tmp281 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
-  %global282 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp281, i32 0, i32 1
-  %global283 = getelementptr %struct.camel_global_t, %struct.camel_global_t* %global282, i32 0, i32 8
-  store i16 %tmp280, i16* %global283, align 2
-  %tmp284 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2
-  %global285 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp284, i32 0, i32 1
-  %global286 = getelementptr %struct.camel_global_t, %struct.camel_global_t* %global285, i32 0, i32 9
-  %tmp287 = load i16, i16* %global286, align 2
-  %tmp288 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
-  %global289 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp288, i32 0, i32 1
-  %global290 = getelementptr %struct.camel_global_t, %struct.camel_global_t* %global289, i32 0, i32 9
-  store i16 %tmp287, i16* %global290, align 2
   call void @task_lookup_done(), !dbg !666
   br label %do.body255, !dbg !667
 
@@ -1995,22 +1675,6 @@ if.end284:                                        ; preds = %if.else271, %if.the
   br label %do.end285, !dbg !671
 
 do.end285:                                        ; preds = %if.end284
-  %tmp291 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2
-  %global292 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp291, i32 0, i32 1
-  %global293 = getelementptr %struct.camel_global_t, %struct.camel_global_t* %global292, i32 0, i32 8
-  %tmp294 = load i16, i16* %global293, align 2
-  %tmp295 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
-  %global296 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp295, i32 0, i32 1
-  %global297 = getelementptr %struct.camel_global_t, %struct.camel_global_t* %global296, i32 0, i32 8
-  store i16 %tmp294, i16* %global297, align 2
-  %tmp298 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2
-  %global299 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp298, i32 0, i32 1
-  %global300 = getelementptr %struct.camel_global_t, %struct.camel_global_t* %global299, i32 0, i32 9
-  %tmp301 = load i16, i16* %global300, align 2
-  %tmp302 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
-  %global303 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp302, i32 0, i32 1
-  %global304 = getelementptr %struct.camel_global_t, %struct.camel_global_t* %global303, i32 0, i32 9
-  store i16 %tmp301, i16* %global304, align 2
   call void @task_commit_done(), !dbg !692
   br label %if.end286
 

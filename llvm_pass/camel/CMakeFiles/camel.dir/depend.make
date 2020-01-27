@@ -52,6 +52,7 @@ camel/CMakeFiles/camel.dir/CamelPass.cpp.o: /home/saim/Desktop/llvm-project/llvm
 camel/CMakeFiles/camel.dir/CamelPass.cpp.o: /home/saim/Desktop/llvm-project/llvm/include/llvm/Analysis/AssumptionCache.h
 camel/CMakeFiles/camel.dir/CamelPass.cpp.o: /home/saim/Desktop/llvm-project/llvm/include/llvm/Analysis/BasicAliasAnalysis.h
 camel/CMakeFiles/camel.dir/CamelPass.cpp.o: /home/saim/Desktop/llvm-project/llvm/include/llvm/Analysis/DomTreeUpdater.h
+camel/CMakeFiles/camel.dir/CamelPass.cpp.o: /home/saim/Desktop/llvm-project/llvm/include/llvm/Analysis/LoopInfo.h
 camel/CMakeFiles/camel.dir/CamelPass.cpp.o: /home/saim/Desktop/llvm-project/llvm/include/llvm/Analysis/MemoryLocation.h
 camel/CMakeFiles/camel.dir/CamelPass.cpp.o: /home/saim/Desktop/llvm-project/llvm/include/llvm/Analysis/PostDominators.h
 camel/CMakeFiles/camel.dir/CamelPass.cpp.o: /home/saim/Desktop/llvm-project/llvm/include/llvm/Analysis/TargetLibraryInfo.def
@@ -200,6 +201,7 @@ camel/CMakeFiles/camel.dir/Modify.cpp.o: /home/saim/Desktop/llvm-project/llvm/in
 camel/CMakeFiles/camel.dir/Modify.cpp.o: /home/saim/Desktop/llvm-project/llvm/include/llvm/Analysis/AssumptionCache.h
 camel/CMakeFiles/camel.dir/Modify.cpp.o: /home/saim/Desktop/llvm-project/llvm/include/llvm/Analysis/BasicAliasAnalysis.h
 camel/CMakeFiles/camel.dir/Modify.cpp.o: /home/saim/Desktop/llvm-project/llvm/include/llvm/Analysis/DomTreeUpdater.h
+camel/CMakeFiles/camel.dir/Modify.cpp.o: /home/saim/Desktop/llvm-project/llvm/include/llvm/Analysis/LoopInfo.h
 camel/CMakeFiles/camel.dir/Modify.cpp.o: /home/saim/Desktop/llvm-project/llvm/include/llvm/Analysis/MemoryLocation.h
 camel/CMakeFiles/camel.dir/Modify.cpp.o: /home/saim/Desktop/llvm-project/llvm/include/llvm/Analysis/PostDominators.h
 camel/CMakeFiles/camel.dir/Modify.cpp.o: /home/saim/Desktop/llvm-project/llvm/include/llvm/Analysis/TargetLibraryInfo.def
@@ -348,6 +350,7 @@ camel/CMakeFiles/camel.dir/TaskAnalysis.cpp.o: /home/saim/Desktop/llvm-project/l
 camel/CMakeFiles/camel.dir/TaskAnalysis.cpp.o: /home/saim/Desktop/llvm-project/llvm/include/llvm/Analysis/AssumptionCache.h
 camel/CMakeFiles/camel.dir/TaskAnalysis.cpp.o: /home/saim/Desktop/llvm-project/llvm/include/llvm/Analysis/BasicAliasAnalysis.h
 camel/CMakeFiles/camel.dir/TaskAnalysis.cpp.o: /home/saim/Desktop/llvm-project/llvm/include/llvm/Analysis/DomTreeUpdater.h
+camel/CMakeFiles/camel.dir/TaskAnalysis.cpp.o: /home/saim/Desktop/llvm-project/llvm/include/llvm/Analysis/LoopInfo.h
 camel/CMakeFiles/camel.dir/TaskAnalysis.cpp.o: /home/saim/Desktop/llvm-project/llvm/include/llvm/Analysis/MemoryLocation.h
 camel/CMakeFiles/camel.dir/TaskAnalysis.cpp.o: /home/saim/Desktop/llvm-project/llvm/include/llvm/Analysis/PostDominators.h
 camel/CMakeFiles/camel.dir/TaskAnalysis.cpp.o: /home/saim/Desktop/llvm-project/llvm/include/llvm/Analysis/TargetLibraryInfo.def
@@ -495,6 +498,7 @@ camel/CMakeFiles/camel.dir/global.cpp.o: /home/saim/Desktop/llvm-project/llvm/in
 camel/CMakeFiles/camel.dir/global.cpp.o: /home/saim/Desktop/llvm-project/llvm/include/llvm/Analysis/AssumptionCache.h
 camel/CMakeFiles/camel.dir/global.cpp.o: /home/saim/Desktop/llvm-project/llvm/include/llvm/Analysis/BasicAliasAnalysis.h
 camel/CMakeFiles/camel.dir/global.cpp.o: /home/saim/Desktop/llvm-project/llvm/include/llvm/Analysis/DomTreeUpdater.h
+camel/CMakeFiles/camel.dir/global.cpp.o: /home/saim/Desktop/llvm-project/llvm/include/llvm/Analysis/LoopInfo.h
 camel/CMakeFiles/camel.dir/global.cpp.o: /home/saim/Desktop/llvm-project/llvm/include/llvm/Analysis/MemoryLocation.h
 camel/CMakeFiles/camel.dir/global.cpp.o: /home/saim/Desktop/llvm-project/llvm/include/llvm/Analysis/PostDominators.h
 camel/CMakeFiles/camel.dir/global.cpp.o: /home/saim/Desktop/llvm-project/llvm/include/llvm/Analysis/TargetLibraryInfo.def
