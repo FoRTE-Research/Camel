@@ -122,7 +122,7 @@ void TaskAnalysis::traverseStore(StoreInst *store){
     }
 }
 
-bool TaskAnalysis::isPartOfLoop(Instruction *I, AllocaInst *a) {
+bool TaskAnalysis::isPartOfLoop(Instruction *I, Instruction *a) {
 
     BasicBlock *B = I->getParent();
     Function *F = B->getParent();

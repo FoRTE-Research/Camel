@@ -16,7 +16,7 @@ class TaskAnalysis {
 
         void generateTaskIdem(Function &taskFunc);
         LoopInfoBase<BasicBlock, Loop>* getTaskLoops(Function &F);
-        bool isPartOfLoop(Instruction *I, AllocaInst *a);
+        bool isPartOfLoop(Instruction *I, Instruction *a);
 
         vector <Instruction*> taskCallList;
         map < StringRef, vector<vector<Instruction*>> > writes;
