@@ -18,6 +18,7 @@ bool CamelPass::runOnModule(Module &M){
     analysisInfo.AnalyzeModule(M);
 
     errs() << "\nVERSIONING \n";
+    
     // MODE ALL
     // The Mode "ALL" adds code to copy the safe buffer to the unsafe before every task call
     // for (int i=0; i<analysisInfo.taskCallList.size(); i++)

@@ -25,21 +25,7 @@ void TaskAnalysis::AnalyzeModule(Module &M){
 
 void TaskAnalysis::AnalyzeTask(Function &F){
 
-    LoopInfoBase<BasicBlock, Loop>* loopInfo = getTaskLoops(F);
-
     for (auto &B: F) {
-
-        Loop* loop = loopInfo->getLoopFor(&B);
-
-        if (loop){
-
-            BasicBlock *bb = loop->getHeader();
-
-            if (BranchInst *bi = dyn_cast<BranchInst>(bb->getTerminator())) {
-                Value *loopCond = bi->getCondition();
-                //loopCond->dump();
-            }
-        }
 
         for (auto &I: B) {
 
@@ -77,7 +63,10 @@ void TaskAnalysis::traverseLoad(LoadInst *load){
                 Instruction *index = dyn_cast<Instruction>(gep->getOperand(0));
                 inst[0] = index;
                 inst.push_back(index1);
-                
+
+                if (AllocaInst *a = dyn_cast<AllocaInst>(index1))
+                    isPartOfLoop(myLoad, a);
+
             }
 
             if (checkLoad.find(gep->getOperand(2)) == checkLoad.end()){
@@ -111,7 +100,10 @@ void TaskAnalysis::traverseStore(StoreInst *store){
                 Instruction *index = dyn_cast<Instruction>(inst[0]->getOperand(0));
                 inst[0] = index;
                 inst.push_back(index1);
-            
+
+                if (AllocaInst *a = dyn_cast<AllocaInst>(index1))
+                    isPartOfLoop(myLoad, a);
+
             }
 
             if (checkStore.find(gep->getOperand(2)) == checkStore.end()){
@@ -126,9 +118,39 @@ void TaskAnalysis::traverseStore(StoreInst *store){
                 writeFirst[getParentTask(gep)].push_back(inst);
 
             }
-
         }
     }
+}
+
+bool TaskAnalysis::isPartOfLoop(Instruction *I, AllocaInst *a) {
+
+    BasicBlock *B = I->getParent();
+    Function *F = B->getParent();
+    LoopInfoBase<BasicBlock, Loop>* loopInfo = getTaskLoops(*F);
+    Loop* loop = loopInfo->getLoopFor(B);
+
+    if (loop){
+
+        BasicBlock *bb = loop->getHeader();
+
+        if (BranchInst *bi = dyn_cast<BranchInst>(bb->getTerminator())) {
+            Value *loopCond = bi->getCondition();
+
+            if (Instruction *i = dyn_cast<Instruction>(loopCond)){
+
+                Instruction *loopVar = dyn_cast<Instruction>(i->getOperand(0));
+                Value *loopBound = i->getOperand(1);
+
+                if (loopVar->getOperand(0) == a){
+
+                    return true;
+
+                }
+            }
+        }
+    }
+
+    return false;
 }
 
 bool TaskAnalysis::isGlobalStructAccess(GEPOperator *gep, StringRef name){
