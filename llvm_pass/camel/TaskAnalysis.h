@@ -27,6 +27,8 @@ class TaskAnalysis {
 
         set <Value*> checkLoad;
         set <Value*> checkStore;
+        map <Constant*, set<Value*> > checkStoreIndex;
+        map <Constant*, set<Value*> > checkLoadIndex;
         map < StringRef, vector<vector<Instruction*>> > writeFirst;
         map < StringRef, vector<vector<Instruction*>> > readFirst;
                 

@@ -31,3 +31,4 @@ StringRef getParentTask(GEPOperator *gep);
 void getGlobals(Module *M);
 bool isTask(Function *F);
 bool isMain(Function *F);
+void printList(map < StringRef, vector<vector<Instruction*>> >list);

@@ -969,22 +969,6 @@ main:                                   ; @main
 	jmp	.LBB16_24
 .LBB16_24:                              ; %if.then112
                                         ;   in Loop: Header=BB16_1 Depth=1
-	mov	&safe, r12
-	mov	&unsafe, r13
-	mov	282(r13), r14
-	add	r14, r14
-	add	r14, r12
-	add	r14, r13
-	mov	22(r12), r12
-	mov	r12, 22(r13)
-	mov	&safe, r12
-	mov	&unsafe, r13
-	mov	284(r13), r14
-	add	r14, r14
-	add	r14, r12
-	add	r14, r13
-	mov	22(r12), r12
-	mov	r12, 22(r13)
 	call	#task_add
 	jmp	.LBB16_25
 .LBB16_25:                              ; %do.body113
@@ -1070,22 +1054,6 @@ main:                                   ; @main
 	jmp	.LBB16_29
 .LBB16_29:                              ; %do.end142
                                         ;   in Loop: Header=BB16_1 Depth=1
-	mov	&safe, r12
-	mov	&unsafe, r13
-	mov	282(r13), r14
-	add	r14, r14
-	add	r14, r12
-	add	r14, r13
-	mov	22(r12), r12
-	mov	r12, 22(r13)
-	mov	&safe, r12
-	mov	&unsafe, r13
-	mov	284(r13), r14
-	add	r14, r14
-	add	r14, r12
-	add	r14, r13
-	mov	22(r12), r12
-	mov	r12, 22(r13)
 	call	#task_commit_done
 	mov	&safe, r12
 	mov	282(r12), r13

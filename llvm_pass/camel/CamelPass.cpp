@@ -16,18 +16,18 @@ bool CamelPass::runOnModule(Module &M){
 
     // MODE "LIST"
     // LIST can equal reads, writes and idem
-    for( int i=0; i<analysisInfo.taskCallList.size(); i = i+2){
+    // for( int i=0; i<analysisInfo.taskCallList.size(); i = i+2){
 
-        CallInst *taskCall = dyn_cast<CallInst>(analysisInfo.taskCallList[i]);
-        StringRef taskName = taskCall->getCalledFunction()->getName();
-        errs () << taskName + "\n";
+    //     CallInst *taskCall = dyn_cast<CallInst>(analysisInfo.taskCallList[i]);
+    //     StringRef taskName = taskCall->getCalledFunction()->getName();
+    //     errs () << taskName + "\n";
 
-        errs () << "Before Task\n";
-        modifyTasks.copyVariables(taskName, analysisInfo.taskCallList[i], analysisInfo.idem);
-        errs () << "After Task\n";
-        modifyTasks.copyVariables(taskName, analysisInfo.taskCallList[i+1], analysisInfo.writes);
+    //     errs () << "Before Task\n";
+    //     modifyTasks.copyVariables(taskName, analysisInfo.taskCallList[i], analysisInfo.idem);
+    //     errs () << "After Task\n";
+    //     modifyTasks.copyVariables(taskName, analysisInfo.taskCallList[i+1], analysisInfo.writes);
         
-    }
+    // }
 
     return true;
 }

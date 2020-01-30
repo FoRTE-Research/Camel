@@ -21,6 +21,8 @@ void TaskAnalysis::AnalyzeModule(Module &M){
             
         }
     }
+
+    //printList(writes);
 }
 
 void TaskAnalysis::AnalyzeTask(Function &F){
@@ -42,10 +44,11 @@ void TaskAnalysis::AnalyzeTask(Function &F){
         }
     }
 
+    //generateTaskIdem(F);
     checkLoad.clear();
     checkStore.clear();
-    generateTaskIdem(F);
-
+    checkLoadIndex.clear();
+    checkStoreIndex.clear();
 }
 
 void TaskAnalysis::traverseLoad(LoadInst *load){
@@ -69,18 +72,47 @@ void TaskAnalysis::traverseLoad(LoadInst *load){
 
             }
 
-            if (checkLoad.find(gep->getOperand(2)) == checkLoad.end()){
+            GEPOperator *comp;
+            if (inst.size() == 1) {
+                comp = gep;
+                if (checkLoad.find(comp->getOperand(2)) == checkLoad.end()){
+                    reads[getParentTask(comp)].push_back(inst);
 
-                reads[getParentTask(gep)].push_back(inst);
-                checkLoad.insert(gep->getOperand(2));
-
+                    if (checkStore.find(comp->getOperand(2)) == checkStore.end()){
+                        readFirst[getParentTask(comp)].push_back(inst);
+                    }
+                }
             }
-            
-            if (checkStore.find(gep->getOperand(2)) == checkStore.end()){
+            else {
+                comp = dyn_cast<GEPOperator>(gep->getOperand(0));
 
-                readFirst[getParentTask(gep)].push_back(inst);
+                Constant *var = dyn_cast<Constant>(comp->getOperand(2));
+                set<Value*> myIndices;
 
+                if (!checkLoadIndex.count(var)){
+                    pair<Constant*, set<Value*>> p(var, myIndices);
+                    checkLoadIndex.insert(p);
+                }
+
+                if (checkLoad.find(comp->getOperand(2)) == checkLoad.end()){
+                    reads[getParentTask(comp)].push_back(inst);
+
+                    if (checkStore.find(comp->getOperand(2)) == checkStore.end()){
+                        readFirst[getParentTask(comp)].push_back(inst);
+                    }
+                } else if(checkLoadIndex[var].find(inst[1]) == checkLoadIndex[var].end()) {
+
+                    reads[getParentTask(comp)].push_back(inst);
+                    readFirst[getParentTask(comp)].push_back(inst);
+
+                    if (auto a = dyn_cast<AllocaInst>(inst[1]))
+                        checkLoadIndex[var].insert(inst[1]);
+                    else 
+                        checkLoadIndex[var].insert(inst[1]->getOperand(2));
+                }
             }
+
+            checkLoad.insert(comp->getOperand(2));
         }
     }
 }
@@ -106,18 +138,50 @@ void TaskAnalysis::traverseStore(StoreInst *store){
 
             }
 
-            if (checkStore.find(gep->getOperand(2)) == checkStore.end()){
+            GEPOperator *comp;
+            if (inst.size() == 1){
+                comp = gep;
 
-                writes[getParentTask(gep)].push_back(inst);
-                checkStore.insert(gep->getOperand(2));
+                if (checkStore.find(comp->getOperand(2)) == checkStore.end()){
+                    writes[getParentTask(comp)].push_back(inst);
 
+                    if (checkLoad.find(comp->getOperand(2)) == checkLoad.end()){
+                        writeFirst[getParentTask(comp)].push_back(inst);
+                    }
+                }
+            }
+            else {
+
+                comp = dyn_cast<GEPOperator>(gep->getOperand(0));
+
+                Constant *var = dyn_cast<Constant>(comp->getOperand(2));
+                set<Value*> myIndices;
+
+                if (!checkLoadIndex.count(var)){
+
+                    pair<Constant*, set<Value*>> p(var, myIndices);
+                    checkLoadIndex.insert(p);
+                }
+
+                if (checkStore.find(comp->getOperand(2)) == checkStore.end()){
+                    writes[getParentTask(comp)].push_back(inst);
+
+                    if (checkLoad.find(comp->getOperand(2)) == checkLoad.end()){
+                        writeFirst[getParentTask(comp)].push_back(inst);
+                    }
+                } else if (checkStoreIndex[var].find(inst[1]) == checkStoreIndex[var].end()) {
+
+                    writes[getParentTask(comp)].push_back(inst);
+                    writeFirst[getParentTask(comp)].push_back(inst);
+
+                    if (auto a = dyn_cast<AllocaInst>(inst[1]))
+                        checkStoreIndex[var].insert(inst[1]);
+                    else 
+                        checkStoreIndex[var].insert(inst[1]->getOperand(2));
+                }
             }
 
-            if (checkLoad.find(gep->getOperand(2)) == checkLoad.end()){
-
-                writeFirst[getParentTask(gep)].push_back(inst);
-
-            }
+            checkStore.insert(comp->getOperand(2));
         }
     }
 }
@@ -199,11 +263,20 @@ void TaskAnalysis::generateTaskIdem(Function &taskFunc) {
 
         for (int j=0; j<readFirst[task].size(); j++){
 
-            if (writes[task][i][0]->getOperand(2) == readFirst[task][j][0]->getOperand(2)){
+            if (writes[task][i].size() == 1 && readFirst[task][j].size() == 1) {
+                if (writes[task][i][0]->getOperand(2) == readFirst[task][j][0]->getOperand(2)){
+                    idem[task].push_back(writes[task][i]);
+                    break;
+                }
+            }
+            else if (writes[task][i].size() == 2 && readFirst[task][j].size() == 2) {
+                if (writes[task][i][0]->getOperand(2) == readFirst[task][j][0]->getOperand(2)){
 
-                idem[task].push_back(writes[task][i]);
-                break;
-
+                    if (writes[task][i][1] == readFirst[task][j][1]){
+                        idem[task].push_back(writes[task][i]);
+                        break;
+                    }
+                }
             }
         }
     }

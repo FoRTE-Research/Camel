@@ -35,3 +35,21 @@ StringRef getParentTask(GEPOperator *gep){
     return temp->getParent()->getParent()->getName();
 
 }
+
+void printList(map < StringRef, vector<vector<Instruction*>> >list) {
+
+    for (auto it=list.begin(); it!=list.end(); ++it){
+
+        errs () << it->first + "\n";
+
+        for (int i=0; i<it->second.size(); i++){
+
+            it->second[i][0]->dump();
+
+            if (it->second[i].size() == 2)
+                it->second[i][1]->dump();
+
+            errs () << "\n";
+        }
+    }
+}

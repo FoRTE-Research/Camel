@@ -16,7 +16,7 @@ void Modify::copyVariables(StringRef task, Instruction* before, map < StringRef,
         }
         else if (varList[i].size() == 2){
             
-            cpa(before, varList[i]);
+            cpas(before, varList[i]);
 
         }
     }    
@@ -155,10 +155,10 @@ GetElementPtrInst* Modify::accessIndex(Instruction *before, GetElementPtrInst* i
 
 GlobalVariable* Modify::createGlob(StringRef name, AllocaInst* var) {
 
-    myModule->getOrInsertGlobal(name, var->getType()->getContainedType(0));
-    GlobalVariable* gVar = myModule->getNamedGlobal(name);
-    gVar->setLinkage(GlobalValue::CommonLinkage);
+    GlobalVariable *gVar = new GlobalVariable(var->getType()->getContainedType(0), 0, GlobalValue::CommonLinkage, 0, name);
+    gVar->setDSOLocal(true);
     gVar->setAlignment(var->getAlignment());
+    gVar->dump();
     return gVar;
 }
 
@@ -197,8 +197,13 @@ void Modify::cpas(Instruction *before, vector<Instruction*> varList) {
     GEPOperator *first = dyn_cast<GEPOperator>(varList[0]);
     GEPOperator *second = dyn_cast<GEPOperator>(varList[1]);
 
-    if (first == NULL || second == NULL )
+    if (first == NULL || second == NULL ){
+
+        // AllocaInst *a = dyn_cast<AllocaInst>(varList[1]);
+        // a->dump();
+        // createGlob(a->getName(), a);
         return;
+    }
 
     GetElementPtrInst *Struct = accessStruct(before, "safe");
     GetElementPtrInst *structVar = accessStructVar(before, Struct,  first->getOperand(1),  first->getOperand(2));
@@ -279,7 +284,7 @@ void Modify::cpa(Instruction* before, vector<Instruction*> varList) {
 
 void Modify::cpaso(Instruction* before, vector<Instruction*> varList){
 
-     errs() << "CPASO\n";
+    errs() << "CPASO\n";
 
     GEPOperator *first = dyn_cast<GEPOperator>(varList[0]);
     AllocaInst *second = dyn_cast<AllocaInst>(varList[1]);
