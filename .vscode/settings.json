@@ -9,6 +9,8 @@
         "tuple": "cpp",
         "utility": "cpp",
         "atomic": "cpp",
-        "algorithm": "cpp"
+        "algorithm": "cpp",
+        "*.tcc": "cpp",
+        "unordered_map": "cpp"
     }
 }

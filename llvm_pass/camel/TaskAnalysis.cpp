@@ -22,7 +22,7 @@ void TaskAnalysis::AnalyzeModule(Module &M){
         }
     }
 
-    //printList(writes);
+    //printList(idem);
 }
 
 void TaskAnalysis::AnalyzeTask(Function &F){
@@ -44,7 +44,7 @@ void TaskAnalysis::AnalyzeTask(Function &F){
         }
     }
 
-    //generateTaskIdem(F);
+    generateTaskIdem(F);
     checkLoad.clear();
     checkStore.clear();
     checkLoadIndex.clear();
@@ -83,7 +83,7 @@ void TaskAnalysis::traverseLoad(LoadInst *load){
                     }
                 }
             }
-            else {
+            else if (inst.size() == 2){
                 comp = dyn_cast<GEPOperator>(gep->getOperand(0));
 
                 Constant *var = dyn_cast<Constant>(comp->getOperand(2));
@@ -105,11 +105,12 @@ void TaskAnalysis::traverseLoad(LoadInst *load){
                     reads[getParentTask(comp)].push_back(inst);
                     readFirst[getParentTask(comp)].push_back(inst);
 
-                    if (auto a = dyn_cast<AllocaInst>(inst[1]))
-                        checkLoadIndex[var].insert(inst[1]);
-                    else 
-                        checkLoadIndex[var].insert(inst[1]->getOperand(2));
                 }
+
+                if (auto a = dyn_cast<AllocaInst>(inst[1]))
+                    checkStoreIndex[var].insert(inst[1]);
+                else 
+                    checkStoreIndex[var].insert(inst[1]->getOperand(2));
             }
 
             checkLoad.insert(comp->getOperand(2));
@@ -150,7 +151,7 @@ void TaskAnalysis::traverseStore(StoreInst *store){
                     }
                 }
             }
-            else {
+            else if (inst.size() == 2){ 
 
                 comp = dyn_cast<GEPOperator>(gep->getOperand(0));
 
@@ -158,12 +159,12 @@ void TaskAnalysis::traverseStore(StoreInst *store){
                 set<Value*> myIndices;
 
                 if (!checkLoadIndex.count(var)){
-
                     pair<Constant*, set<Value*>> p(var, myIndices);
                     checkLoadIndex.insert(p);
                 }
 
                 if (checkStore.find(comp->getOperand(2)) == checkStore.end()){
+
                     writes[getParentTask(comp)].push_back(inst);
 
                     if (checkLoad.find(comp->getOperand(2)) == checkLoad.end()){
@@ -174,11 +175,13 @@ void TaskAnalysis::traverseStore(StoreInst *store){
                     writes[getParentTask(comp)].push_back(inst);
                     writeFirst[getParentTask(comp)].push_back(inst);
 
-                    if (auto a = dyn_cast<AllocaInst>(inst[1]))
-                        checkStoreIndex[var].insert(inst[1]);
-                    else 
-                        checkStoreIndex[var].insert(inst[1]->getOperand(2));
                 }
+
+                if (auto a = dyn_cast<AllocaInst>(inst[1]))
+                    checkStoreIndex[var].insert(inst[1]);
+                else 
+                    checkStoreIndex[var].insert(inst[1]->getOperand(2));
+
             }
 
             checkStore.insert(comp->getOperand(2));
@@ -263,20 +266,35 @@ void TaskAnalysis::generateTaskIdem(Function &taskFunc) {
 
         for (int j=0; j<readFirst[task].size(); j++){
 
-            if (writes[task][i].size() == 1 && readFirst[task][j].size() == 1) {
-                if (writes[task][i][0]->getOperand(2) == readFirst[task][j][0]->getOperand(2)){
+            if (writes[task][i][0]->getOperand(2) == readFirst[task][j][0]->getOperand(2)){
+
+                if (writes[task][i].size() == 1 && readFirst[task][j].size() == 1) {
+                    
                     idem[task].push_back(writes[task][i]);
                     break;
                 }
-            }
-            else if (writes[task][i].size() == 2 && readFirst[task][j].size() == 2) {
-                if (writes[task][i][0]->getOperand(2) == readFirst[task][j][0]->getOperand(2)){
+                else if (writes[task][i].size() == 2 && readFirst[task][j].size() == 2) {
 
-                    if (writes[task][i][1] == readFirst[task][j][1]){
-                        idem[task].push_back(writes[task][i]);
-                        break;
+                    AllocaInst *a = dyn_cast<AllocaInst>(writes[task][i][1]);
+                    AllocaInst *b = dyn_cast<AllocaInst>(readFirst[task][j][1]); 
+                    if (a && b) {
+
+                        if (writes[task][i][1] == readFirst[task][j][1]){
+                            idem[task].push_back(writes[task][i]);
+                            break;
+                        }
+                    }
+                    else if (!(a || b)) {
+
+                        if (writes[task][i][1]->getOperand(2) == readFirst[task][j][1]->getOperand(2)){
+                            idem[task].push_back(writes[task][i]);
+                            break;
+                        }
                     }
                 }
+
+
+
             }
         }
     }

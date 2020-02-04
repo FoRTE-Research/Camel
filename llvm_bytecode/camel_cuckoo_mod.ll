@@ -805,6 +805,13 @@ entry:
   store %struct.camel_buffer_t* getelementptr inbounds (%struct.Camel, %struct.Camel* @camel, i32 0, i32 1), %struct.camel_buffer_t** @safe, align 2, !dbg !410
   store %struct.camel_buffer_t* getelementptr inbounds (%struct.Camel, %struct.Camel* @camel, i32 0, i32 2), %struct.camel_buffer_t** @unsafe, align 2, !dbg !411
   call void @camel_init(), !dbg !412
+  %tmp1 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
+  %global = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp1, i32 0, i32 1
+  %cast = bitcast %struct.camel_global_t* %global to i8*
+  %tmp2 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2
+  %global3 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp2, i32 0, i32 1
+  %cast4 = bitcast %struct.camel_global_t* %global3 to i8*
+  call void @llvm.memcpy.p0i8.p0i8.i64(i8* %cast, i8* %cast4, i64 276, i1 false)
   call void @task_init(), !dbg !413
   %0 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2, !dbg !414
   %globals = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %0, i32 0, i32 1, !dbg !415
@@ -825,6 +832,13 @@ while.cond:                                       ; preds = %if.end286, %entry
   br i1 %cmp, label %while.body, label %while.end287, !dbg !420
 
 while.body:                                       ; preds = %while.cond
+  %tmp6 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
+  %global7 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp6, i32 0, i32 1
+  %cast8 = bitcast %struct.camel_global_t* %global7 to i8*
+  %tmp9 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2
+  %global10 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp9, i32 0, i32 1
+  %cast11 = bitcast %struct.camel_global_t* %global10 to i8*
+  call void @llvm.memcpy.p0i8.p0i8.i64(i8* %cast8, i8* %cast11, i64 276, i1 false)
   call void @task_generate_key(), !dbg !423
   br label %do.body, !dbg !425
 
@@ -911,7 +925,22 @@ if.end:                                           ; preds = %if.else, %if.then
   br label %do.end, !dbg !429
 
 do.end:                                           ; preds = %if.end
+  %tmp67 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2
+  %global68 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp67, i32 0, i32 1
+  %global69 = getelementptr %struct.camel_global_t, %struct.camel_global_t* %global68, i32 0, i32 1
+  %tmp70 = load i16, i16* %global69, align 2
+  %tmp71 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
+  %global72 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp71, i32 0, i32 1
+  %global73 = getelementptr %struct.camel_global_t, %struct.camel_global_t* %global72, i32 0, i32 1
+  store i16 %tmp70, i16* %global73, align 2
   call void @task_commit_done(), !dbg !450
+  %tmp12 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
+  %global13 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp12, i32 0, i32 1
+  %cast14 = bitcast %struct.camel_global_t* %global13 to i8*
+  %tmp15 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2
+  %global16 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp15, i32 0, i32 1
+  %cast17 = bitcast %struct.camel_global_t* %global16 to i8*
+  call void @llvm.memcpy.p0i8.p0i8.i64(i8* %cast14, i8* %cast17, i64 276, i1 false)
   call void @task_calc_indexes(), !dbg !451
   br label %do.body20, !dbg !452
 
@@ -999,6 +1028,13 @@ if.end48:                                         ; preds = %if.else35, %if.then
 
 do.end49:                                         ; preds = %if.end48
   call void @task_commit_done(), !dbg !477
+  %tmp18 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
+  %global19 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp18, i32 0, i32 1
+  %cast20 = bitcast %struct.camel_global_t* %global19 to i8*
+  %tmp21 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2
+  %global22 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp21, i32 0, i32 1
+  %cast23 = bitcast %struct.camel_global_t* %global22 to i8*
+  call void @llvm.memcpy.p0i8.p0i8.i64(i8* %cast20, i8* %cast23, i64 276, i1 false)
   call void @task_calc_indexes_index_1(), !dbg !478
   br label %do.body50, !dbg !479
 
@@ -1086,6 +1122,13 @@ if.end78:                                         ; preds = %if.else65, %if.then
 
 do.end79:                                         ; preds = %if.end78
   call void @task_commit_done(), !dbg !504
+  %tmp24 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
+  %global25 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp24, i32 0, i32 1
+  %cast26 = bitcast %struct.camel_global_t* %global25 to i8*
+  %tmp27 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2
+  %global28 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp27, i32 0, i32 1
+  %cast29 = bitcast %struct.camel_global_t* %global28 to i8*
+  call void @llvm.memcpy.p0i8.p0i8.i64(i8* %cast26, i8* %cast29, i64 276, i1 false)
   call void @task_calc_indexes_index_2(), !dbg !505
   br label %do.body80, !dbg !506
 
@@ -1172,6 +1215,14 @@ if.end108:                                        ; preds = %if.else95, %if.then
   br label %do.end109, !dbg !510
 
 do.end109:                                        ; preds = %if.end108
+  %tmp74 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2
+  %global75 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp74, i32 0, i32 1
+  %global76 = getelementptr %struct.camel_global_t, %struct.camel_global_t* %global75, i32 0, i32 4
+  %tmp77 = load i16, i16* %global76, align 2
+  %tmp78 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
+  %global79 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp78, i32 0, i32 1
+  %global80 = getelementptr %struct.camel_global_t, %struct.camel_global_t* %global79, i32 0, i32 4
+  store i16 %tmp77, i16* %global80, align 2
   call void @task_commit_done(), !dbg !531
   %114 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2, !dbg !532
   %globals110 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %114, i32 0, i32 1, !dbg !532
@@ -1181,6 +1232,65 @@ do.end109:                                        ; preds = %if.end108
   br i1 %cmp111, label %if.then112, label %if.else223, !dbg !535
 
 if.then112:                                       ; preds = %do.end109
+  %tmp30 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
+  %global31 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp30, i32 0, i32 1
+  %cast32 = bitcast %struct.camel_global_t* %global31 to i8*
+  %tmp33 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2
+  %global34 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp33, i32 0, i32 1
+  %cast35 = bitcast %struct.camel_global_t* %global34 to i8*
+  call void @llvm.memcpy.p0i8.p0i8.i64(i8* %cast32, i8* %cast35, i64 276, i1 false)
+  %tmp81 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2
+  %global82 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp81, i32 0, i32 1
+  %global83 = getelementptr %struct.camel_global_t, %struct.camel_global_t* %global82, i32 0, i32 0
+  %tmp84 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
+  %global85 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp84, i32 0, i32 1
+  %global86 = getelementptr %struct.camel_global_t, %struct.camel_global_t* %global85, i32 0, i32 3
+  %load = load i16, i16* %global86, align 2
+  %access = getelementptr [128 x i16], [128 x i16]* %global83, i16 0, i16 %load
+  %tmp87 = load i16, i16* %access, align 2
+  %tmp88 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
+  %global89 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp88, i32 0, i32 1
+  %global90 = getelementptr %struct.camel_global_t, %struct.camel_global_t* %global89, i32 0, i32 0
+  %tmp91 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
+  %global92 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp91, i32 0, i32 1
+  %global93 = getelementptr %struct.camel_global_t, %struct.camel_global_t* %global92, i32 0, i32 3
+  %load94 = load i16, i16* %global93, align 2
+  %access95 = getelementptr [128 x i16], [128 x i16]* %global90, i16 0, i16 %load94
+  store i16 %tmp87, i16* %access95, align 2
+  %tmp96 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2
+  %global97 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp96, i32 0, i32 1
+  %global98 = getelementptr %struct.camel_global_t, %struct.camel_global_t* %global97, i32 0, i32 0
+  %tmp100 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
+  %global101 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp100, i32 0, i32 1
+  %global102 = getelementptr %struct.camel_global_t, %struct.camel_global_t* %global101, i32 0, i32 4
+  %load103 = load i16, i16* %global102, align 2
+  %access104 = getelementptr [128 x i16], [128 x i16]* %global98, i16 0, i16 %load103
+  %tmp105 = load i16, i16* %access104, align 2
+  %tmp106 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
+  %global107 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp106, i32 0, i32 1
+  %global108 = getelementptr %struct.camel_global_t, %struct.camel_global_t* %global107, i32 0, i32 0
+  %tmp109 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
+  %global110 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp109, i32 0, i32 1
+  %global111 = getelementptr %struct.camel_global_t, %struct.camel_global_t* %global110, i32 0, i32 4
+  %load112 = load i16, i16* %global111, align 2
+  %access113 = getelementptr [128 x i16], [128 x i16]* %global108, i16 0, i16 %load112
+  store i16 %tmp105, i16* %access113, align 2
+  %tmp114 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2
+  %global115 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp114, i32 0, i32 1
+  %global116 = getelementptr %struct.camel_global_t, %struct.camel_global_t* %global115, i32 0, i32 3
+  %tmp117 = load i16, i16* %global116, align 2
+  %tmp118 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
+  %global119 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp118, i32 0, i32 1
+  %global120 = getelementptr %struct.camel_global_t, %struct.camel_global_t* %global119, i32 0, i32 3
+  store i16 %tmp117, i16* %global120, align 2
+  %tmp121 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2
+  %global122 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp121, i32 0, i32 1
+  %global123 = getelementptr %struct.camel_global_t, %struct.camel_global_t* %global122, i32 0, i32 2
+  %tmp124 = load i16, i16* %global123, align 2
+  %tmp125 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
+  %global126 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp125, i32 0, i32 1
+  %global127 = getelementptr %struct.camel_global_t, %struct.camel_global_t* %global126, i32 0, i32 2
+  store i16 %tmp124, i16* %global127, align 2
   call void @task_add(), !dbg !536
   br label %do.body113, !dbg !538
 
@@ -1267,6 +1377,42 @@ if.end141:                                        ; preds = %if.else128, %if.the
   br label %do.end142, !dbg !542
 
 do.end142:                                        ; preds = %if.end141
+  %tmp128 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2
+  %global129 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp128, i32 0, i32 1
+  %global130 = getelementptr %struct.camel_global_t, %struct.camel_global_t* %global129, i32 0, i32 0
+  %tmp131 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
+  %global132 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp131, i32 0, i32 1
+  %global133 = getelementptr %struct.camel_global_t, %struct.camel_global_t* %global132, i32 0, i32 3
+  %load134 = load i16, i16* %global133, align 2
+  %access135 = getelementptr [128 x i16], [128 x i16]* %global130, i16 0, i16 %load134
+  %tmp136 = load i16, i16* %access135, align 2
+  %tmp137 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
+  %global138 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp137, i32 0, i32 1
+  %global139 = getelementptr %struct.camel_global_t, %struct.camel_global_t* %global138, i32 0, i32 0
+  %tmp140 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
+  %global141 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp140, i32 0, i32 1
+  %global142 = getelementptr %struct.camel_global_t, %struct.camel_global_t* %global141, i32 0, i32 3
+  %load143 = load i16, i16* %global142, align 2
+  %access144 = getelementptr [128 x i16], [128 x i16]* %global139, i16 0, i16 %load143
+  store i16 %tmp136, i16* %access144, align 2
+  %tmp145 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2
+  %global146 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp145, i32 0, i32 1
+  %global147 = getelementptr %struct.camel_global_t, %struct.camel_global_t* %global146, i32 0, i32 0
+  %tmp148 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
+  %global149 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp148, i32 0, i32 1
+  %global150 = getelementptr %struct.camel_global_t, %struct.camel_global_t* %global149, i32 0, i32 4
+  %load151 = load i16, i16* %global150, align 2
+  %access152 = getelementptr [128 x i16], [128 x i16]* %global147, i16 0, i16 %load151
+  %tmp153 = load i16, i16* %access152, align 2
+  %tmp154 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
+  %global155 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp154, i32 0, i32 1
+  %global156 = getelementptr %struct.camel_global_t, %struct.camel_global_t* %global155, i32 0, i32 0
+  %tmp157 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
+  %global158 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp157, i32 0, i32 1
+  %global159 = getelementptr %struct.camel_global_t, %struct.camel_global_t* %global158, i32 0, i32 4
+  %load160 = load i16, i16* %global159, align 2
+  %access161 = getelementptr [128 x i16], [128 x i16]* %global156, i16 0, i16 %load160
+  store i16 %tmp153, i16* %access161, align 2
   call void @task_commit_done(), !dbg !563
   %143 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2, !dbg !564
   %globals143 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %143, i32 0, i32 1, !dbg !564
@@ -1319,6 +1465,13 @@ land.end:                                         ; preds = %land.rhs, %while.co
   br i1 %155, label %while.body159, label %while.end, !dbg !571
 
 while.body159:                                    ; preds = %land.end
+  %tmp36 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
+  %global37 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp36, i32 0, i32 1
+  %cast38 = bitcast %struct.camel_global_t* %global37 to i8*
+  %tmp40 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2
+  %global41 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp40, i32 0, i32 1
+  %cast42 = bitcast %struct.camel_global_t* %global41 to i8*
+  call void @llvm.memcpy.p0i8.p0i8.i64(i8* %cast38, i8* %cast42, i64 276, i1 false)
   call void @task_relocate(), !dbg !579
   br label %do.body160, !dbg !581
 
@@ -1405,6 +1558,14 @@ if.end189:                                        ; preds = %if.else176, %if.the
   br label %do.end190, !dbg !585
 
 do.end190:                                        ; preds = %if.end189
+  %tmp162 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2
+  %global163 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp162, i32 0, i32 1
+  %global164 = getelementptr %struct.camel_global_t, %struct.camel_global_t* %global163, i32 0, i32 10
+  %tmp165 = load i8, i8* %global164, align 2
+  %tmp166 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
+  %global167 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp166, i32 0, i32 1
+  %global168 = getelementptr %struct.camel_global_t, %struct.camel_global_t* %global167, i32 0, i32 10
+  store i8 %tmp165, i8* %global168, align 2
   call void @task_commit_done(), !dbg !606
   br label %while.cond151, !dbg !571, !llvm.loop !607
 
@@ -1412,6 +1573,13 @@ while.end:                                        ; preds = %land.end
   br label %if.end191, !dbg !609
 
 if.end191:                                        ; preds = %while.end, %land.lhs.true, %do.end142
+  %tmp43 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
+  %global44 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp43, i32 0, i32 1
+  %cast45 = bitcast %struct.camel_global_t* %global44 to i8*
+  %tmp46 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2
+  %global47 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp46, i32 0, i32 1
+  %cast48 = bitcast %struct.camel_global_t* %global47 to i8*
+  call void @llvm.memcpy.p0i8.p0i8.i64(i8* %cast45, i8* %cast48, i64 276, i1 false)
   call void @task_insert_done(), !dbg !610
   br label %do.body192, !dbg !611
 
@@ -1502,6 +1670,13 @@ do.end222:                                        ; preds = %if.end221
   br label %if.end286, !dbg !637
 
 if.else223:                                       ; preds = %do.end109
+  %tmp49 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
+  %global50 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp49, i32 0, i32 1
+  %cast51 = bitcast %struct.camel_global_t* %global50 to i8*
+  %tmp52 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2
+  %global53 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp52, i32 0, i32 1
+  %cast54 = bitcast %struct.camel_global_t* %global53 to i8*
+  call void @llvm.memcpy.p0i8.p0i8.i64(i8* %cast51, i8* %cast54, i64 276, i1 false)
   call void @task_lookup_search(), !dbg !638
   br label %do.body224, !dbg !640
 
@@ -1589,6 +1764,13 @@ if.end253:                                        ; preds = %if.else240, %if.the
 
 do.end254:                                        ; preds = %if.end253
   call void @task_commit_done(), !dbg !665
+  %tmp55 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
+  %global56 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp55, i32 0, i32 1
+  %cast57 = bitcast %struct.camel_global_t* %global56 to i8*
+  %tmp58 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2
+  %global59 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp58, i32 0, i32 1
+  %cast60 = bitcast %struct.camel_global_t* %global59 to i8*
+  call void @llvm.memcpy.p0i8.p0i8.i64(i8* %cast57, i8* %cast60, i64 276, i1 false)
   call void @task_lookup_done(), !dbg !666
   br label %do.body255, !dbg !667
 
@@ -1682,6 +1864,13 @@ if.end286:                                        ; preds = %do.end285, %do.end2
   br label %while.cond, !dbg !420, !llvm.loop !693
 
 while.end287:                                     ; preds = %while.cond
+  %tmp61 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
+  %global62 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp61, i32 0, i32 1
+  %cast63 = bitcast %struct.camel_global_t* %global62 to i8*
+  %tmp64 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2
+  %global65 = getelementptr %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp64, i32 0, i32 1
+  %cast66 = bitcast %struct.camel_global_t* %global65 to i8*
+  call void @llvm.memcpy.p0i8.p0i8.i64(i8* %cast63, i8* %cast66, i64 276, i1 false)
   call void @task_done(), !dbg !695
   call void @task_commit_done(), !dbg !696
   %264 = load i16, i16* %retval, align 2, !dbg !697
@@ -1738,6 +1927,9 @@ for.end:                                          ; preds = %for.cond
   %8 = load i16, i16* %hash, align 2, !dbg !732
   ret i16 %8, !dbg !733
 }
+
+; Function Attrs: argmemonly nounwind willreturn
+declare void @llvm.memcpy.p0i8.p0i8.i64(i8* noalias nocapture writeonly, i8* noalias nocapture readonly, i64, i1 immarg) #3
 
 attributes #0 = { noinline nounwind optnone "correctly-rounded-divide-sqrt-fp-math"="false" "disable-tail-calls"="false" "frame-pointer"="none" "less-precise-fpmad"="false" "min-legal-vector-width"="0" "no-infs-fp-math"="false" "no-jump-tables"="false" "no-nans-fp-math"="false" "no-signed-zeros-fp-math"="false" "no-trapping-math"="false" "stack-protector-buffer-size"="8" "unsafe-fp-math"="false" "use-soft-float"="false" }
 attributes #1 = { "correctly-rounded-divide-sqrt-fp-math"="false" "disable-tail-calls"="false" "frame-pointer"="none" "less-precise-fpmad"="false" "no-infs-fp-math"="false" "no-nans-fp-math"="false" "no-signed-zeros-fp-math"="false" "no-trapping-math"="false" "stack-protector-buffer-size"="8" "unsafe-fp-math"="false" "use-soft-float"="false" }
