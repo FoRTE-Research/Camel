@@ -15,6 +15,7 @@ class CamelPass : public ModulePass {
         //variables
         TaskAnalysis analysisInfo;
         Modify modifyTasks;
+        int mode;
         Module *myModule;
         
 };

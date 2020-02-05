@@ -22,7 +22,7 @@ void TaskAnalysis::AnalyzeModule(Module &M){
         }
     }
 
-    //printList(idem);
+    //printList(reads);
 }
 
 void TaskAnalysis::AnalyzeTask(Function &F){
@@ -95,14 +95,19 @@ void TaskAnalysis::traverseLoad(LoadInst *load){
                 }
 
                 if (checkLoad.find(comp->getOperand(2)) == checkLoad.end()){
-                    reads[getParentTask(comp)].push_back(inst);
+                    //reads[getParentTask(comp)].push_back(inst);
+
+                    vector <Instruction*> inst2;
+                    inst2.push_back(inst[0]);
+                    inst2.push_back(NULL);
+                    reads[getParentTask(comp)].push_back(inst2);
 
                     if (checkStore.find(comp->getOperand(2)) == checkStore.end()){
                         readFirst[getParentTask(comp)].push_back(inst);
                     }
                 } else if(checkLoadIndex[var].find(inst[1]) == checkLoadIndex[var].end()) {
 
-                    reads[getParentTask(comp)].push_back(inst);
+                    //reads[getParentTask(comp)].push_back(inst);
                     readFirst[getParentTask(comp)].push_back(inst);
 
                 }

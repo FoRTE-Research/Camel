@@ -14,11 +14,12 @@ class Modify {
         GetElementPtrInst* accessStructVar(Instruction *before, GetElementPtrInst* Struct, Value* index1, Value* index2);
         GetElementPtrInst* accessIndex(Instruction *before, GetElementPtrInst* index, Instruction* ar);
         GlobalVariable* createGlob(StringRef name, AllocaInst* var);
+        void varToGlob(GlobalVariable* g, AllocaInst *a);
 
         void cps(Instruction* before, vector<Instruction*> varList);
         void cpas(Instruction *before, vector<Instruction*> varList);
         void cpa(Instruction* before, vector<Instruction*> varList);
-        void cpaso(Instruction* before, vector<Instruction*> varList);
+        void cpaso(Instruction* before, Instruction *ar, GlobalVariable *g);
 
         // variables
         Module *myModule;

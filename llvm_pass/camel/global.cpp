@@ -29,7 +29,7 @@ bool isMain(Function *F){
 
 }
 
-StringRef getParentTask(GEPOperator *gep){
+StringRef getParentTask(Value *gep){
 
     Instruction *temp = dyn_cast<Instruction>(gep);
     return temp->getParent()->getParent()->getName();
@@ -46,7 +46,7 @@ void printList(map < StringRef, vector<vector<Instruction*>> >list) {
 
             it->second[i][0]->dump();
 
-            if (it->second[i].size() == 2)
+            if (it->second[i].size() == 2 && it->second[i][1])
                 it->second[i][1]->dump();
 
             errs () << "\n";

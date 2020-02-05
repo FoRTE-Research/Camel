@@ -421,7 +421,7 @@ void task_add()
 #else
     #error type of system not defined
 #endif
-index_t writeOpt = 0;
+index_t writeOpt=0;
 #define writes_task_relocate() cps(success); cps(relocation_count); cps(index1); cps(fingerprint); cpaso(filter,writeOpt)  // cpa(filter, sizeof(fingerprint_t)*NUM_BUCKETS); opt below; everything written needs to go here
 void task_relocate()
 {
@@ -556,8 +556,7 @@ int main(){
     //cps(key);
     //cpas(filter, key);
     //cpa(filter, sizeof(fingerprint_t)*NUM_BUCKETS);
-    // int x=0;
-    // cpaso(filter,x);
+    cpaso(filter,writeOpt);
     // llvm testing end
 
    // prepare_task_init();
