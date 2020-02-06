@@ -16,16 +16,20 @@ bool CamelPass::runOnModule(Module &M){
 
     // MODE "LIST"
     // LIST can equal reads 1, idem 2, none 3
-    for( int i=0; i<analysisInfo.taskCallList.size(); i = i+2){
+
+    //copy everything before task_init
+    modifyTasks.copyBuffers(analysisInfo.taskCallList[0], "unsafe", "safe");
+    //copy everything after task_init
+    modifyTasks.copyBuffers(analysisInfo.taskCallList[1], "unsafe", "safe");
+
+    for( int i=2; i<analysisInfo.taskCallList.size(); i = i+2){
 
         CallInst *taskCall = dyn_cast<CallInst>(analysisInfo.taskCallList[i]);
         StringRef taskName = taskCall->getCalledFunction()->getName();
         errs () << taskName + "\n";
 
-        //change mode here
         errs () << "Before Task\n";
         modifyTasks.copyVariables(taskName, analysisInfo.taskCallList[i], analysisInfo.idem);
-
 
         errs () << "After Task\n";
         modifyTasks.copyVariables(taskName, analysisInfo.taskCallList[i+1], analysisInfo.writes);

@@ -556,12 +556,12 @@ int main(){
     //cps(key);
     //cpas(filter, key);
     //cpa(filter, sizeof(fingerprint_t)*NUM_BUCKETS);
-    cpaso(filter,writeOpt);
+    //cpaso(filter,writeOpt);
     // llvm testing end
 
    // prepare_task_init();
     task_init();
-    memcpy(&(safe->globals), &(unsafe->globals), sizeof(camel_global_t)); // concise version of writes_task_init()
+    //memcpy(&(safe->globals), &(unsafe->globals), sizeof(camel_global_t)); // concise version of writes_task_init()
     task_commit_done();
     // The buffers are equal
 

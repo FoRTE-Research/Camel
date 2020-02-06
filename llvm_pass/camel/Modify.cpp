@@ -322,14 +322,10 @@ void Modify::cpaso(Instruction* before, Instruction* ar, GlobalVariable *g){
     if (first == NULL || second == NULL)
         return;
 
-    //before->dump();
-    //second->getType()->getContainedType(0)->dump();
-
     GetElementPtrInst *Struct = accessStruct(before, "safe");
     GetElementPtrInst *structVar = accessStructVar(before, Struct,  first->getOperand(1),  first->getOperand(2));
     LoadInst *load = new LoadInst(second->getType()->getContainedType(0), second, "tmp", before);
     load->setAlignment(MaybeAlign(2));
-
 
     Type *i16_type = IntegerType::getInt16Ty(myModule->getContext());
     Constant *start = ConstantInt::get(i16_type, 0);
@@ -338,25 +334,23 @@ void Modify::cpaso(Instruction* before, Instruction* ar, GlobalVariable *g){
     indices.push_back(start);
     indices.push_back(load);
 
-    GetElementPtrInst *GEP = GetElementPtrInst::Create(first->getType()->getContainedType(0), first, indices, "access", before);
+    GetElementPtrInst *GEP = GetElementPtrInst::Create(structVar->getType()->getContainedType(0), structVar, indices, "access", before);
     LoadInst *loadArray = new LoadInst(GEP->getType()->getContainedType(0), GEP, "tmp", before);
     loadArray->setAlignment(MaybeAlign(2));
-
 
     GetElementPtrInst *Struct1 = accessStruct(before, "unsafe");
     GetElementPtrInst *structVar1 = accessStructVar(before, Struct1,  first->getOperand(1),  first->getOperand(2));
     LoadInst *load1 = new LoadInst(second->getType()->getContainedType(0), second, "tmp", before);
     load1->setAlignment(MaybeAlign(2));
 
-
     vector<Value*> indices1;
     indices1.push_back(start);
     indices1.push_back(load1);
-    GetElementPtrInst *GEP1 = GetElementPtrInst::Create(first->getType()->getContainedType(0), first, indices1, "access", before);
-    LoadInst *loadArray1 = new LoadInst(GEP1->getType()->getContainedType(0), GEP1, "tmp", before);
-    loadArray1->setAlignment(MaybeAlign(2));
+    GetElementPtrInst *GEP1 = GetElementPtrInst::Create(structVar1->getType()->getContainedType(0), structVar1, indices1, "access", before);
+    // LoadInst *loadArray1 = new LoadInst(GEP1->getType()->getContainedType(0), GEP1, "tmp", before);
+    // loadArray1->setAlignment(MaybeAlign(2));
 
-    // StoreInst *store = new StoreInst(loadArray, loadArray1, before);
-    // store->setAlignment(MaybeAlign(2));
+    StoreInst *store = new StoreInst(loadArray, GEP1, before);
+    store->setAlignment(MaybeAlign(2));
 
 }
