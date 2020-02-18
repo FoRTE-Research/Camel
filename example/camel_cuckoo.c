@@ -261,11 +261,11 @@ static fingerprint_t hash_to_fingerprint(value_t key)
     #error type of system not defined
 #endif
 #define writes_task_init() cpa(filter, sizeof(fingerprint_t)*NUM_BUCKETS); cps(insert_count); cps(lookup_count); cps(inserted_count); cps(member_count); cps(key) // everything written needs to go here
-void task_init()
+void __attribute__((noinline)) task_init()
 {
     unsigned i;
     for (i = 0; i < NUM_BUCKETS ; ++i) {
-        GV(filter)[i] = 0;
+        GV(filter)[i] = i;
         //GV(filter, i) = 0;
     }
     GV(insert_count) = 0;
@@ -291,7 +291,7 @@ void task_init()
     #error type of system not defined
 #endif
 #define writes_task_generate_key() cps(key) // everything written needs to go here
-void task_generate_key()
+void __attribute__((noinline)) task_generate_key()
 {
 
     GV(key) = (GV(key) + 1) * 17;
@@ -313,7 +313,7 @@ void task_generate_key()
     #error type of system not defined
 #endif
 #define writes_task_calc_indexes() cps(fingerprint) // everything written needs to go here
-void task_calc_indexes()
+void __attribute__((noinline)) task_calc_indexes()
 {
     GV(fingerprint) = hash_to_fingerprint(GV(key));
 }
@@ -334,7 +334,7 @@ void task_calc_indexes()
     #error type of system not defined
 #endif
 #define writes_task_calc_indexes_index_1() cps(index1) // everything written needs to go here
-void task_calc_indexes_index_1()
+void __attribute__((noinline)) task_calc_indexes_index_1()
 {
     GV(index1) = hash_to_index(GV(key));
 }
@@ -355,7 +355,7 @@ void task_calc_indexes_index_1()
     #error type of system not defined
 #endif
 #define writes_task_calc_indexes_index_2() cps(index2) // everything written needs to go here
-void task_calc_indexes_index_2()
+void __attribute__((noinline)) task_calc_indexes_index_2()
 {
     index_t fp_hash = hash_to_index(GV(fingerprint));
     GV(index2) = GV(index1) ^ fp_hash;
@@ -377,7 +377,7 @@ void task_calc_indexes_index_2()
     #error type of system not defined
 #endif
 #define writes_task_add() cps(success); cpas(filter, index1); cpas(filter, index2); cps(index1); cps(relocation_count) // everything written needs to go here
-void task_add()
+void __attribute__((noinline)) task_add()
 {
     if (!GV(filter)[GV(index1)]) {
         GV(success) = true;
@@ -421,15 +421,14 @@ void task_add()
 #else
     #error type of system not defined
 #endif
-index_t writeOpt=0;
 #define writes_task_relocate() cps(success); cps(relocation_count); cps(index1); cps(fingerprint); cpaso(filter,writeOpt)  // cpa(filter, sizeof(fingerprint_t)*NUM_BUCKETS); opt below; everything written needs to go here
-void task_relocate()
+void __attribute__((noinline)) task_relocate()
 {
     fingerprint_t fp_victim = GV(fingerprint);
     index_t fp_hash_victim = hash_to_index(fp_victim);
     index_t index2_victim = GV(index1) ^ fp_hash_victim;
 
-        writeOpt = index2_victim;
+        //writeOpt = index2_victim;
         //cpaso(filter,writeOpt); // Opt: cross function boundary with part of prepare statement to make it more precise (lower overhead)
         if (!GV(filter)[index2_victim]) { // slot was free
             GV(success) = true;
@@ -465,7 +464,7 @@ void task_relocate()
     #error type of system not defined
 #endif
 #define writes_task_insert_done() cps(insert_count); cps(inserted_count); cps(key)  // everything written needs to go here
-void task_insert_done()
+void __attribute__((noinline)) task_insert_done()
 {
     ++GV(insert_count);
     GV(inserted_count) += GV(success);
@@ -492,7 +491,7 @@ void task_insert_done()
     #error type of system not defined
 #endif
 #define writes_task_lookup_search() cps(member)  // everything written needs to go here
-void task_lookup_search()
+void __attribute__((noinline)) task_lookup_search()
 {
     if (GV(filter)[GV(index1)] == GV(fingerprint)) {
         GV(member) = true;
@@ -525,7 +524,7 @@ void task_lookup_search()
     #error type of system not defined
 #endif
 #define writes_task_lookup_done() cps(lookup_count); cps(member_count)  // everything written needs to go here
-void task_lookup_done()
+void __attribute__((noinline)) task_lookup_done()
 {
     ++GV(lookup_count);
 
@@ -536,13 +535,18 @@ void task_lookup_done()
     }
 }
 
-void task_done()
+void __attribute__((noinline)) task_done()
 {
+
+	uint16_t crc_end = __fast_hw_crc(safe, sizeof(camel_buffer_t) - 2, CRC_INIT);									\
     exit(0);
 }
 
-void task_commit_done() {
+void __attribute__((noinline)) task_commit_done() {
 
+    int x;
+    x = 10;
+    x=x+1;
 }
 
 int main(){

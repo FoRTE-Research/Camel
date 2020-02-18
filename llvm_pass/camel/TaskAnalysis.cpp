@@ -22,7 +22,7 @@ void TaskAnalysis::AnalyzeModule(Module &M){
         }
     }
 
-    //printList(reads);
+    printList(reads);
 }
 
 void TaskAnalysis::AnalyzeTask(Function &F){
@@ -34,7 +34,7 @@ void TaskAnalysis::AnalyzeTask(Function &F){
             //check for load or store
             if (LoadInst *load = dyn_cast<LoadInst>(&I)) {
 
-                traverseLoad(load);
+                traverseLoadFast(load);
 
             } else if (StoreInst *store = dyn_cast<StoreInst>(&I)) {
 
@@ -72,12 +72,13 @@ void TaskAnalysis::traverseLoad(LoadInst *load){
 
             }
 
+            //change getOperand(2) to getOperand(3) for optimization levels higher than O0
+
             GEPOperator *comp;
             if (inst.size() == 1) {
                 comp = gep;
                 if (checkLoad.find(comp->getOperand(2)) == checkLoad.end()){
                     reads[getParentTask(comp)].push_back(inst);
-
                     if (checkStore.find(comp->getOperand(2)) == checkStore.end()){
                         readFirst[getParentTask(comp)].push_back(inst);
                     }
@@ -144,6 +145,8 @@ void TaskAnalysis::traverseStore(StoreInst *store){
 
             }
 
+            //change getOperand(2) to getOperand(3) for optimization levels higher than O0
+
             GEPOperator *comp;
             if (inst.size() == 1){
                 comp = gep;
@@ -158,6 +161,8 @@ void TaskAnalysis::traverseStore(StoreInst *store){
             }
             else if (inst.size() == 2){ 
 
+                inst[0]->dump();
+                inst[1]->dump();
                 comp = dyn_cast<GEPOperator>(gep->getOperand(0));
 
                 Constant *var = dyn_cast<Constant>(comp->getOperand(2));
@@ -190,6 +195,45 @@ void TaskAnalysis::traverseStore(StoreInst *store){
             }
 
             checkStore.insert(comp->getOperand(2));
+        }
+    }
+}
+
+void TaskAnalysis::traverseLoadFast(LoadInst *load){
+
+    if (GEPOperator *gep = dyn_cast<GEPOperator>(load->getOperand(0))){
+
+        vector <Instruction*> inst;
+        if (isGlobalStructAccess(gep, "unsafe")) {
+            inst.push_back(dyn_cast<Instruction>(gep));
+
+            GEPOperator *comp;
+            comp = gep;
+
+            int numOperands = comp->getNumOperands();
+            if (comp->getNumOperands() > 4)
+                inst.push_back(NULL);
+
+            if (checkLoad.find(comp->getOperand(3)) == checkLoad.end()){
+                reads[getParentTask(comp)].push_back(inst);
+                if (checkStore.find(comp->getOperand(3)) == checkStore.end()){
+                    readFirst[getParentTask(comp)].push_back(inst);
+                }
+            }
+
+            checkLoad.insert(comp->getOperand(3));
+
+        }
+    }
+}
+
+void TaskAnalysis::traverseStoreFast(StoreInst *store){
+
+    if (GEPOperator *gep = dyn_cast<GEPOperator>(store->getOperand(1))){
+
+        vector <Instruction*> inst;
+        if (isGlobalStructAccess(gep, "unsafe")) {
+        
         }
     }
 }
@@ -297,9 +341,6 @@ void TaskAnalysis::generateTaskIdem(Function &taskFunc) {
                         }
                     }
                 }
-
-
-
             }
         }
     }

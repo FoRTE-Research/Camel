@@ -18,12 +18,16 @@ class TaskAnalysis {
         LoopInfoBase<BasicBlock, Loop>* getTaskLoops(Function &F);
         bool isPartOfLoop(Instruction *I, Instruction *a);
 
+        //functions for opt level greater than O0
+        void traverseLoadFast(LoadInst *load);
+        void traverseStoreFast(StoreInst *store);
+
         vector <Instruction*> taskCallList;
         map < StringRef, vector<vector<Instruction*>> > writes;
         map < StringRef, vector<vector<Instruction*>> > reads;
         map < StringRef, vector<vector<Instruction*>> > idem;
 
-    private: 
+    private:
 
         set <Value*> checkLoad;
         set <Value*> checkStore;
