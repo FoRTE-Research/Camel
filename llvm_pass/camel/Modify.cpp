@@ -118,7 +118,7 @@ GetElementPtrInst* Modify::accessStruct(Instruction *before, StringRef name) {
     Type *Ty = ptr->getType()->getContainedType(0); 
     LoadInst *loadStruct = new LoadInst(Ty, ptr, "tmp", before);
     loadStruct->setAlignment(MaybeAlign(2));
-    GetElementPtrInst *GEP = GetElementPtrInst::Create(Ty->getContainedType(0), loadStruct, index, "global", before);
+    GetElementPtrInst *GEP = GetElementPtrInst::CreateInBounds(Ty->getContainedType(0), loadStruct, index, "global", before);
 
     //  debugging
     // loadStruct->dump();
@@ -133,7 +133,7 @@ GetElementPtrInst* Modify::accessStructVar(Instruction *before, GetElementPtrIns
     index.push_back(index1);
     index.push_back(index2);
 
-    GetElementPtrInst *GEP = GetElementPtrInst::Create(Struct->getType()->getContainedType(0), Struct, index, "global", before);
+    GetElementPtrInst *GEP = GetElementPtrInst::CreateInBounds(Struct->getType()->getContainedType(0), Struct, index, "global", before);
 
     // debugging
     //GEP->dump();
@@ -180,11 +180,12 @@ GlobalVariable* Modify::createGlob(StringRef name, AllocaInst* var) {
 void Modify::cps(Instruction* before, vector<Instruction*> varList) {
 
     errs() << "CPS\n";
+    //change getOperand(2) to getOperand(3)
 
     GEPOperator *first = dyn_cast<GEPOperator>(varList[0]);
 
     GetElementPtrInst *Struct = accessStruct(before, "safe");
-    GetElementPtrInst *structVar = accessStructVar(before, Struct,  first->getOperand(1),  first->getOperand(2));
+    GetElementPtrInst *structVar = accessStructVar(before, Struct,  first->getOperand(1),  first->getOperand(3));
     LoadInst *loadVar = new LoadInst(structVar->getType()->getContainedType(0), structVar, "tmp", before);
     loadVar->setAlignment(MaybeAlign(2));
 
@@ -192,7 +193,7 @@ void Modify::cps(Instruction* before, vector<Instruction*> varList) {
     //loadVar->dump();
 
     GetElementPtrInst *Struct2 = accessStruct(before, "unsafe");
-    GetElementPtrInst *structVar2 = accessStructVar(before, Struct2,  first->getOperand(1),  first->getOperand(2));
+    GetElementPtrInst *structVar2 = accessStructVar(before, Struct2,  first->getOperand(1),  first->getOperand(3));
     StoreInst *storeVar = new StoreInst(loadVar, structVar2, before);
     storeVar->setAlignment(MaybeAlign(2));
 
@@ -261,6 +262,8 @@ void Modify::cpas(Instruction *before, vector<Instruction*> varList) {
 void Modify::cpa(Instruction* before, vector<Instruction*> varList) {
 
     errs () << "CPA\n";
+    //change getOperand(2) to getOperand(3)
+
 
     GEPOperator *first = dyn_cast<GEPOperator>(varList[0]);
 
@@ -273,7 +276,7 @@ void Modify::cpa(Instruction* before, vector<Instruction*> varList) {
     index.push_back(arg1);
 
     GetElementPtrInst *Struct = accessStruct(before, "unsafe");
-    GetElementPtrInst *structVar = accessStructVar(before, Struct,  first->getOperand(1),  first->getOperand(2));
+    GetElementPtrInst *structVar = accessStructVar(before, Struct,  first->getOperand(1),  first->getOperand(3));
     GetElementPtrInst *arraydecay = GetElementPtrInst::Create(structVar->getType()->getContainedType(0), structVar, index, "array", before);
     auto bCast1 = new BitCastInst(arraydecay, pi8, "cast", before);
 
@@ -281,7 +284,7 @@ void Modify::cpa(Instruction* before, vector<Instruction*> varList) {
     //bCast1->dump();
 
     GetElementPtrInst *Struct1 = accessStruct(before, "safe");
-    GetElementPtrInst *structVar1 = accessStructVar(before, Struct1,  first->getOperand(1),  first->getOperand(2));
+    GetElementPtrInst *structVar1 = accessStructVar(before, Struct1,  first->getOperand(1),  first->getOperand(3));
     GetElementPtrInst *arraydecay1 = GetElementPtrInst::Create(structVar1->getType()->getContainedType(0), structVar1, index, "array", before);
     auto bCast2 = new BitCastInst(arraydecay1, pi8, "cast", before);
 

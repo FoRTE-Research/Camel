@@ -6,6 +6,10 @@ void TaskAnalysis::AnalyzeModule(Module &M){
 
     for (auto &F: M) {
 
+        if (F.getName().contains("task_commit")){
+            continue;
+        }
+
         if (isTask(&F)) {
 
             errs() << "Analyzing task: " + F.getName() + "\n";
@@ -22,7 +26,7 @@ void TaskAnalysis::AnalyzeModule(Module &M){
         }
     }
 
-    printList(reads);
+    //printList(reads);
 }
 
 void TaskAnalysis::AnalyzeTask(Function &F){
@@ -34,7 +38,7 @@ void TaskAnalysis::AnalyzeTask(Function &F){
             //check for load or store
             if (LoadInst *load = dyn_cast<LoadInst>(&I)) {
 
-                traverseLoadFast(load);
+                traverseLoad(load);
 
             } else if (StoreInst *store = dyn_cast<StoreInst>(&I)) {
 
@@ -161,8 +165,6 @@ void TaskAnalysis::traverseStore(StoreInst *store){
             }
             else if (inst.size() == 2){ 
 
-                inst[0]->dump();
-                inst[1]->dump();
                 comp = dyn_cast<GEPOperator>(gep->getOperand(0));
 
                 Constant *var = dyn_cast<Constant>(comp->getOperand(2));
@@ -213,6 +215,8 @@ void TaskAnalysis::traverseLoadFast(LoadInst *load){
             int numOperands = comp->getNumOperands();
             if (comp->getNumOperands() > 4)
                 inst.push_back(NULL);
+
+            //comp->getType()->getContainedType(0)->dump();
 
             if (checkLoad.find(comp->getOperand(3)) == checkLoad.end()){
                 reads[getParentTask(comp)].push_back(inst);

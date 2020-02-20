@@ -26,7 +26,7 @@ override CFLAGS += \
 	-nobuiltininc \
 	-nostdinc++ \
 	-isysroot /none \
-	-Ofast \
+	-Ofast	 \
 	-g \
 	-std=c99 \
 	-Wall \
