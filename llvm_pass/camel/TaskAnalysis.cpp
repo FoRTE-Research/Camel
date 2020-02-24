@@ -363,8 +363,14 @@ void TaskAnalysis::getTaskCalls(Function &F){
 
                 if (func && isTask(func)){
 
+                    // if (func->getName().contains("task_commit")){
+                    //     Instruction* next = I.getNextNode();
+                    //     taskCallList.push_back(next);
+                    // } else {
+                    //     taskCallList.push_back(&I);
+                    // }
+
                     taskCallList.push_back(&I);
-                    
                 }
             }
         }
