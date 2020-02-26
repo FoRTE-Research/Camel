@@ -216,8 +216,6 @@ void TaskAnalysis::traverseLoadFast(LoadInst *load){
             if (comp->getNumOperands() > 4)
                 inst.push_back(NULL);
 
-            //comp->getType()->getContainedType(0)->dump();
-
             if (checkLoad.find(comp->getOperand(3)) == checkLoad.end()){
                 reads[getParentTask(comp)].push_back(inst);
                 if (checkStore.find(comp->getOperand(3)) == checkStore.end()){
@@ -226,7 +224,6 @@ void TaskAnalysis::traverseLoadFast(LoadInst *load){
             }
 
             checkLoad.insert(comp->getOperand(3));
-
         }
     }
 }
@@ -237,7 +234,26 @@ void TaskAnalysis::traverseStoreFast(StoreInst *store){
 
         vector <Instruction*> inst;
         if (isGlobalStructAccess(gep, "unsafe")) {
-        
+            inst.push_back(dyn_cast<Instruction>(gep));
+
+            GEPOperator *comp;
+            comp = gep;
+
+            int numOperands = comp->getNumOperands();
+            if (comp->getNumOperands() > 4){
+                
+                //array or struct detection
+                comp->getOperand(4)->dump();
+            }
+
+            if (checkStore.find(comp->getOperand(3)) == checkStore.end()){
+                writes[getParentTask(comp)].push_back(inst);
+                if (checkLoad.find(comp->getOperand(3)) == checkLoad.end()){
+                    writeFirst[getParentTask(comp)].push_back(inst);
+                }
+            }
+
+            checkStore.insert(comp->getOperand(3));
         }
     }
 }

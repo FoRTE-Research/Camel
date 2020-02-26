@@ -1,4 +1,5 @@
 outputs = camel_cuckoo.bc camel_cuckoo.ll camel_cuckoo_mod.bc camel_cuckoo_mod.ll camel_cuckoo_mod.s camel_cuckoo.s camel_cuckoo.out
+override outputs += basic_math.bc basic_math.ll basic_math.bc basic_math.ll basic_math_mod.s basic_math.s basic_math.out
 VPATH = ../example
 
 GCC_DIR =  /home/saim/ti/msp430-gcc
@@ -42,32 +43,31 @@ override LLCFLAGS += \
 
 all: $(outputs)
 
-
 #our pipeline: C code (CLANG)-> LLVM IR (OPT)-> LLVM IR Mod (LLC)-> Assembly code (MSP430-GCC) -> executable
 #some auxilary steps: LLVM IR .bc (LLVM-DIS)-> LLVM readable code .ll
 #some auxilary steps: LLVM IR .bc (LLC)-> Assembly .s 
 
-camel_cuckoo.bc : camel_cuckoo.c ../checkpoint/camel_helpers.S
+%.bc : %.c ../checkpoint/camel_helpers.S
 	$(CLANG) -emit-llvm -c -fheinous-gnu-extensions $(CFLAGS) -D$(CRC) -D$(MODE) $< -o $@
 	$(RM) camel_cuckoo.d
 	
-camel_cuckoo.ll : camel_cuckoo.bc
+%.ll : %.bc
 	$(DIS) $< -o $@
 
-camel_cuckoo.s : camel_cuckoo.bc
+%.s : %.bc
 	$(LLC) $< -o $@
 
-camel_cuckoo_mod.bc: camel_cuckoo.bc
+%_mod.bc: %.bc
 	cd ../llvm_pass && cmake . && make && cd ../llvm_bytecode
 	$(OPT) -load $(CAMEL) --CamelPass $< > $@
 
-camel_cuckoo_mod.ll : camel_cuckoo_mod.bc
+%_mod.ll : %_mod.bc
 	$(DIS) $< -o $@
 
-camel_cuckoo_mod.s : camel_cuckoo_mod.bc
+%_mod.s : %_mod.bc
 	$(LLC) $(LLCFLAGS) $< -o $@
 
-camel_cuckoo.out : camel_cuckoo_mod.s
+%.out : %_mod.s
 	$(GCC_BIN)/msp430-elf-gcc -I $(GCC_INCLUDE) -mmcu=msp430fr6989 -Wall -g -fdata-sections -ffunction-sections -T ../ld/msp430fr6989.ld ../checkpoint/camel_helpers.S -L $(GCC_INCLUDE) $< -o $@
 
 clean:

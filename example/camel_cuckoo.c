@@ -545,27 +545,27 @@ void __attribute__((noinline)) task_done()
 
 void __attribute__((noinline)) task_commit() {
                                              
-    // do{                                                                                                     
-    //     _Pragma("GCC diagnostic ignored \"-Wint-conversion\"")                                                
-    //                         if(camel.flag == CKPT_1_FLG){																																					
-    //                             safe = &(camel.buf2);																																								
-    //                             unsafe = &(camel.buf1);																																							
-    //                             __dump_registers(safe->reg_file);																																		
-    //                             tmp_stack_crc 		= __fast_hw_crc(_get_SP_register()+2, SRAM_TOP-(_get_SP_register()+2), CRC_INIT);	
-    //                             tmp_stack_buf_crc = __fast_hw_crc(safe, sizeof(camel_buffer_t) - 2, tmp_stack_crc);									
-    //                             safe->stack_and_buf_crc = tmp_stack_buf_crc;																												
-    //                             camel.flag = CKPT_2_FLG;																																						
-    //                         } else{																																																
-    //                             safe = &(camel.buf1);																																								
-    //                             unsafe = &(camel.buf2);																																							
-    //                             __dump_registers(safe->reg_file);																																		
-    //                             tmp_stack_crc 		= __fast_hw_crc(_get_SP_register()+2, SRAM_TOP-(_get_SP_register()+2), CRC_INIT);	
-    //                             tmp_stack_buf_crc = __fast_hw_crc(safe, sizeof(camel_buffer_t) - 2, tmp_stack_crc);									
-    //                             safe->stack_and_buf_crc = tmp_stack_buf_crc;																												
-    //                             camel.flag = CKPT_1_FLG;																																						
-    //                         }																																																			
-    //     _Pragma("GCC diagnostic warning \"-Wint-conversion\"")                                                
-    // }while(0);																																												
+    do{                                                                                                     
+        _Pragma("GCC diagnostic ignored \"-Wint-conversion\"")                                                
+                            if(camel.flag == CKPT_1_FLG){																																					
+                                safe = &(camel.buf2);																																								
+                                unsafe = &(camel.buf1);																																							
+                                __dump_registers(safe->reg_file);																																		
+                                tmp_stack_crc 		= __fast_hw_crc(_get_SP_register()+2, SRAM_TOP-(_get_SP_register()+2), CRC_INIT);	
+                                tmp_stack_buf_crc = __fast_hw_crc(safe, sizeof(camel_buffer_t) - 2, tmp_stack_crc);									
+                                safe->stack_and_buf_crc = tmp_stack_buf_crc;																												
+                                camel.flag = CKPT_2_FLG;																																						
+                            } else{																																																
+                                safe = &(camel.buf1);																																								
+                                unsafe = &(camel.buf2);																																							
+                                __dump_registers(safe->reg_file);																																		
+                                tmp_stack_crc 		= __fast_hw_crc(_get_SP_register()+2, SRAM_TOP-(_get_SP_register()+2), CRC_INIT);	
+                                tmp_stack_buf_crc = __fast_hw_crc(safe, sizeof(camel_buffer_t) - 2, tmp_stack_crc);									
+                                safe->stack_and_buf_crc = tmp_stack_buf_crc;																												
+                                camel.flag = CKPT_1_FLG;																																						
+                            }																																																			
+        _Pragma("GCC diagnostic warning \"-Wint-conversion\"")                                                
+    }while(0);																																												
 }
 
 int main(){
@@ -582,71 +582,71 @@ int main(){
     //cpaso(filter,writeOpt);
     // llvm testing end
 
-    prepare_task_init();
+    //prepare_task_init();
     task_init();
     task_commit();
-    memcpy(&(safe->globals), &(unsafe->globals), sizeof(camel_global_t)); // concise version of writes_task_init()
+    //memcpy(&(safe->globals), &(unsafe->globals), sizeof(camel_global_t)); // concise version of writes_task_init()
     // The buffers are equal
 
   while(MGV(lookup_count) < NUM_LOOKUPS) {
-        prepare_task_generate_key();
+        //prepare_task_generate_key();
         task_generate_key();
-        commit();
+        //commit();
         task_commit();
-        writes_task_generate_key();
+        //writes_task_generate_key();
 
-        prepare_task_calc_indexes();
+        //prepare_task_calc_indexes();
         task_calc_indexes();
-        commit();
+        //commit();
         task_commit();
-        writes_task_calc_indexes();
+        //writes_task_calc_indexes();
 
-        prepare_task_calc_indexes_index_1();
+        //prepare_task_calc_indexes_index_1();
         task_calc_indexes_index_1();
-        commit();
+        //commit();
         task_commit();
-        writes_task_calc_indexes_index_1();
+        //writes_task_calc_indexes_index_1();
 
-        prepare_task_calc_indexes_index_2();
+        //prepare_task_calc_indexes_index_2();
         task_calc_indexes_index_2();
-        commit();
+        //commit();
         task_commit();
-        writes_task_calc_indexes_index_2();
+        //writes_task_calc_indexes_index_2();
 
         if(MGV(insert_count) < NUM_INSERTS) {
-            prepare_task_add();
+            //prepare_task_add();
             task_add();
-            commit();
+            //commit();
             task_commit();
-            writes_task_calc_indexes();
+            //writes_task_calc_indexes();
 
             if(MGV(filter)[MGV(index1)] && MGV(filter)[MGV(index2)]) {
                 while(MGV(success) == false && (MGV(relocation_count) < MAX_RELOCATIONS)) {
-                    prepare_task_relocate();
+                    //prepare_task_relocate();
                     task_relocate();
-                    commit();
+                    //commit();
                     task_commit();
-                    writes_task_relocate();
+                    //writes_task_relocate();
                 }
             }
 
-            prepare_task_insert_done();
+            //prepare_task_insert_done();
             task_insert_done();
-            commit();
+            //commit();
             task_commit();
-            writes_task_insert_done();
+            //writes_task_insert_done();
         } else {
-            prepare_task_lookup_search();
+            //prepare_task_lookup_search();
             task_lookup_search();
-            commit();
+            //commit();
             task_commit();
-            writes_task_lookup_search();
+            //writes_task_lookup_search();
 
-            prepare_task_lookup_done();
+            //prepare_task_lookup_done();
             task_lookup_done();
-            commit();
+            //commit();
             task_commit();
-            writes_task_lookup_done();
+            //writes_task_lookup_done();
         }
     }
 

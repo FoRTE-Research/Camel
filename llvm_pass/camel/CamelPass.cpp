@@ -15,10 +15,10 @@ bool CamelPass::runOnModule(Module &M){
     //MODE ALL
     //The Mode "ALL" adds code to copy the safe buffer to the unsafe before every task call
     //i++ for levels greater than o0 otherwise i=i+2
-    // for (int i=0; i<analysisInfo.taskCallList.size(); i=i+2){
-    //     errs() << "copying all\n";
-    //     modifyTasks.copyBuffers(analysisInfo.taskCallList[i], "unsafe", "safe");
-    // }
+    for (int i=0; i<analysisInfo.taskCallList.size(); i++){
+        analysisInfo.taskCallList[i]->dump();
+        modifyTasks.copyBuffers(analysisInfo.taskCallList[i], "unsafe", "safe");
+    }
 
     // MODE "LIST"
     // LIST can equal reads 1, idem 2, none 3
