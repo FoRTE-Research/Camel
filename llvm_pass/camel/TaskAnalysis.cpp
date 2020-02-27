@@ -21,12 +21,13 @@ void TaskAnalysis::AnalyzeModule(Module &M){
 
         } else if (isMain(&F)){
 
+            //get all calls to tasks in main
             getTaskCalls(F);
             
         }
     }
 
-    //printList(reads);
+    //printList(writes);
 }
 
 void TaskAnalysis::AnalyzeTask(Function &F){
@@ -38,17 +39,17 @@ void TaskAnalysis::AnalyzeTask(Function &F){
             //check for load or store
             if (LoadInst *load = dyn_cast<LoadInst>(&I)) {
 
-                traverseLoad(load);
+                traverseLoadFast(load);
 
             } else if (StoreInst *store = dyn_cast<StoreInst>(&I)) {
 
-                traverseStore(store);
+                traverseStoreFast(store);
 
             }
         }
     }
 
-    generateTaskIdem(F);
+    //generateTaskIdem(F);
     checkLoad.clear();
     checkStore.clear();
     checkLoadIndex.clear();
@@ -212,7 +213,6 @@ void TaskAnalysis::traverseLoadFast(LoadInst *load){
             GEPOperator *comp;
             comp = gep;
 
-            int numOperands = comp->getNumOperands();
             if (comp->getNumOperands() > 4)
                 inst.push_back(NULL);
 
@@ -239,11 +239,13 @@ void TaskAnalysis::traverseStoreFast(StoreInst *store){
             GEPOperator *comp;
             comp = gep;
 
-            int numOperands = comp->getNumOperands();
             if (comp->getNumOperands() > 4){
                 
                 //array or struct detection
-                comp->getOperand(4)->dump();
+                //comp->getOperand(4)->dump();
+                //comp->dump();
+                inst.push_back(NULL);
+
             }
 
             if (checkStore.find(comp->getOperand(3)) == checkStore.end()){

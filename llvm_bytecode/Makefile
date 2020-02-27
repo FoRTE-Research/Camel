@@ -1,5 +1,5 @@
 outputs = camel_cuckoo.bc camel_cuckoo.ll camel_cuckoo_mod.bc camel_cuckoo_mod.ll camel_cuckoo_mod.s camel_cuckoo.s camel_cuckoo.out
-override outputs += basic_math.bc basic_math.ll basic_math.bc basic_math.ll basic_math_mod.s basic_math.s basic_math.out
+#override outputs += basic_math.bc basic_math.ll basic_math.bc basic_math.ll basic_math_mod.s basic_math.s basic_math.out
 VPATH = ../example
 
 GCC_DIR =  /home/saim/ti/msp430-gcc
@@ -27,7 +27,7 @@ override CFLAGS += \
 	-nobuiltininc \
 	-nostdinc++ \
 	-isysroot /none \
-	-O0	 \
+	-O2	 \
 	-g \
 	-std=c99 \
 	-Wall \
