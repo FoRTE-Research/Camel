@@ -1,5 +1,5 @@
 outputs = camel_cuckoo.bc camel_cuckoo.ll camel_cuckoo_mod.bc camel_cuckoo_mod.ll camel_cuckoo_mod.s camel_cuckoo.s camel_cuckoo.out
-#override outputs += basic_math.bc basic_math.ll basic_math.bc basic_math.ll basic_math_mod.s basic_math.s basic_math.out
+#override outputs += basic_math.bc basic_math.ll basic_math_mod.bc basic_math_mod.ll basic_math_mod.s basic_math.s basic_math.out 
 VPATH = ../example
 
 GCC_DIR =  /home/saim/ti/msp430-gcc
@@ -27,7 +27,7 @@ override CFLAGS += \
 	-nobuiltininc \
 	-nostdinc++ \
 	-isysroot /none \
-	-O2	 \
+	-O0	 \
 	-g \
 	-std=c99 \
 	-Wall \
@@ -67,8 +67,8 @@ all: $(outputs)
 %_mod.s : %_mod.bc
 	$(LLC) $(LLCFLAGS) $< -o $@
 
-%.out : %_mod.s
-	$(GCC_BIN)/msp430-elf-gcc -I $(GCC_INCLUDE) -mmcu=msp430fr6989 -Wall -g -fdata-sections -ffunction-sections -T ../ld/msp430fr6989.ld ../checkpoint/camel_helpers.S -L $(GCC_INCLUDE) $< -o $@
+#%.out : %_mod.s
+#	$(GCC_BIN)/msp430-elf-gcc -I $(GCC_INCLUDE) -mmcu=msp430fr6989 -Wall -g -fdata-sections -ffunction-sections -T ../ld/msp430fr6989.ld ../checkpoint/camel_helpers.S -L $(GCC_INCLUDE) $< -o $@
 
 clean:
 	$(RM) *.bc *.ll *.s *.out

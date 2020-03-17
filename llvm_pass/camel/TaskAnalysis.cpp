@@ -39,17 +39,17 @@ void TaskAnalysis::AnalyzeTask(Function &F){
             //check for load or store
             if (LoadInst *load = dyn_cast<LoadInst>(&I)) {
 
-                traverseLoadFast(load);
+                traverseLoad(load);
 
             } else if (StoreInst *store = dyn_cast<StoreInst>(&I)) {
 
-                traverseStoreFast(store);
+                traverseStore(store);
 
             }
         }
     }
 
-    //generateTaskIdem(F);
+    generateTaskIdem(F);
     checkLoad.clear();
     checkStore.clear();
     checkLoadIndex.clear();

@@ -59,13 +59,13 @@ void Modify::copyBuffers(Instruction *before, string to, string from) {
     // loading the UNSAFE pointer
     LoadInst *loadUnsafe = new LoadInst(Ty, unsafePtr, "tmp", before);
     loadUnsafe->setAlignment(MaybeAlign(2));
-    auto GEP1 = GetElementPtrInst::Create(Ty->getContainedType(0), loadUnsafe, index, "global", before);
+    auto GEP1 = GetElementPtrInst::CreateInBounds(Ty->getContainedType(0), loadUnsafe, index, "global", before);
     auto bCast1 = new BitCastInst(GEP1, pi8, "cast", before);
 
     // loading the SAFE pointer
     LoadInst *loadSafe = new LoadInst(Ty, safePtr, "tmp", before);
     loadSafe->setAlignment(MaybeAlign(2));
-    auto GEP2 = GetElementPtrInst::Create(Ty->getContainedType(0), loadSafe, index, "global", before);
+    auto GEP2 = GetElementPtrInst::CreateInBounds(Ty->getContainedType(0), loadSafe, index, "global", before);
     auto bCast2 = new BitCastInst(GEP2, pi8, "cast", before);
  
     // set memcpy arguments

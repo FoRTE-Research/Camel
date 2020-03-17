@@ -229,34 +229,47 @@ void task_check(){
   success();
 }
 
+void task_commit(){
+
+}
+
 int main(){
   // Compile main with this to find camel size easily
   // volatile int i;
   // while(1){
   //   i = sizeof(camel);
   // }
+  
   camel.flag = CKPT_1_FLG;
   safe = &(camel.buf1);
   unsafe = &(camel.buf2);
   camel_init();
 
+  memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t));
   task_init();
   commit();
+  task_commit();
   //writes_task_init();
 
-
+  memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t));
   task_1();
   commit();
+  task_commit();
   //writes_task1();
 
+  memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t));
   task_2();
   commit();
+  task_commit();
   //writes_task2();
 
+  memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t));
   task_3();
   commit();
+  task_commit();
   //writes_task3();
 
+  memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t));
   task_check();
 
   while(1);
