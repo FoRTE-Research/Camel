@@ -57,16 +57,16 @@ void Modify::copyBuffers(Instruction *before, string to, string from) {
     index.push_back(arg2);
 
     // loading the UNSAFE pointer
-    LoadInst *loadUnsafe = new LoadInst(Ty, unsafePtr, "tmp", before);
+    LoadInst *loadUnsafe = new LoadInst(Ty, unsafePtr, "unsafe", before);
     loadUnsafe->setAlignment(MaybeAlign(2));
-    auto GEP1 = GetElementPtrInst::CreateInBounds(Ty->getContainedType(0), loadUnsafe, index, "global", before);
-    auto bCast1 = new BitCastInst(GEP1, pi8, "cast", before);
+    auto GEP1 = GetElementPtrInst::CreateInBounds(Ty->getContainedType(0), loadUnsafe, index, "globals", before);
+    auto bCast1 = new BitCastInst(GEP1, pi8, "BCast", before);
 
     // loading the SAFE pointer
-    LoadInst *loadSafe = new LoadInst(Ty, safePtr, "tmp", before);
+    LoadInst *loadSafe = new LoadInst(Ty, safePtr, "safe", before);
     loadSafe->setAlignment(MaybeAlign(2));
-    auto GEP2 = GetElementPtrInst::CreateInBounds(Ty->getContainedType(0), loadSafe, index, "global", before);
-    auto bCast2 = new BitCastInst(GEP2, pi8, "cast", before);
+    auto GEP2 = GetElementPtrInst::CreateInBounds(Ty->getContainedType(0), loadSafe, index, "globals", before);
+    auto bCast2 = new BitCastInst(GEP2, pi8, "BCast", before);
  
     // set memcpy arguments
     auto dl = myModule->getDataLayout();
@@ -75,15 +75,19 @@ void Modify::copyBuffers(Instruction *before, string to, string from) {
     Constant *arg3 = ConstantInt::get(i64_type, size_of_struct);
     Constant *arg4 = ConstantInt::getFalse(myModule->getContext());
 
-    Function *fun = getIntrinsicMemcpy();
-    vector<Value*> memcpyArgs;
-    memcpyArgs.push_back(bCast1);
-    memcpyArgs.push_back(bCast2);
-    memcpyArgs.push_back(arg3);
-    memcpyArgs.push_back(arg4);
+    // Function *fun = getIntrinsicMemcpy();
+    // vector<Value*> memcpyArgs;
+
+    // memcpyArgs.push_back(bCast1);
+    // memcpyArgs.push_back(bCast2);
+    // memcpyArgs.push_back(arg3);
+    // memcpyArgs.push_back(arg4);
+
+    //CallInst *call = CallInst::Create(fun, memcpyArgs, "", before);
 
     // insert memcpy
-    CallInst *call = CallInst::Create(fun, memcpyArgs, "", before);
+    IRBuilder<> builder(before);
+    CallInst *call = builder.CreateMemCpy(bCast1, 2, bCast2, 2, arg3);
 
     // printing for debugging
     // loadUnsafe->dump();

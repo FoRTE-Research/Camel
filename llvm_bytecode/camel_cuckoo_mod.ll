@@ -25,8 +25,6 @@ target triple = "msp430"
 @reset_vector = internal global void ()* @camel_recover, section "__interrupt_vector_56", align 2, !dbg !21
 @buf = common dso_local global [11 x i16] zeroinitializer, align 2, !dbg !67
 @llvm.used = appending global [1 x i8*] [i8* bitcast (void ()** @reset_vector to i8*)], section "llvm.metadata"
-@index_victim = common dso_local global i16 0, align 2
-@index2_victim = common dso_local global i16 0, align 2
 
 ; Function Attrs: noinline nounwind optnone
 define dso_local void @camel_init() #0 !dbg !79 {
@@ -451,8 +449,6 @@ if.end52:                                         ; preds = %if.end, %if.then14
   br label %if.end53
 
 if.end53:                                         ; preds = %if.end52, %if.then
-  %load = load i16, i16* %index_victim
-  store i16 %load, i16* @index_victim
   ret void, !dbg !292
 }
 
@@ -552,10 +548,6 @@ if.end11:                                         ; preds = %if.end
   br label %return, !dbg !339
 
 return:                                           ; preds = %if.end11, %if.then8, %if.then
-  %load = load i16, i16* %index2_victim
-  store i16 %load, i16* @index2_victim
-  %load1 = load i16, i16* %index2_victim
-  store i16 %load1, i16* @index2_victim
   ret void, !dbg !339
 }
 
@@ -819,6 +811,13 @@ entry:
   store %struct.camel_buffer_t* getelementptr inbounds (%struct.Camel, %struct.Camel* @camel, i32 0, i32 1), %struct.camel_buffer_t** @safe, align 2, !dbg !409
   store %struct.camel_buffer_t* getelementptr inbounds (%struct.Camel, %struct.Camel* @camel, i32 0, i32 2), %struct.camel_buffer_t** @unsafe, align 2, !dbg !410
   call void @camel_init(), !dbg !411
+  %unsafe = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
+  %globals1 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %unsafe, i32 0, i32 1
+  %BCast = bitcast %struct.camel_global_t* %globals1 to i8*
+  %safe = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2
+  %globals2 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %safe, i32 0, i32 1
+  %BCast3 = bitcast %struct.camel_global_t* %globals2 to i8*
+  call void @llvm.memcpy.p0i8.p0i8.i64(i8* align 2 %BCast, i8* align 2 %BCast3, i64 278, i1 false), !dbg !412
   call void @task_init(), !dbg !412
   br label %do.body, !dbg !413
 
@@ -917,14 +916,13 @@ while.cond:                                       ; preds = %if.end314, %do.end
   br i1 %cmp17, label %while.body, label %while.end315, !dbg !439
 
 while.body:                                       ; preds = %while.cond
-  %tmp1 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2
-  %global = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp1, i32 0, i32 1
-  %global2 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %global, i32 0, i32 1
-  %tmp3 = load i16, i16* %global2, align 2
-  %tmp4 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
-  %global5 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp4, i32 0, i32 1
-  %global6 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %global5, i32 0, i32 1
-  store i16 %tmp3, i16* %global6, align 2
+  %unsafe4 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
+  %globals5 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %unsafe4, i32 0, i32 1
+  %BCast6 = bitcast %struct.camel_global_t* %globals5 to i8*
+  %safe7 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2
+  %globals8 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %safe7, i32 0, i32 1
+  %BCast9 = bitcast %struct.camel_global_t* %globals8 to i8*
+  call void @llvm.memcpy.p0i8.p0i8.i64(i8* align 2 %BCast6, i8* align 2 %BCast9, i64 278, i1 false), !dbg !442
   call void @task_generate_key(), !dbg !442
   br label %do.body18, !dbg !444
 
@@ -1011,15 +1009,14 @@ if.end46:                                         ; preds = %if.else33, %if.then
   br label %do.end47, !dbg !448
 
 do.end47:                                         ; preds = %if.end46
-  %tmp7 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2
-  %global8 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp7, i32 0, i32 1
-  %global9 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %global8, i32 0, i32 1
-  %tmp10 = load i16, i16* %global9, align 2
-  %tmp12 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
-  %global13 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp12, i32 0, i32 1
-  %global14 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %global13, i32 0, i32 1
-  store i16 %tmp10, i16* %global14, align 2
   call void @task_commit(), !dbg !469
+  %unsafe10 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
+  %globals11 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %unsafe10, i32 0, i32 1
+  %BCast12 = bitcast %struct.camel_global_t* %globals11 to i8*
+  %safe13 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2
+  %globals14 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %safe13, i32 0, i32 1
+  %BCast15 = bitcast %struct.camel_global_t* %globals14 to i8*
+  call void @llvm.memcpy.p0i8.p0i8.i64(i8* align 2 %BCast12, i8* align 2 %BCast15, i64 278, i1 false), !dbg !470
   call void @task_calc_indexes(), !dbg !470
   br label %do.body48, !dbg !471
 
@@ -1106,15 +1103,14 @@ if.end76:                                         ; preds = %if.else63, %if.then
   br label %do.end77, !dbg !475
 
 do.end77:                                         ; preds = %if.end76
-  %tmp15 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2
-  %global16 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp15, i32 0, i32 1
-  %global17 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %global16, i32 0, i32 2
-  %tmp18 = load i16, i16* %global17, align 2
-  %tmp19 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
-  %global20 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp19, i32 0, i32 1
-  %global21 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %global20, i32 0, i32 2
-  store i16 %tmp18, i16* %global21, align 2
   call void @task_commit(), !dbg !496
+  %unsafe16 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
+  %globals17 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %unsafe16, i32 0, i32 1
+  %BCast18 = bitcast %struct.camel_global_t* %globals17 to i8*
+  %safe19 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2
+  %globals20 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %safe19, i32 0, i32 1
+  %BCast21 = bitcast %struct.camel_global_t* %globals20 to i8*
+  call void @llvm.memcpy.p0i8.p0i8.i64(i8* align 2 %BCast18, i8* align 2 %BCast21, i64 278, i1 false), !dbg !497
   call void @task_calc_indexes_index_1(), !dbg !497
   br label %do.body78, !dbg !498
 
@@ -1201,15 +1197,14 @@ if.end106:                                        ; preds = %if.else93, %if.then
   br label %do.end107, !dbg !502
 
 do.end107:                                        ; preds = %if.end106
-  %tmp22 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2
-  %global23 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp22, i32 0, i32 1
-  %global24 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %global23, i32 0, i32 3
-  %tmp25 = load i16, i16* %global24, align 2
-  %tmp26 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
-  %global27 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp26, i32 0, i32 1
-  %global28 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %global27, i32 0, i32 3
-  store i16 %tmp25, i16* %global28, align 2
   call void @task_commit(), !dbg !523
+  %unsafe22 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
+  %globals23 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %unsafe22, i32 0, i32 1
+  %BCast24 = bitcast %struct.camel_global_t* %globals23 to i8*
+  %safe25 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2
+  %globals26 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %safe25, i32 0, i32 1
+  %BCast27 = bitcast %struct.camel_global_t* %globals26 to i8*
+  call void @llvm.memcpy.p0i8.p0i8.i64(i8* align 2 %BCast24, i8* align 2 %BCast27, i64 278, i1 false), !dbg !524
   call void @task_calc_indexes_index_2(), !dbg !524
   br label %do.body108, !dbg !525
 
@@ -1296,14 +1291,6 @@ if.end136:                                        ; preds = %if.else123, %if.the
   br label %do.end137, !dbg !529
 
 do.end137:                                        ; preds = %if.end136
-  %tmp29 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2
-  %global30 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp29, i32 0, i32 1
-  %global31 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %global30, i32 0, i32 4
-  %tmp32 = load i16, i16* %global31, align 2
-  %tmp33 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
-  %global34 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp33, i32 0, i32 1
-  %global35 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %global34, i32 0, i32 4
-  store i16 %tmp32, i16* %global35, align 2
   call void @task_commit(), !dbg !550
   %137 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2, !dbg !551
   %globals138 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %137, i32 0, i32 1, !dbg !551
@@ -1313,58 +1300,13 @@ do.end137:                                        ; preds = %if.end136
   br i1 %cmp139, label %if.then140, label %if.else251, !dbg !554
 
 if.then140:                                       ; preds = %do.end137
-  %tmp36 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2
-  %global37 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp36, i32 0, i32 1
-  %global38 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %global37, i32 0, i32 0
-  %tmp39 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
-  %global40 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp39, i32 0, i32 1
-  %global41 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %global40, i32 0, i32 3
-  %load = load i16, i16* %global41, align 2
-  %access = getelementptr [128 x i16], [128 x i16]* %global38, i16 0, i16 %load
-  %tmp42 = load i16, i16* %access, align 2
-  %tmp43 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
-  %global44 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp43, i32 0, i32 1
-  %global45 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %global44, i32 0, i32 0
-  %tmp46 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
-  %global47 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp46, i32 0, i32 1
-  %global48 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %global47, i32 0, i32 3
-  %load49 = load i16, i16* %global48, align 2
-  %access50 = getelementptr [128 x i16], [128 x i16]* %global45, i16 0, i16 %load49
-  store i16 %tmp42, i16* %access50, align 2
-  %tmp51 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2
-  %global52 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp51, i32 0, i32 1
-  %global53 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %global52, i32 0, i32 0
-  %tmp55 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
-  %global56 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp55, i32 0, i32 1
-  %global57 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %global56, i32 0, i32 4
-  %load58 = load i16, i16* %global57, align 2
-  %access59 = getelementptr [128 x i16], [128 x i16]* %global53, i16 0, i16 %load58
-  %tmp60 = load i16, i16* %access59, align 2
-  %tmp61 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
-  %global62 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp61, i32 0, i32 1
-  %global63 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %global62, i32 0, i32 0
-  %tmp64 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
-  %global65 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp64, i32 0, i32 1
-  %global66 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %global65, i32 0, i32 4
-  %load67 = load i16, i16* %global66, align 2
-  %access68 = getelementptr [128 x i16], [128 x i16]* %global63, i16 0, i16 %load67
-  store i16 %tmp60, i16* %access68, align 2
-  %tmp69 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2
-  %global70 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp69, i32 0, i32 1
-  %global71 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %global70, i32 0, i32 3
-  %tmp72 = load i16, i16* %global71, align 2
-  %tmp73 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
-  %global74 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp73, i32 0, i32 1
-  %global75 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %global74, i32 0, i32 3
-  store i16 %tmp72, i16* %global75, align 2
-  %tmp76 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2
-  %global77 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp76, i32 0, i32 1
-  %global78 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %global77, i32 0, i32 2
-  %tmp79 = load i16, i16* %global78, align 2
-  %tmp80 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
-  %global81 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp80, i32 0, i32 1
-  %global82 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %global81, i32 0, i32 2
-  store i16 %tmp79, i16* %global82, align 2
+  %unsafe28 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
+  %globals29 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %unsafe28, i32 0, i32 1
+  %BCast30 = bitcast %struct.camel_global_t* %globals29 to i8*
+  %safe31 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2
+  %globals32 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %safe31, i32 0, i32 1
+  %BCast33 = bitcast %struct.camel_global_t* %globals32 to i8*
+  call void @llvm.memcpy.p0i8.p0i8.i64(i8* align 2 %BCast30, i8* align 2 %BCast33, i64 278, i1 false), !dbg !555
   call void @task_add(), !dbg !555
   br label %do.body141, !dbg !557
 
@@ -1451,86 +1393,6 @@ if.end169:                                        ; preds = %if.else156, %if.the
   br label %do.end170, !dbg !561
 
 do.end170:                                        ; preds = %if.end169
-  %tmp83 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2
-  %global84 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp83, i32 0, i32 1
-  %global85 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %global84, i32 0, i32 10
-  %tmp86 = load i8, i8* %global85, align 2
-  %tmp88 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
-  %global89 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp88, i32 0, i32 1
-  %global90 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %global89, i32 0, i32 10
-  store i8 %tmp86, i8* %global90, align 2
-  %tmp91 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2
-  %global92 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp91, i32 0, i32 1
-  %global93 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %global92, i32 0, i32 0
-  %tmp94 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
-  %global95 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp94, i32 0, i32 1
-  %global96 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %global95, i32 0, i32 3
-  %load97 = load i16, i16* %global96, align 2
-  %access98 = getelementptr [128 x i16], [128 x i16]* %global93, i16 0, i16 %load97
-  %tmp99 = load i16, i16* %access98, align 2
-  %tmp101 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
-  %global102 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp101, i32 0, i32 1
-  %global103 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %global102, i32 0, i32 0
-  %tmp104 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
-  %global105 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp104, i32 0, i32 1
-  %global106 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %global105, i32 0, i32 3
-  %load107 = load i16, i16* %global106, align 2
-  %access108 = getelementptr [128 x i16], [128 x i16]* %global103, i16 0, i16 %load107
-  store i16 %tmp99, i16* %access108, align 2
-  %tmp109 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2
-  %global110 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp109, i32 0, i32 1
-  %global111 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %global110, i32 0, i32 0
-  %tmp112 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
-  %global113 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp112, i32 0, i32 1
-  %global114 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %global113, i32 0, i32 4
-  %load115 = load i16, i16* %global114, align 2
-  %access116 = getelementptr [128 x i16], [128 x i16]* %global111, i16 0, i16 %load115
-  %tmp118 = load i16, i16* %access116, align 2
-  %tmp119 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
-  %global120 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp119, i32 0, i32 1
-  %global121 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %global120, i32 0, i32 0
-  %tmp122 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
-  %global123 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp122, i32 0, i32 1
-  %global124 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %global123, i32 0, i32 4
-  %load125 = load i16, i16* %global124, align 2
-  %access126 = getelementptr [128 x i16], [128 x i16]* %global121, i16 0, i16 %load125
-  store i16 %tmp118, i16* %access126, align 2
-  %tmp128 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2
-  %global129 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp128, i32 0, i32 1
-  %global130 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %global129, i32 0, i32 0
-  %tmp131 = load i16, i16* @index_victim, align 2
-  %access132 = getelementptr [128 x i16], [128 x i16]* %global130, i16 0, i16 %tmp131
-  %tmp133 = load i16, i16* %access132, align 2
-  %tmp134 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
-  %global135 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp134, i32 0, i32 1
-  %global136 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %global135, i32 0, i32 0
-  %tmp137 = load i16, i16* @index_victim, align 2
-  %access138 = getelementptr [128 x i16], [128 x i16]* %global136, i16 0, i16 %tmp137
-  store i16 %tmp133, i16* %access138, align 2
-  %tmp139 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2
-  %global140 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp139, i32 0, i32 1
-  %global141 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %global140, i32 0, i32 3
-  %tmp142 = load i16, i16* %global141, align 2
-  %tmp143 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
-  %global144 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp143, i32 0, i32 1
-  %global145 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %global144, i32 0, i32 3
-  store i16 %tmp142, i16* %global145, align 2
-  %tmp146 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2
-  %global147 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp146, i32 0, i32 1
-  %global148 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %global147, i32 0, i32 2
-  %tmp149 = load i16, i16* %global148, align 2
-  %tmp151 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
-  %global152 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp151, i32 0, i32 1
-  %global153 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %global152, i32 0, i32 2
-  store i16 %tmp149, i16* %global153, align 2
-  %tmp154 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2
-  %global155 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp154, i32 0, i32 1
-  %global156 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %global155, i32 0, i32 5
-  %tmp157 = load i16, i16* %global156, align 2
-  %tmp158 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
-  %global159 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp158, i32 0, i32 1
-  %global160 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %global159, i32 0, i32 5
-  store i16 %tmp157, i16* %global160, align 2
   call void @task_commit(), !dbg !582
   %166 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2, !dbg !583
   %globals171 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %166, i32 0, i32 1, !dbg !583
@@ -1583,42 +1445,13 @@ land.end:                                         ; preds = %land.rhs, %while.co
   br i1 %178, label %while.body187, label %while.end, !dbg !590
 
 while.body187:                                    ; preds = %land.end
-  %tmp161 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2
-  %global162 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp161, i32 0, i32 1
-  %global163 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %global162, i32 0, i32 0
-  %tmp164 = load i16, i16* @index2_victim, align 2
-  %access165 = getelementptr [128 x i16], [128 x i16]* %global163, i16 0, i16 %tmp164
-  %tmp166 = load i16, i16* %access165, align 2
-  %tmp167 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
-  %global168 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp167, i32 0, i32 1
-  %global169 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %global168, i32 0, i32 0
-  %tmp170 = load i16, i16* @index2_victim, align 2
-  %access171 = getelementptr [128 x i16], [128 x i16]* %global169, i16 0, i16 %tmp170
-  store i16 %tmp166, i16* %access171, align 2
-  %tmp172 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2
-  %global173 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp172, i32 0, i32 1
-  %global174 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %global173, i32 0, i32 5
-  %tmp175 = load i16, i16* %global174, align 2
-  %tmp176 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
-  %global177 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp176, i32 0, i32 1
-  %global178 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %global177, i32 0, i32 5
-  store i16 %tmp175, i16* %global178, align 2
-  %tmp179 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2
-  %global180 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp179, i32 0, i32 1
-  %global181 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %global180, i32 0, i32 3
-  %tmp182 = load i16, i16* %global181, align 2
-  %tmp183 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
-  %global184 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp183, i32 0, i32 1
-  %global185 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %global184, i32 0, i32 3
-  store i16 %tmp182, i16* %global185, align 2
-  %tmp186 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2
-  %global187 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp186, i32 0, i32 1
-  %global188 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %global187, i32 0, i32 2
-  %tmp189 = load i16, i16* %global188, align 2
-  %tmp190 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
-  %global191 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp190, i32 0, i32 1
-  %global192 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %global191, i32 0, i32 2
-  store i16 %tmp189, i16* %global192, align 2
+  %unsafe34 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
+  %globals35 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %unsafe34, i32 0, i32 1
+  %BCast36 = bitcast %struct.camel_global_t* %globals35 to i8*
+  %safe37 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2
+  %globals38 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %safe37, i32 0, i32 1
+  %BCast39 = bitcast %struct.camel_global_t* %globals38 to i8*
+  call void @llvm.memcpy.p0i8.p0i8.i64(i8* align 2 %BCast36, i8* align 2 %BCast39, i64 278, i1 false), !dbg !598
   call void @task_relocate(), !dbg !598
   br label %do.body188, !dbg !600
 
@@ -1705,50 +1538,6 @@ if.end217:                                        ; preds = %if.else204, %if.the
   br label %do.end218, !dbg !604
 
 do.end218:                                        ; preds = %if.end217
-  %tmp193 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2
-  %global194 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp193, i32 0, i32 1
-  %global195 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %global194, i32 0, i32 10
-  %tmp196 = load i8, i8* %global195, align 2
-  %tmp197 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
-  %global198 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp197, i32 0, i32 1
-  %global199 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %global198, i32 0, i32 10
-  store i8 %tmp196, i8* %global199, align 2
-  %tmp200 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2
-  %global201 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp200, i32 0, i32 1
-  %global202 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %global201, i32 0, i32 0
-  %tmp203 = load i16, i16* @index2_victim, align 2
-  %access204 = getelementptr [128 x i16], [128 x i16]* %global202, i16 0, i16 %tmp203
-  %tmp205 = load i16, i16* %access204, align 2
-  %tmp206 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
-  %global207 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp206, i32 0, i32 1
-  %global208 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %global207, i32 0, i32 0
-  %tmp209 = load i16, i16* @index2_victim, align 2
-  %access210 = getelementptr [128 x i16], [128 x i16]* %global208, i16 0, i16 %tmp209
-  store i16 %tmp205, i16* %access210, align 2
-  %tmp212 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2
-  %global213 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp212, i32 0, i32 1
-  %global214 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %global213, i32 0, i32 5
-  %tmp215 = load i16, i16* %global214, align 2
-  %tmp216 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
-  %global217 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp216, i32 0, i32 1
-  %global218 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %global217, i32 0, i32 5
-  store i16 %tmp215, i16* %global218, align 2
-  %tmp219 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2
-  %global220 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp219, i32 0, i32 1
-  %global221 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %global220, i32 0, i32 3
-  %tmp222 = load i16, i16* %global221, align 2
-  %tmp223 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
-  %global224 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp223, i32 0, i32 1
-  %global225 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %global224, i32 0, i32 3
-  store i16 %tmp222, i16* %global225, align 2
-  %tmp226 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2
-  %global227 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp226, i32 0, i32 1
-  %global228 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %global227, i32 0, i32 2
-  %tmp229 = load i16, i16* %global228, align 2
-  %tmp231 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
-  %global232 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp231, i32 0, i32 1
-  %global233 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %global232, i32 0, i32 2
-  store i16 %tmp229, i16* %global233, align 2
   call void @task_commit(), !dbg !625
   br label %while.cond179, !dbg !590, !llvm.loop !626
 
@@ -1756,22 +1545,13 @@ while.end:                                        ; preds = %land.end
   br label %if.end219, !dbg !628
 
 if.end219:                                        ; preds = %while.end, %land.lhs.true, %do.end170
-  %tmp234 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2
-  %global235 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp234, i32 0, i32 1
-  %global236 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %global235, i32 0, i32 6
-  %tmp237 = load i16, i16* %global236, align 2
-  %tmp238 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
-  %global239 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp238, i32 0, i32 1
-  %global240 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %global239, i32 0, i32 6
-  store i16 %tmp237, i16* %global240, align 2
-  %tmp241 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2
-  %global242 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp241, i32 0, i32 1
-  %global243 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %global242, i32 0, i32 7
-  %tmp244 = load i16, i16* %global243, align 2
-  %tmp245 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
-  %global246 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp245, i32 0, i32 1
-  %global247 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %global246, i32 0, i32 7
-  store i16 %tmp244, i16* %global247, align 2
+  %unsafe40 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
+  %globals41 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %unsafe40, i32 0, i32 1
+  %BCast42 = bitcast %struct.camel_global_t* %globals41 to i8*
+  %safe43 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2
+  %globals44 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %safe43, i32 0, i32 1
+  %BCast45 = bitcast %struct.camel_global_t* %globals44 to i8*
+  call void @llvm.memcpy.p0i8.p0i8.i64(i8* align 2 %BCast42, i8* align 2 %BCast45, i64 278, i1 false), !dbg !629
   call void @task_insert_done(), !dbg !629
   br label %do.body220, !dbg !630
 
@@ -1858,34 +1638,17 @@ if.end249:                                        ; preds = %if.else236, %if.the
   br label %do.end250, !dbg !634
 
 do.end250:                                        ; preds = %if.end249
-  %tmp248 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2
-  %global249 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp248, i32 0, i32 1
-  %global250 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %global249, i32 0, i32 6
-  %tmp251 = load i16, i16* %global250, align 2
-  %tmp252 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
-  %global253 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp252, i32 0, i32 1
-  %global254 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %global253, i32 0, i32 6
-  store i16 %tmp251, i16* %global254, align 2
-  %tmp255 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2
-  %global256 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp255, i32 0, i32 1
-  %global257 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %global256, i32 0, i32 7
-  %tmp258 = load i16, i16* %global257, align 2
-  %tmp260 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
-  %global261 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp260, i32 0, i32 1
-  %global262 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %global261, i32 0, i32 7
-  store i16 %tmp258, i16* %global262, align 2
-  %tmp263 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2
-  %global264 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp263, i32 0, i32 1
-  %global265 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %global264, i32 0, i32 1
-  %tmp266 = load i16, i16* %global265, align 2
-  %tmp267 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
-  %global268 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp267, i32 0, i32 1
-  %global269 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %global268, i32 0, i32 1
-  store i16 %tmp266, i16* %global269, align 2
   call void @task_commit(), !dbg !655
   br label %if.end314, !dbg !656
 
 if.else251:                                       ; preds = %do.end137
+  %unsafe46 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
+  %globals47 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %unsafe46, i32 0, i32 1
+  %BCast48 = bitcast %struct.camel_global_t* %globals47 to i8*
+  %safe49 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2
+  %globals50 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %safe49, i32 0, i32 1
+  %BCast51 = bitcast %struct.camel_global_t* %globals50 to i8*
+  call void @llvm.memcpy.p0i8.p0i8.i64(i8* align 2 %BCast48, i8* align 2 %BCast51, i64 278, i1 false), !dbg !657
   call void @task_lookup_search(), !dbg !657
   br label %do.body252, !dbg !659
 
@@ -1972,31 +1735,14 @@ if.end281:                                        ; preds = %if.else268, %if.the
   br label %do.end282, !dbg !663
 
 do.end282:                                        ; preds = %if.end281
-  %tmp270 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2
-  %global271 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp270, i32 0, i32 1
-  %global272 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %global271, i32 0, i32 11
-  %tmp273 = load i8, i8* %global272, align 2
-  %tmp274 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
-  %global275 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp274, i32 0, i32 1
-  %global276 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %global275, i32 0, i32 11
-  store i8 %tmp273, i8* %global276, align 2
   call void @task_commit(), !dbg !684
-  %tmp277 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2
-  %global278 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp277, i32 0, i32 1
-  %global279 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %global278, i32 0, i32 8
-  %tmp280 = load i16, i16* %global279, align 2
-  %tmp281 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
-  %global282 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp281, i32 0, i32 1
-  %global283 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %global282, i32 0, i32 8
-  store i16 %tmp280, i16* %global283, align 2
-  %tmp284 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2
-  %global285 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp284, i32 0, i32 1
-  %global286 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %global285, i32 0, i32 9
-  %tmp287 = load i16, i16* %global286, align 2
-  %tmp288 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
-  %global289 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp288, i32 0, i32 1
-  %global290 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %global289, i32 0, i32 9
-  store i16 %tmp287, i16* %global290, align 2
+  %unsafe52 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
+  %globals53 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %unsafe52, i32 0, i32 1
+  %BCast54 = bitcast %struct.camel_global_t* %globals53 to i8*
+  %safe55 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2
+  %globals56 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %safe55, i32 0, i32 1
+  %BCast57 = bitcast %struct.camel_global_t* %globals56 to i8*
+  call void @llvm.memcpy.p0i8.p0i8.i64(i8* align 2 %BCast54, i8* align 2 %BCast57, i64 278, i1 false), !dbg !685
   call void @task_lookup_done(), !dbg !685
   br label %do.body283, !dbg !686
 
@@ -2083,22 +1829,6 @@ if.end312:                                        ; preds = %if.else299, %if.the
   br label %do.end313, !dbg !690
 
 do.end313:                                        ; preds = %if.end312
-  %tmp291 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2
-  %global292 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp291, i32 0, i32 1
-  %global293 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %global292, i32 0, i32 8
-  %tmp294 = load i16, i16* %global293, align 2
-  %tmp295 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
-  %global296 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp295, i32 0, i32 1
-  %global297 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %global296, i32 0, i32 8
-  store i16 %tmp294, i16* %global297, align 2
-  %tmp298 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2
-  %global299 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp298, i32 0, i32 1
-  %global300 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %global299, i32 0, i32 9
-  %tmp301 = load i16, i16* %global300, align 2
-  %tmp302 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
-  %global303 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %tmp302, i32 0, i32 1
-  %global304 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %global303, i32 0, i32 9
-  store i16 %tmp301, i16* %global304, align 2
   call void @task_commit(), !dbg !711
   br label %if.end314
 
@@ -2106,6 +1836,13 @@ if.end314:                                        ; preds = %do.end313, %do.end2
   br label %while.cond, !dbg !439, !llvm.loop !712
 
 while.end315:                                     ; preds = %while.cond
+  %unsafe58 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
+  %globals59 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %unsafe58, i32 0, i32 1
+  %BCast60 = bitcast %struct.camel_global_t* %globals59 to i8*
+  %safe61 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2
+  %globals62 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %safe61, i32 0, i32 1
+  %BCast63 = bitcast %struct.camel_global_t* %globals62 to i8*
+  call void @llvm.memcpy.p0i8.p0i8.i64(i8* align 2 %BCast60, i8* align 2 %BCast63, i64 278, i1 false), !dbg !714
   call void @task_done(), !dbg !714
   %287 = load i16, i16* %retval, align 2, !dbg !715
   ret i16 %287, !dbg !715
@@ -2162,6 +1899,9 @@ for.end:                                          ; preds = %for.cond
   ret i16 %8, !dbg !751
 }
 
+; Function Attrs: argmemonly nounwind willreturn
+declare void @llvm.memcpy.p0i8.p0i8.i64(i8* noalias nocapture writeonly, i8* noalias nocapture readonly, i64, i1 immarg) #3
+
 attributes #0 = { noinline nounwind optnone "correctly-rounded-divide-sqrt-fp-math"="false" "disable-tail-calls"="false" "frame-pointer"="none" "less-precise-fpmad"="false" "min-legal-vector-width"="0" "no-infs-fp-math"="false" "no-jump-tables"="false" "no-nans-fp-math"="false" "no-signed-zeros-fp-math"="false" "no-trapping-math"="false" "stack-protector-buffer-size"="8" "unsafe-fp-math"="false" "use-soft-float"="false" }
 attributes #1 = { "correctly-rounded-divide-sqrt-fp-math"="false" "disable-tail-calls"="false" "frame-pointer"="none" "less-precise-fpmad"="false" "no-infs-fp-math"="false" "no-nans-fp-math"="false" "no-signed-zeros-fp-math"="false" "no-trapping-math"="false" "stack-protector-buffer-size"="8" "unsafe-fp-math"="false" "use-soft-float"="false" }
 attributes #2 = { nounwind readnone speculatable willreturn }
@@ -2196,7 +1936,7 @@ attributes #6 = { noreturn }
 !19 = !DIDerivedType(tag: DW_TAG_typedef, name: "__uint16_t", file: !11, line: 43, baseType: !20)
 !20 = !DIBasicType(name: "unsigned short", size: 16, encoding: DW_ATE_unsigned)
 !21 = !DIGlobalVariableExpression(var: !22, expr: !DIExpression())
-!22 = distinct !DIGlobalVariable(name: "reset_vector", scope: !2, file: !3, line: 661, type: !23, isLocal: true, isDefinition: true)
+!22 = distinct !DIGlobalVariable(name: "reset_vector", scope: !2, file: !3, line: 672, type: !23, isLocal: true, isDefinition: true)
 !23 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !24, size: 16)
 !24 = !DISubroutineType(types: !25)
 !25 = !{null}
@@ -2286,17 +2026,17 @@ attributes #6 = { noreturn }
 !109 = distinct !DILexicalBlock(scope: !101, file: !3, line: 187, column: 12)
 !110 = !DILocation(line: 205, column: 3, scope: !111)
 !111 = distinct !DILexicalBlock(scope: !91, file: !3, line: 205, column: 3)
-!112 = !{i32 -2146584527}
+!112 = !{i32 -2146583627}
 !113 = !DILocalVariable(name: "__x", scope: !114, file: !3, line: 207, type: !6)
 !114 = distinct !DILexicalBlock(scope: !91, file: !3, line: 207, column: 33)
 !115 = !DILocation(line: 207, column: 33, scope: !114)
-!116 = !{i32 -2146584291}
+!116 = !{i32 -2146583391}
 !117 = !DILocation(line: 207, column: 51, scope: !91)
 !118 = !DILocation(line: 207, column: 33, scope: !91)
 !119 = !DILocalVariable(name: "__x", scope: !120, file: !3, line: 207, type: !6)
 !120 = distinct !DILexicalBlock(scope: !91, file: !3, line: 207, column: 65)
 !121 = !DILocation(line: 207, column: 65, scope: !120)
-!122 = !{i32 -2146584166}
+!122 = !{i32 -2146583266}
 !123 = !DILocation(line: 207, column: 83, scope: !91)
 !124 = !DILocation(line: 207, column: 63, scope: !91)
 !125 = !DILocation(line: 207, column: 19, scope: !91)
@@ -2586,310 +2326,310 @@ attributes #6 = { noreturn }
 !409 = !DILocation(line: 574, column: 10, scope: !404)
 !410 = !DILocation(line: 575, column: 12, scope: !404)
 !411 = !DILocation(line: 576, column: 5, scope: !404)
-!412 = !DILocation(line: 586, column: 5, scope: !404)
-!413 = !DILocation(line: 587, column: 5, scope: !404)
-!414 = !DILocation(line: 587, column: 5, scope: !415)
-!415 = distinct !DILexicalBlock(scope: !416, file: !3, line: 587, column: 5)
-!416 = distinct !DILexicalBlock(scope: !404, file: !3, line: 587, column: 5)
-!417 = !DILocation(line: 587, column: 5, scope: !416)
-!418 = !DILocation(line: 587, column: 5, scope: !419)
-!419 = distinct !DILexicalBlock(scope: !415, file: !3, line: 587, column: 5)
-!420 = !DILocalVariable(name: "__x", scope: !421, file: !3, line: 587, type: !6)
-!421 = distinct !DILexicalBlock(scope: !419, file: !3, line: 587, column: 5)
-!422 = !DILocation(line: 587, column: 5, scope: !421)
-!423 = !{i32 -2146580086}
-!424 = !DILocalVariable(name: "__x", scope: !425, file: !3, line: 587, type: !6)
-!425 = distinct !DILexicalBlock(scope: !419, file: !3, line: 587, column: 5)
-!426 = !DILocation(line: 587, column: 5, scope: !425)
-!427 = !{i32 -2146579961}
-!428 = !DILocation(line: 587, column: 5, scope: !429)
-!429 = distinct !DILexicalBlock(scope: !415, file: !3, line: 587, column: 5)
-!430 = !DILocalVariable(name: "__x", scope: !431, file: !3, line: 587, type: !6)
-!431 = distinct !DILexicalBlock(scope: !429, file: !3, line: 587, column: 5)
-!432 = !DILocation(line: 587, column: 5, scope: !431)
-!433 = !{i32 -2146579829}
-!434 = !DILocalVariable(name: "__x", scope: !435, file: !3, line: 587, type: !6)
-!435 = distinct !DILexicalBlock(scope: !429, file: !3, line: 587, column: 5)
-!436 = !DILocation(line: 587, column: 5, scope: !435)
-!437 = !{i32 -2146579704}
-!438 = !DILocation(line: 588, column: 5, scope: !404)
-!439 = !DILocation(line: 592, column: 3, scope: !404)
-!440 = !DILocation(line: 592, column: 9, scope: !404)
-!441 = !DILocation(line: 592, column: 27, scope: !404)
-!442 = !DILocation(line: 594, column: 9, scope: !443)
-!443 = distinct !DILexicalBlock(scope: !404, file: !3, line: 592, column: 42)
-!444 = !DILocation(line: 595, column: 9, scope: !443)
-!445 = !DILocation(line: 595, column: 9, scope: !446)
-!446 = distinct !DILexicalBlock(scope: !447, file: !3, line: 595, column: 9)
-!447 = distinct !DILexicalBlock(scope: !443, file: !3, line: 595, column: 9)
-!448 = !DILocation(line: 595, column: 9, scope: !447)
-!449 = !DILocation(line: 595, column: 9, scope: !450)
-!450 = distinct !DILexicalBlock(scope: !446, file: !3, line: 595, column: 9)
-!451 = !DILocalVariable(name: "__x", scope: !452, file: !3, line: 595, type: !6)
-!452 = distinct !DILexicalBlock(scope: !450, file: !3, line: 595, column: 9)
-!453 = !DILocation(line: 595, column: 9, scope: !452)
-!454 = !{i32 -2146577517}
-!455 = !DILocalVariable(name: "__x", scope: !456, file: !3, line: 595, type: !6)
-!456 = distinct !DILexicalBlock(scope: !450, file: !3, line: 595, column: 9)
-!457 = !DILocation(line: 595, column: 9, scope: !456)
-!458 = !{i32 -2146577392}
-!459 = !DILocation(line: 595, column: 9, scope: !460)
-!460 = distinct !DILexicalBlock(scope: !446, file: !3, line: 595, column: 9)
-!461 = !DILocalVariable(name: "__x", scope: !462, file: !3, line: 595, type: !6)
-!462 = distinct !DILexicalBlock(scope: !460, file: !3, line: 595, column: 9)
-!463 = !DILocation(line: 595, column: 9, scope: !462)
-!464 = !{i32 -2146577260}
-!465 = !DILocalVariable(name: "__x", scope: !466, file: !3, line: 595, type: !6)
-!466 = distinct !DILexicalBlock(scope: !460, file: !3, line: 595, column: 9)
-!467 = !DILocation(line: 595, column: 9, scope: !466)
-!468 = !{i32 -2146577135}
-!469 = !DILocation(line: 596, column: 9, scope: !443)
-!470 = !DILocation(line: 600, column: 9, scope: !443)
-!471 = !DILocation(line: 601, column: 9, scope: !443)
-!472 = !DILocation(line: 601, column: 9, scope: !473)
-!473 = distinct !DILexicalBlock(scope: !474, file: !3, line: 601, column: 9)
-!474 = distinct !DILexicalBlock(scope: !443, file: !3, line: 601, column: 9)
-!475 = !DILocation(line: 601, column: 9, scope: !474)
-!476 = !DILocation(line: 601, column: 9, scope: !477)
-!477 = distinct !DILexicalBlock(scope: !473, file: !3, line: 601, column: 9)
-!478 = !DILocalVariable(name: "__x", scope: !479, file: !3, line: 601, type: !6)
-!479 = distinct !DILexicalBlock(scope: !477, file: !3, line: 601, column: 9)
-!480 = !DILocation(line: 601, column: 9, scope: !479)
-!481 = !{i32 -2146575011}
-!482 = !DILocalVariable(name: "__x", scope: !483, file: !3, line: 601, type: !6)
-!483 = distinct !DILexicalBlock(scope: !477, file: !3, line: 601, column: 9)
-!484 = !DILocation(line: 601, column: 9, scope: !483)
-!485 = !{i32 -2146574886}
-!486 = !DILocation(line: 601, column: 9, scope: !487)
-!487 = distinct !DILexicalBlock(scope: !473, file: !3, line: 601, column: 9)
-!488 = !DILocalVariable(name: "__x", scope: !489, file: !3, line: 601, type: !6)
-!489 = distinct !DILexicalBlock(scope: !487, file: !3, line: 601, column: 9)
-!490 = !DILocation(line: 601, column: 9, scope: !489)
-!491 = !{i32 -2146574754}
-!492 = !DILocalVariable(name: "__x", scope: !493, file: !3, line: 601, type: !6)
-!493 = distinct !DILexicalBlock(scope: !487, file: !3, line: 601, column: 9)
-!494 = !DILocation(line: 601, column: 9, scope: !493)
-!495 = !{i32 -2146574629}
-!496 = !DILocation(line: 602, column: 9, scope: !443)
-!497 = !DILocation(line: 606, column: 9, scope: !443)
-!498 = !DILocation(line: 607, column: 9, scope: !443)
-!499 = !DILocation(line: 607, column: 9, scope: !500)
-!500 = distinct !DILexicalBlock(scope: !501, file: !3, line: 607, column: 9)
-!501 = distinct !DILexicalBlock(scope: !443, file: !3, line: 607, column: 9)
-!502 = !DILocation(line: 607, column: 9, scope: !501)
-!503 = !DILocation(line: 607, column: 9, scope: !504)
-!504 = distinct !DILexicalBlock(scope: !500, file: !3, line: 607, column: 9)
-!505 = !DILocalVariable(name: "__x", scope: !506, file: !3, line: 607, type: !6)
-!506 = distinct !DILexicalBlock(scope: !504, file: !3, line: 607, column: 9)
-!507 = !DILocation(line: 607, column: 9, scope: !506)
-!508 = !{i32 -2146572505}
-!509 = !DILocalVariable(name: "__x", scope: !510, file: !3, line: 607, type: !6)
-!510 = distinct !DILexicalBlock(scope: !504, file: !3, line: 607, column: 9)
-!511 = !DILocation(line: 607, column: 9, scope: !510)
-!512 = !{i32 -2146572380}
-!513 = !DILocation(line: 607, column: 9, scope: !514)
-!514 = distinct !DILexicalBlock(scope: !500, file: !3, line: 607, column: 9)
-!515 = !DILocalVariable(name: "__x", scope: !516, file: !3, line: 607, type: !6)
-!516 = distinct !DILexicalBlock(scope: !514, file: !3, line: 607, column: 9)
-!517 = !DILocation(line: 607, column: 9, scope: !516)
-!518 = !{i32 -2146572248}
-!519 = !DILocalVariable(name: "__x", scope: !520, file: !3, line: 607, type: !6)
-!520 = distinct !DILexicalBlock(scope: !514, file: !3, line: 607, column: 9)
-!521 = !DILocation(line: 607, column: 9, scope: !520)
-!522 = !{i32 -2146572123}
-!523 = !DILocation(line: 608, column: 9, scope: !443)
-!524 = !DILocation(line: 612, column: 9, scope: !443)
-!525 = !DILocation(line: 613, column: 9, scope: !443)
-!526 = !DILocation(line: 613, column: 9, scope: !527)
-!527 = distinct !DILexicalBlock(scope: !528, file: !3, line: 613, column: 9)
-!528 = distinct !DILexicalBlock(scope: !443, file: !3, line: 613, column: 9)
-!529 = !DILocation(line: 613, column: 9, scope: !528)
-!530 = !DILocation(line: 613, column: 9, scope: !531)
-!531 = distinct !DILexicalBlock(scope: !527, file: !3, line: 613, column: 9)
-!532 = !DILocalVariable(name: "__x", scope: !533, file: !3, line: 613, type: !6)
-!533 = distinct !DILexicalBlock(scope: !531, file: !3, line: 613, column: 9)
-!534 = !DILocation(line: 613, column: 9, scope: !533)
-!535 = !{i32 -2146569999}
-!536 = !DILocalVariable(name: "__x", scope: !537, file: !3, line: 613, type: !6)
-!537 = distinct !DILexicalBlock(scope: !531, file: !3, line: 613, column: 9)
-!538 = !DILocation(line: 613, column: 9, scope: !537)
-!539 = !{i32 -2146569874}
-!540 = !DILocation(line: 613, column: 9, scope: !541)
-!541 = distinct !DILexicalBlock(scope: !527, file: !3, line: 613, column: 9)
-!542 = !DILocalVariable(name: "__x", scope: !543, file: !3, line: 613, type: !6)
-!543 = distinct !DILexicalBlock(scope: !541, file: !3, line: 613, column: 9)
-!544 = !DILocation(line: 613, column: 9, scope: !543)
-!545 = !{i32 -2146569742}
-!546 = !DILocalVariable(name: "__x", scope: !547, file: !3, line: 613, type: !6)
-!547 = distinct !DILexicalBlock(scope: !541, file: !3, line: 613, column: 9)
-!548 = !DILocation(line: 613, column: 9, scope: !547)
-!549 = !{i32 -2146569617}
-!550 = !DILocation(line: 614, column: 9, scope: !443)
-!551 = !DILocation(line: 617, column: 12, scope: !552)
-!552 = distinct !DILexicalBlock(scope: !443, file: !3, line: 617, column: 12)
-!553 = !DILocation(line: 617, column: 30, scope: !552)
-!554 = !DILocation(line: 617, column: 12, scope: !443)
-!555 = !DILocation(line: 619, column: 13, scope: !556)
-!556 = distinct !DILexicalBlock(scope: !552, file: !3, line: 617, column: 45)
-!557 = !DILocation(line: 620, column: 13, scope: !556)
-!558 = !DILocation(line: 620, column: 13, scope: !559)
-!559 = distinct !DILexicalBlock(scope: !560, file: !3, line: 620, column: 13)
-!560 = distinct !DILexicalBlock(scope: !556, file: !3, line: 620, column: 13)
-!561 = !DILocation(line: 620, column: 13, scope: !560)
-!562 = !DILocation(line: 620, column: 13, scope: !563)
-!563 = distinct !DILexicalBlock(scope: !559, file: !3, line: 620, column: 13)
-!564 = !DILocalVariable(name: "__x", scope: !565, file: !3, line: 620, type: !6)
-!565 = distinct !DILexicalBlock(scope: !563, file: !3, line: 620, column: 13)
-!566 = !DILocation(line: 620, column: 13, scope: !565)
-!567 = !{i32 -2146567442}
-!568 = !DILocalVariable(name: "__x", scope: !569, file: !3, line: 620, type: !6)
-!569 = distinct !DILexicalBlock(scope: !563, file: !3, line: 620, column: 13)
-!570 = !DILocation(line: 620, column: 13, scope: !569)
-!571 = !{i32 -2146567317}
-!572 = !DILocation(line: 620, column: 13, scope: !573)
-!573 = distinct !DILexicalBlock(scope: !559, file: !3, line: 620, column: 13)
-!574 = !DILocalVariable(name: "__x", scope: !575, file: !3, line: 620, type: !6)
-!575 = distinct !DILexicalBlock(scope: !573, file: !3, line: 620, column: 13)
-!576 = !DILocation(line: 620, column: 13, scope: !575)
-!577 = !{i32 -2146567185}
-!578 = !DILocalVariable(name: "__x", scope: !579, file: !3, line: 620, type: !6)
-!579 = distinct !DILexicalBlock(scope: !573, file: !3, line: 620, column: 13)
-!580 = !DILocation(line: 620, column: 13, scope: !579)
-!581 = !{i32 -2146567060}
-!582 = !DILocation(line: 621, column: 13, scope: !556)
-!583 = !DILocation(line: 624, column: 16, scope: !584)
-!584 = distinct !DILexicalBlock(scope: !556, file: !3, line: 624, column: 16)
-!585 = !DILocation(line: 624, column: 28, scope: !584)
-!586 = !DILocation(line: 624, column: 41, scope: !584)
-!587 = !DILocation(line: 624, column: 44, scope: !584)
-!588 = !DILocation(line: 624, column: 56, scope: !584)
-!589 = !DILocation(line: 624, column: 16, scope: !556)
-!590 = !DILocation(line: 625, column: 17, scope: !591)
-!591 = distinct !DILexicalBlock(scope: !584, file: !3, line: 624, column: 70)
-!592 = !DILocation(line: 625, column: 23, scope: !591)
-!593 = !DILocation(line: 625, column: 36, scope: !591)
-!594 = !DILocation(line: 625, column: 45, scope: !591)
-!595 = !DILocation(line: 625, column: 49, scope: !591)
-!596 = !DILocation(line: 625, column: 71, scope: !591)
+!412 = !DILocation(line: 587, column: 5, scope: !404)
+!413 = !DILocation(line: 588, column: 5, scope: !404)
+!414 = !DILocation(line: 588, column: 5, scope: !415)
+!415 = distinct !DILexicalBlock(scope: !416, file: !3, line: 588, column: 5)
+!416 = distinct !DILexicalBlock(scope: !404, file: !3, line: 588, column: 5)
+!417 = !DILocation(line: 588, column: 5, scope: !416)
+!418 = !DILocation(line: 588, column: 5, scope: !419)
+!419 = distinct !DILexicalBlock(scope: !415, file: !3, line: 588, column: 5)
+!420 = !DILocalVariable(name: "__x", scope: !421, file: !3, line: 588, type: !6)
+!421 = distinct !DILexicalBlock(scope: !419, file: !3, line: 588, column: 5)
+!422 = !DILocation(line: 588, column: 5, scope: !421)
+!423 = !{i32 -2146579186}
+!424 = !DILocalVariable(name: "__x", scope: !425, file: !3, line: 588, type: !6)
+!425 = distinct !DILexicalBlock(scope: !419, file: !3, line: 588, column: 5)
+!426 = !DILocation(line: 588, column: 5, scope: !425)
+!427 = !{i32 -2146579061}
+!428 = !DILocation(line: 588, column: 5, scope: !429)
+!429 = distinct !DILexicalBlock(scope: !415, file: !3, line: 588, column: 5)
+!430 = !DILocalVariable(name: "__x", scope: !431, file: !3, line: 588, type: !6)
+!431 = distinct !DILexicalBlock(scope: !429, file: !3, line: 588, column: 5)
+!432 = !DILocation(line: 588, column: 5, scope: !431)
+!433 = !{i32 -2146578929}
+!434 = !DILocalVariable(name: "__x", scope: !435, file: !3, line: 588, type: !6)
+!435 = distinct !DILexicalBlock(scope: !429, file: !3, line: 588, column: 5)
+!436 = !DILocation(line: 588, column: 5, scope: !435)
+!437 = !{i32 -2146578804}
+!438 = !DILocation(line: 589, column: 5, scope: !404)
+!439 = !DILocation(line: 593, column: 3, scope: !404)
+!440 = !DILocation(line: 593, column: 9, scope: !404)
+!441 = !DILocation(line: 593, column: 27, scope: !404)
+!442 = !DILocation(line: 596, column: 9, scope: !443)
+!443 = distinct !DILexicalBlock(scope: !404, file: !3, line: 593, column: 42)
+!444 = !DILocation(line: 597, column: 9, scope: !443)
+!445 = !DILocation(line: 597, column: 9, scope: !446)
+!446 = distinct !DILexicalBlock(scope: !447, file: !3, line: 597, column: 9)
+!447 = distinct !DILexicalBlock(scope: !443, file: !3, line: 597, column: 9)
+!448 = !DILocation(line: 597, column: 9, scope: !447)
+!449 = !DILocation(line: 597, column: 9, scope: !450)
+!450 = distinct !DILexicalBlock(scope: !446, file: !3, line: 597, column: 9)
+!451 = !DILocalVariable(name: "__x", scope: !452, file: !3, line: 597, type: !6)
+!452 = distinct !DILexicalBlock(scope: !450, file: !3, line: 597, column: 9)
+!453 = !DILocation(line: 597, column: 9, scope: !452)
+!454 = !{i32 -2146576617}
+!455 = !DILocalVariable(name: "__x", scope: !456, file: !3, line: 597, type: !6)
+!456 = distinct !DILexicalBlock(scope: !450, file: !3, line: 597, column: 9)
+!457 = !DILocation(line: 597, column: 9, scope: !456)
+!458 = !{i32 -2146576492}
+!459 = !DILocation(line: 597, column: 9, scope: !460)
+!460 = distinct !DILexicalBlock(scope: !446, file: !3, line: 597, column: 9)
+!461 = !DILocalVariable(name: "__x", scope: !462, file: !3, line: 597, type: !6)
+!462 = distinct !DILexicalBlock(scope: !460, file: !3, line: 597, column: 9)
+!463 = !DILocation(line: 597, column: 9, scope: !462)
+!464 = !{i32 -2146576360}
+!465 = !DILocalVariable(name: "__x", scope: !466, file: !3, line: 597, type: !6)
+!466 = distinct !DILexicalBlock(scope: !460, file: !3, line: 597, column: 9)
+!467 = !DILocation(line: 597, column: 9, scope: !466)
+!468 = !{i32 -2146576235}
+!469 = !DILocation(line: 598, column: 9, scope: !443)
+!470 = !DILocation(line: 603, column: 9, scope: !443)
+!471 = !DILocation(line: 604, column: 9, scope: !443)
+!472 = !DILocation(line: 604, column: 9, scope: !473)
+!473 = distinct !DILexicalBlock(scope: !474, file: !3, line: 604, column: 9)
+!474 = distinct !DILexicalBlock(scope: !443, file: !3, line: 604, column: 9)
+!475 = !DILocation(line: 604, column: 9, scope: !474)
+!476 = !DILocation(line: 604, column: 9, scope: !477)
+!477 = distinct !DILexicalBlock(scope: !473, file: !3, line: 604, column: 9)
+!478 = !DILocalVariable(name: "__x", scope: !479, file: !3, line: 604, type: !6)
+!479 = distinct !DILexicalBlock(scope: !477, file: !3, line: 604, column: 9)
+!480 = !DILocation(line: 604, column: 9, scope: !479)
+!481 = !{i32 -2146574111}
+!482 = !DILocalVariable(name: "__x", scope: !483, file: !3, line: 604, type: !6)
+!483 = distinct !DILexicalBlock(scope: !477, file: !3, line: 604, column: 9)
+!484 = !DILocation(line: 604, column: 9, scope: !483)
+!485 = !{i32 -2146573986}
+!486 = !DILocation(line: 604, column: 9, scope: !487)
+!487 = distinct !DILexicalBlock(scope: !473, file: !3, line: 604, column: 9)
+!488 = !DILocalVariable(name: "__x", scope: !489, file: !3, line: 604, type: !6)
+!489 = distinct !DILexicalBlock(scope: !487, file: !3, line: 604, column: 9)
+!490 = !DILocation(line: 604, column: 9, scope: !489)
+!491 = !{i32 -2146573854}
+!492 = !DILocalVariable(name: "__x", scope: !493, file: !3, line: 604, type: !6)
+!493 = distinct !DILexicalBlock(scope: !487, file: !3, line: 604, column: 9)
+!494 = !DILocation(line: 604, column: 9, scope: !493)
+!495 = !{i32 -2146573729}
+!496 = !DILocation(line: 605, column: 9, scope: !443)
+!497 = !DILocation(line: 610, column: 9, scope: !443)
+!498 = !DILocation(line: 611, column: 9, scope: !443)
+!499 = !DILocation(line: 611, column: 9, scope: !500)
+!500 = distinct !DILexicalBlock(scope: !501, file: !3, line: 611, column: 9)
+!501 = distinct !DILexicalBlock(scope: !443, file: !3, line: 611, column: 9)
+!502 = !DILocation(line: 611, column: 9, scope: !501)
+!503 = !DILocation(line: 611, column: 9, scope: !504)
+!504 = distinct !DILexicalBlock(scope: !500, file: !3, line: 611, column: 9)
+!505 = !DILocalVariable(name: "__x", scope: !506, file: !3, line: 611, type: !6)
+!506 = distinct !DILexicalBlock(scope: !504, file: !3, line: 611, column: 9)
+!507 = !DILocation(line: 611, column: 9, scope: !506)
+!508 = !{i32 -2146571605}
+!509 = !DILocalVariable(name: "__x", scope: !510, file: !3, line: 611, type: !6)
+!510 = distinct !DILexicalBlock(scope: !504, file: !3, line: 611, column: 9)
+!511 = !DILocation(line: 611, column: 9, scope: !510)
+!512 = !{i32 -2146571480}
+!513 = !DILocation(line: 611, column: 9, scope: !514)
+!514 = distinct !DILexicalBlock(scope: !500, file: !3, line: 611, column: 9)
+!515 = !DILocalVariable(name: "__x", scope: !516, file: !3, line: 611, type: !6)
+!516 = distinct !DILexicalBlock(scope: !514, file: !3, line: 611, column: 9)
+!517 = !DILocation(line: 611, column: 9, scope: !516)
+!518 = !{i32 -2146571348}
+!519 = !DILocalVariable(name: "__x", scope: !520, file: !3, line: 611, type: !6)
+!520 = distinct !DILexicalBlock(scope: !514, file: !3, line: 611, column: 9)
+!521 = !DILocation(line: 611, column: 9, scope: !520)
+!522 = !{i32 -2146571223}
+!523 = !DILocation(line: 612, column: 9, scope: !443)
+!524 = !DILocation(line: 617, column: 9, scope: !443)
+!525 = !DILocation(line: 618, column: 9, scope: !443)
+!526 = !DILocation(line: 618, column: 9, scope: !527)
+!527 = distinct !DILexicalBlock(scope: !528, file: !3, line: 618, column: 9)
+!528 = distinct !DILexicalBlock(scope: !443, file: !3, line: 618, column: 9)
+!529 = !DILocation(line: 618, column: 9, scope: !528)
+!530 = !DILocation(line: 618, column: 9, scope: !531)
+!531 = distinct !DILexicalBlock(scope: !527, file: !3, line: 618, column: 9)
+!532 = !DILocalVariable(name: "__x", scope: !533, file: !3, line: 618, type: !6)
+!533 = distinct !DILexicalBlock(scope: !531, file: !3, line: 618, column: 9)
+!534 = !DILocation(line: 618, column: 9, scope: !533)
+!535 = !{i32 -2146569099}
+!536 = !DILocalVariable(name: "__x", scope: !537, file: !3, line: 618, type: !6)
+!537 = distinct !DILexicalBlock(scope: !531, file: !3, line: 618, column: 9)
+!538 = !DILocation(line: 618, column: 9, scope: !537)
+!539 = !{i32 -2146568974}
+!540 = !DILocation(line: 618, column: 9, scope: !541)
+!541 = distinct !DILexicalBlock(scope: !527, file: !3, line: 618, column: 9)
+!542 = !DILocalVariable(name: "__x", scope: !543, file: !3, line: 618, type: !6)
+!543 = distinct !DILexicalBlock(scope: !541, file: !3, line: 618, column: 9)
+!544 = !DILocation(line: 618, column: 9, scope: !543)
+!545 = !{i32 -2146568842}
+!546 = !DILocalVariable(name: "__x", scope: !547, file: !3, line: 618, type: !6)
+!547 = distinct !DILexicalBlock(scope: !541, file: !3, line: 618, column: 9)
+!548 = !DILocation(line: 618, column: 9, scope: !547)
+!549 = !{i32 -2146568717}
+!550 = !DILocation(line: 619, column: 9, scope: !443)
+!551 = !DILocation(line: 622, column: 12, scope: !552)
+!552 = distinct !DILexicalBlock(scope: !443, file: !3, line: 622, column: 12)
+!553 = !DILocation(line: 622, column: 30, scope: !552)
+!554 = !DILocation(line: 622, column: 12, scope: !443)
+!555 = !DILocation(line: 625, column: 13, scope: !556)
+!556 = distinct !DILexicalBlock(scope: !552, file: !3, line: 622, column: 45)
+!557 = !DILocation(line: 626, column: 13, scope: !556)
+!558 = !DILocation(line: 626, column: 13, scope: !559)
+!559 = distinct !DILexicalBlock(scope: !560, file: !3, line: 626, column: 13)
+!560 = distinct !DILexicalBlock(scope: !556, file: !3, line: 626, column: 13)
+!561 = !DILocation(line: 626, column: 13, scope: !560)
+!562 = !DILocation(line: 626, column: 13, scope: !563)
+!563 = distinct !DILexicalBlock(scope: !559, file: !3, line: 626, column: 13)
+!564 = !DILocalVariable(name: "__x", scope: !565, file: !3, line: 626, type: !6)
+!565 = distinct !DILexicalBlock(scope: !563, file: !3, line: 626, column: 13)
+!566 = !DILocation(line: 626, column: 13, scope: !565)
+!567 = !{i32 -2146566542}
+!568 = !DILocalVariable(name: "__x", scope: !569, file: !3, line: 626, type: !6)
+!569 = distinct !DILexicalBlock(scope: !563, file: !3, line: 626, column: 13)
+!570 = !DILocation(line: 626, column: 13, scope: !569)
+!571 = !{i32 -2146566417}
+!572 = !DILocation(line: 626, column: 13, scope: !573)
+!573 = distinct !DILexicalBlock(scope: !559, file: !3, line: 626, column: 13)
+!574 = !DILocalVariable(name: "__x", scope: !575, file: !3, line: 626, type: !6)
+!575 = distinct !DILexicalBlock(scope: !573, file: !3, line: 626, column: 13)
+!576 = !DILocation(line: 626, column: 13, scope: !575)
+!577 = !{i32 -2146566285}
+!578 = !DILocalVariable(name: "__x", scope: !579, file: !3, line: 626, type: !6)
+!579 = distinct !DILexicalBlock(scope: !573, file: !3, line: 626, column: 13)
+!580 = !DILocation(line: 626, column: 13, scope: !579)
+!581 = !{i32 -2146566160}
+!582 = !DILocation(line: 627, column: 13, scope: !556)
+!583 = !DILocation(line: 630, column: 16, scope: !584)
+!584 = distinct !DILexicalBlock(scope: !556, file: !3, line: 630, column: 16)
+!585 = !DILocation(line: 630, column: 28, scope: !584)
+!586 = !DILocation(line: 630, column: 41, scope: !584)
+!587 = !DILocation(line: 630, column: 44, scope: !584)
+!588 = !DILocation(line: 630, column: 56, scope: !584)
+!589 = !DILocation(line: 630, column: 16, scope: !556)
+!590 = !DILocation(line: 631, column: 17, scope: !591)
+!591 = distinct !DILexicalBlock(scope: !584, file: !3, line: 630, column: 70)
+!592 = !DILocation(line: 631, column: 23, scope: !591)
+!593 = !DILocation(line: 631, column: 36, scope: !591)
+!594 = !DILocation(line: 631, column: 45, scope: !591)
+!595 = !DILocation(line: 631, column: 49, scope: !591)
+!596 = !DILocation(line: 631, column: 71, scope: !591)
 !597 = !DILocation(line: 0, scope: !591)
-!598 = !DILocation(line: 627, column: 21, scope: !599)
-!599 = distinct !DILexicalBlock(scope: !591, file: !3, line: 625, column: 91)
-!600 = !DILocation(line: 628, column: 21, scope: !599)
-!601 = !DILocation(line: 628, column: 21, scope: !602)
-!602 = distinct !DILexicalBlock(scope: !603, file: !3, line: 628, column: 21)
-!603 = distinct !DILexicalBlock(scope: !599, file: !3, line: 628, column: 21)
-!604 = !DILocation(line: 628, column: 21, scope: !603)
-!605 = !DILocation(line: 628, column: 21, scope: !606)
-!606 = distinct !DILexicalBlock(scope: !602, file: !3, line: 628, column: 21)
-!607 = !DILocalVariable(name: "__x", scope: !608, file: !3, line: 628, type: !6)
-!608 = distinct !DILexicalBlock(scope: !606, file: !3, line: 628, column: 21)
-!609 = !DILocation(line: 628, column: 21, scope: !608)
-!610 = !{i32 -2146564783}
-!611 = !DILocalVariable(name: "__x", scope: !612, file: !3, line: 628, type: !6)
-!612 = distinct !DILexicalBlock(scope: !606, file: !3, line: 628, column: 21)
-!613 = !DILocation(line: 628, column: 21, scope: !612)
-!614 = !{i32 -2146564658}
-!615 = !DILocation(line: 628, column: 21, scope: !616)
-!616 = distinct !DILexicalBlock(scope: !602, file: !3, line: 628, column: 21)
-!617 = !DILocalVariable(name: "__x", scope: !618, file: !3, line: 628, type: !6)
-!618 = distinct !DILexicalBlock(scope: !616, file: !3, line: 628, column: 21)
-!619 = !DILocation(line: 628, column: 21, scope: !618)
-!620 = !{i32 -2146564526}
-!621 = !DILocalVariable(name: "__x", scope: !622, file: !3, line: 628, type: !6)
-!622 = distinct !DILexicalBlock(scope: !616, file: !3, line: 628, column: 21)
-!623 = !DILocation(line: 628, column: 21, scope: !622)
-!624 = !{i32 -2146564401}
-!625 = !DILocation(line: 629, column: 21, scope: !599)
+!598 = !DILocation(line: 634, column: 21, scope: !599)
+!599 = distinct !DILexicalBlock(scope: !591, file: !3, line: 631, column: 91)
+!600 = !DILocation(line: 635, column: 21, scope: !599)
+!601 = !DILocation(line: 635, column: 21, scope: !602)
+!602 = distinct !DILexicalBlock(scope: !603, file: !3, line: 635, column: 21)
+!603 = distinct !DILexicalBlock(scope: !599, file: !3, line: 635, column: 21)
+!604 = !DILocation(line: 635, column: 21, scope: !603)
+!605 = !DILocation(line: 635, column: 21, scope: !606)
+!606 = distinct !DILexicalBlock(scope: !602, file: !3, line: 635, column: 21)
+!607 = !DILocalVariable(name: "__x", scope: !608, file: !3, line: 635, type: !6)
+!608 = distinct !DILexicalBlock(scope: !606, file: !3, line: 635, column: 21)
+!609 = !DILocation(line: 635, column: 21, scope: !608)
+!610 = !{i32 -2146563883}
+!611 = !DILocalVariable(name: "__x", scope: !612, file: !3, line: 635, type: !6)
+!612 = distinct !DILexicalBlock(scope: !606, file: !3, line: 635, column: 21)
+!613 = !DILocation(line: 635, column: 21, scope: !612)
+!614 = !{i32 -2146563758}
+!615 = !DILocation(line: 635, column: 21, scope: !616)
+!616 = distinct !DILexicalBlock(scope: !602, file: !3, line: 635, column: 21)
+!617 = !DILocalVariable(name: "__x", scope: !618, file: !3, line: 635, type: !6)
+!618 = distinct !DILexicalBlock(scope: !616, file: !3, line: 635, column: 21)
+!619 = !DILocation(line: 635, column: 21, scope: !618)
+!620 = !{i32 -2146563626}
+!621 = !DILocalVariable(name: "__x", scope: !622, file: !3, line: 635, type: !6)
+!622 = distinct !DILexicalBlock(scope: !616, file: !3, line: 635, column: 21)
+!623 = !DILocation(line: 635, column: 21, scope: !622)
+!624 = !{i32 -2146563501}
+!625 = !DILocation(line: 636, column: 21, scope: !599)
 !626 = distinct !{!626, !590, !627}
-!627 = !DILocation(line: 631, column: 17, scope: !591)
-!628 = !DILocation(line: 632, column: 13, scope: !591)
-!629 = !DILocation(line: 635, column: 13, scope: !556)
-!630 = !DILocation(line: 636, column: 13, scope: !556)
-!631 = !DILocation(line: 636, column: 13, scope: !632)
-!632 = distinct !DILexicalBlock(scope: !633, file: !3, line: 636, column: 13)
-!633 = distinct !DILexicalBlock(scope: !556, file: !3, line: 636, column: 13)
-!634 = !DILocation(line: 636, column: 13, scope: !633)
-!635 = !DILocation(line: 636, column: 13, scope: !636)
-!636 = distinct !DILexicalBlock(scope: !632, file: !3, line: 636, column: 13)
-!637 = !DILocalVariable(name: "__x", scope: !638, file: !3, line: 636, type: !6)
-!638 = distinct !DILexicalBlock(scope: !636, file: !3, line: 636, column: 13)
-!639 = !DILocation(line: 636, column: 13, scope: !638)
-!640 = !{i32 -2146562277}
-!641 = !DILocalVariable(name: "__x", scope: !642, file: !3, line: 636, type: !6)
-!642 = distinct !DILexicalBlock(scope: !636, file: !3, line: 636, column: 13)
-!643 = !DILocation(line: 636, column: 13, scope: !642)
-!644 = !{i32 -2146562152}
-!645 = !DILocation(line: 636, column: 13, scope: !646)
-!646 = distinct !DILexicalBlock(scope: !632, file: !3, line: 636, column: 13)
-!647 = !DILocalVariable(name: "__x", scope: !648, file: !3, line: 636, type: !6)
-!648 = distinct !DILexicalBlock(scope: !646, file: !3, line: 636, column: 13)
-!649 = !DILocation(line: 636, column: 13, scope: !648)
-!650 = !{i32 -2146562020}
-!651 = !DILocalVariable(name: "__x", scope: !652, file: !3, line: 636, type: !6)
-!652 = distinct !DILexicalBlock(scope: !646, file: !3, line: 636, column: 13)
-!653 = !DILocation(line: 636, column: 13, scope: !652)
-!654 = !{i32 -2146561895}
-!655 = !DILocation(line: 637, column: 13, scope: !556)
-!656 = !DILocation(line: 640, column: 9, scope: !556)
-!657 = !DILocation(line: 642, column: 13, scope: !658)
-!658 = distinct !DILexicalBlock(scope: !552, file: !3, line: 640, column: 16)
-!659 = !DILocation(line: 643, column: 13, scope: !658)
-!660 = !DILocation(line: 643, column: 13, scope: !661)
-!661 = distinct !DILexicalBlock(scope: !662, file: !3, line: 643, column: 13)
-!662 = distinct !DILexicalBlock(scope: !658, file: !3, line: 643, column: 13)
-!663 = !DILocation(line: 643, column: 13, scope: !662)
-!664 = !DILocation(line: 643, column: 13, scope: !665)
-!665 = distinct !DILexicalBlock(scope: !661, file: !3, line: 643, column: 13)
-!666 = !DILocalVariable(name: "__x", scope: !667, file: !3, line: 643, type: !6)
-!667 = distinct !DILexicalBlock(scope: !665, file: !3, line: 643, column: 13)
-!668 = !DILocation(line: 643, column: 13, scope: !667)
-!669 = !{i32 -2146559771}
-!670 = !DILocalVariable(name: "__x", scope: !671, file: !3, line: 643, type: !6)
-!671 = distinct !DILexicalBlock(scope: !665, file: !3, line: 643, column: 13)
-!672 = !DILocation(line: 643, column: 13, scope: !671)
-!673 = !{i32 -2146559646}
-!674 = !DILocation(line: 643, column: 13, scope: !675)
-!675 = distinct !DILexicalBlock(scope: !661, file: !3, line: 643, column: 13)
-!676 = !DILocalVariable(name: "__x", scope: !677, file: !3, line: 643, type: !6)
-!677 = distinct !DILexicalBlock(scope: !675, file: !3, line: 643, column: 13)
-!678 = !DILocation(line: 643, column: 13, scope: !677)
-!679 = !{i32 -2146559514}
-!680 = !DILocalVariable(name: "__x", scope: !681, file: !3, line: 643, type: !6)
-!681 = distinct !DILexicalBlock(scope: !675, file: !3, line: 643, column: 13)
-!682 = !DILocation(line: 643, column: 13, scope: !681)
-!683 = !{i32 -2146559389}
-!684 = !DILocation(line: 644, column: 13, scope: !658)
-!685 = !DILocation(line: 648, column: 13, scope: !658)
-!686 = !DILocation(line: 649, column: 13, scope: !658)
-!687 = !DILocation(line: 649, column: 13, scope: !688)
-!688 = distinct !DILexicalBlock(scope: !689, file: !3, line: 649, column: 13)
-!689 = distinct !DILexicalBlock(scope: !658, file: !3, line: 649, column: 13)
-!690 = !DILocation(line: 649, column: 13, scope: !689)
-!691 = !DILocation(line: 649, column: 13, scope: !692)
-!692 = distinct !DILexicalBlock(scope: !688, file: !3, line: 649, column: 13)
-!693 = !DILocalVariable(name: "__x", scope: !694, file: !3, line: 649, type: !6)
-!694 = distinct !DILexicalBlock(scope: !692, file: !3, line: 649, column: 13)
-!695 = !DILocation(line: 649, column: 13, scope: !694)
-!696 = !{i32 -2146557265}
-!697 = !DILocalVariable(name: "__x", scope: !698, file: !3, line: 649, type: !6)
-!698 = distinct !DILexicalBlock(scope: !692, file: !3, line: 649, column: 13)
-!699 = !DILocation(line: 649, column: 13, scope: !698)
-!700 = !{i32 -2146557140}
-!701 = !DILocation(line: 649, column: 13, scope: !702)
-!702 = distinct !DILexicalBlock(scope: !688, file: !3, line: 649, column: 13)
-!703 = !DILocalVariable(name: "__x", scope: !704, file: !3, line: 649, type: !6)
-!704 = distinct !DILexicalBlock(scope: !702, file: !3, line: 649, column: 13)
-!705 = !DILocation(line: 649, column: 13, scope: !704)
-!706 = !{i32 -2146557008}
-!707 = !DILocalVariable(name: "__x", scope: !708, file: !3, line: 649, type: !6)
-!708 = distinct !DILexicalBlock(scope: !702, file: !3, line: 649, column: 13)
-!709 = !DILocation(line: 649, column: 13, scope: !708)
-!710 = !{i32 -2146556883}
-!711 = !DILocation(line: 650, column: 13, scope: !658)
+!627 = !DILocation(line: 638, column: 17, scope: !591)
+!628 = !DILocation(line: 639, column: 13, scope: !591)
+!629 = !DILocation(line: 643, column: 13, scope: !556)
+!630 = !DILocation(line: 644, column: 13, scope: !556)
+!631 = !DILocation(line: 644, column: 13, scope: !632)
+!632 = distinct !DILexicalBlock(scope: !633, file: !3, line: 644, column: 13)
+!633 = distinct !DILexicalBlock(scope: !556, file: !3, line: 644, column: 13)
+!634 = !DILocation(line: 644, column: 13, scope: !633)
+!635 = !DILocation(line: 644, column: 13, scope: !636)
+!636 = distinct !DILexicalBlock(scope: !632, file: !3, line: 644, column: 13)
+!637 = !DILocalVariable(name: "__x", scope: !638, file: !3, line: 644, type: !6)
+!638 = distinct !DILexicalBlock(scope: !636, file: !3, line: 644, column: 13)
+!639 = !DILocation(line: 644, column: 13, scope: !638)
+!640 = !{i32 -2146561377}
+!641 = !DILocalVariable(name: "__x", scope: !642, file: !3, line: 644, type: !6)
+!642 = distinct !DILexicalBlock(scope: !636, file: !3, line: 644, column: 13)
+!643 = !DILocation(line: 644, column: 13, scope: !642)
+!644 = !{i32 -2146561252}
+!645 = !DILocation(line: 644, column: 13, scope: !646)
+!646 = distinct !DILexicalBlock(scope: !632, file: !3, line: 644, column: 13)
+!647 = !DILocalVariable(name: "__x", scope: !648, file: !3, line: 644, type: !6)
+!648 = distinct !DILexicalBlock(scope: !646, file: !3, line: 644, column: 13)
+!649 = !DILocation(line: 644, column: 13, scope: !648)
+!650 = !{i32 -2146561120}
+!651 = !DILocalVariable(name: "__x", scope: !652, file: !3, line: 644, type: !6)
+!652 = distinct !DILexicalBlock(scope: !646, file: !3, line: 644, column: 13)
+!653 = !DILocation(line: 644, column: 13, scope: !652)
+!654 = !{i32 -2146560995}
+!655 = !DILocation(line: 645, column: 13, scope: !556)
+!656 = !DILocation(line: 648, column: 9, scope: !556)
+!657 = !DILocation(line: 651, column: 13, scope: !658)
+!658 = distinct !DILexicalBlock(scope: !552, file: !3, line: 648, column: 16)
+!659 = !DILocation(line: 652, column: 13, scope: !658)
+!660 = !DILocation(line: 652, column: 13, scope: !661)
+!661 = distinct !DILexicalBlock(scope: !662, file: !3, line: 652, column: 13)
+!662 = distinct !DILexicalBlock(scope: !658, file: !3, line: 652, column: 13)
+!663 = !DILocation(line: 652, column: 13, scope: !662)
+!664 = !DILocation(line: 652, column: 13, scope: !665)
+!665 = distinct !DILexicalBlock(scope: !661, file: !3, line: 652, column: 13)
+!666 = !DILocalVariable(name: "__x", scope: !667, file: !3, line: 652, type: !6)
+!667 = distinct !DILexicalBlock(scope: !665, file: !3, line: 652, column: 13)
+!668 = !DILocation(line: 652, column: 13, scope: !667)
+!669 = !{i32 -2146558871}
+!670 = !DILocalVariable(name: "__x", scope: !671, file: !3, line: 652, type: !6)
+!671 = distinct !DILexicalBlock(scope: !665, file: !3, line: 652, column: 13)
+!672 = !DILocation(line: 652, column: 13, scope: !671)
+!673 = !{i32 -2146558746}
+!674 = !DILocation(line: 652, column: 13, scope: !675)
+!675 = distinct !DILexicalBlock(scope: !661, file: !3, line: 652, column: 13)
+!676 = !DILocalVariable(name: "__x", scope: !677, file: !3, line: 652, type: !6)
+!677 = distinct !DILexicalBlock(scope: !675, file: !3, line: 652, column: 13)
+!678 = !DILocation(line: 652, column: 13, scope: !677)
+!679 = !{i32 -2146558614}
+!680 = !DILocalVariable(name: "__x", scope: !681, file: !3, line: 652, type: !6)
+!681 = distinct !DILexicalBlock(scope: !675, file: !3, line: 652, column: 13)
+!682 = !DILocation(line: 652, column: 13, scope: !681)
+!683 = !{i32 -2146558489}
+!684 = !DILocation(line: 653, column: 13, scope: !658)
+!685 = !DILocation(line: 658, column: 13, scope: !658)
+!686 = !DILocation(line: 659, column: 13, scope: !658)
+!687 = !DILocation(line: 659, column: 13, scope: !688)
+!688 = distinct !DILexicalBlock(scope: !689, file: !3, line: 659, column: 13)
+!689 = distinct !DILexicalBlock(scope: !658, file: !3, line: 659, column: 13)
+!690 = !DILocation(line: 659, column: 13, scope: !689)
+!691 = !DILocation(line: 659, column: 13, scope: !692)
+!692 = distinct !DILexicalBlock(scope: !688, file: !3, line: 659, column: 13)
+!693 = !DILocalVariable(name: "__x", scope: !694, file: !3, line: 659, type: !6)
+!694 = distinct !DILexicalBlock(scope: !692, file: !3, line: 659, column: 13)
+!695 = !DILocation(line: 659, column: 13, scope: !694)
+!696 = !{i32 -2146556365}
+!697 = !DILocalVariable(name: "__x", scope: !698, file: !3, line: 659, type: !6)
+!698 = distinct !DILexicalBlock(scope: !692, file: !3, line: 659, column: 13)
+!699 = !DILocation(line: 659, column: 13, scope: !698)
+!700 = !{i32 -2146556240}
+!701 = !DILocation(line: 659, column: 13, scope: !702)
+!702 = distinct !DILexicalBlock(scope: !688, file: !3, line: 659, column: 13)
+!703 = !DILocalVariable(name: "__x", scope: !704, file: !3, line: 659, type: !6)
+!704 = distinct !DILexicalBlock(scope: !702, file: !3, line: 659, column: 13)
+!705 = !DILocation(line: 659, column: 13, scope: !704)
+!706 = !{i32 -2146556108}
+!707 = !DILocalVariable(name: "__x", scope: !708, file: !3, line: 659, type: !6)
+!708 = distinct !DILexicalBlock(scope: !702, file: !3, line: 659, column: 13)
+!709 = !DILocation(line: 659, column: 13, scope: !708)
+!710 = !{i32 -2146555983}
+!711 = !DILocation(line: 660, column: 13, scope: !658)
 !712 = distinct !{!712, !439, !713}
-!713 = !DILocation(line: 653, column: 5, scope: !404)
-!714 = !DILocation(line: 655, column: 5, scope: !404)
-!715 = !DILocation(line: 656, column: 1, scope: !404)
+!713 = !DILocation(line: 663, column: 5, scope: !404)
+!714 = !DILocation(line: 666, column: 5, scope: !404)
+!715 = !DILocation(line: 667, column: 1, scope: !404)
 !716 = distinct !DISubprogram(name: "djb_hash", scope: !3, file: !3, line: 226, type: !717, scopeLine: 227, flags: DIFlagPrototyped, spFlags: DISPFlagLocalToUnit | DISPFlagDefinition, unit: !2, retainedNodes: !4)
 !717 = !DISubroutineType(types: !718)
 !718 = !{!214, !7, !6}
