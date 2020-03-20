@@ -19,7 +19,7 @@ GCC = $(GCC_BIN)/msp430-elf-gcc
 
 DEVICE  = __MSP430FR6989__
 CRC = CRC_ON
-MODE = ALL
+MODE = READS
 
 override CFLAGS += \
 	--target=msp430 \

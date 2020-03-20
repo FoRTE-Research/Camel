@@ -157,7 +157,7 @@ GetElementPtrInst* Modify::accessIndex(Instruction *before, GetElementPtrInst* i
     indices.push_back(start);
     indices.push_back(load);
 
-    GetElementPtrInst *GEP = GetElementPtrInst::Create(ar->getType()->getContainedType(0), ar, indices, "access", before);
+    GetElementPtrInst *GEP = GetElementPtrInst::CreateInBounds(ar->getType()->getContainedType(0), ar, indices, "access", before);
 
     // debugging
     // load->dump();
@@ -281,7 +281,7 @@ void Modify::cpa(Instruction* before, vector<Instruction*> varList) {
 
     GetElementPtrInst *Struct = accessStruct(before, "unsafe");
     GetElementPtrInst *structVar = accessStructVar(before, Struct,  first->getOperand(1),  first->getOperand(2));
-    GetElementPtrInst *arraydecay = GetElementPtrInst::Create(structVar->getType()->getContainedType(0), structVar, index, "array", before);
+    GetElementPtrInst *arraydecay = GetElementPtrInst::CreateInBounds(structVar->getType()->getContainedType(0), structVar, index, "array", before);
     auto bCast1 = new BitCastInst(arraydecay, pi8, "cast", before);
 
     // debugging
@@ -289,7 +289,7 @@ void Modify::cpa(Instruction* before, vector<Instruction*> varList) {
 
     GetElementPtrInst *Struct1 = accessStruct(before, "safe");
     GetElementPtrInst *structVar1 = accessStructVar(before, Struct1,  first->getOperand(1),  first->getOperand(2));
-    GetElementPtrInst *arraydecay1 = GetElementPtrInst::Create(structVar1->getType()->getContainedType(0), structVar1, index, "array", before);
+    GetElementPtrInst *arraydecay1 = GetElementPtrInst::CreateInBounds(structVar1->getType()->getContainedType(0), structVar1, index, "array", before);
     auto bCast2 = new BitCastInst(arraydecay1, pi8, "cast", before);
 
     // debugging
@@ -304,15 +304,18 @@ void Modify::cpa(Instruction* before, vector<Instruction*> varList) {
     Constant *arg4 = ConstantInt::getFalse(myModule->getContext());
 
     //get intrinsic memcpy here to copy the two arrays
-    Function *fun = getIntrinsicMemcpy();
-    vector<Value*> memcpyArgs;
-    memcpyArgs.push_back(bCast1);
-    memcpyArgs.push_back(bCast2);
-    memcpyArgs.push_back(arg3);
-    memcpyArgs.push_back(arg4);
+    // Function *fun = getIntrinsicMemcpy();
+    // vector<Value*> memcpyArgs;
+    // memcpyArgs.push_back(bCast1);
+    // memcpyArgs.push_back(bCast2);
+    // memcpyArgs.push_back(arg3);
+    // memcpyArgs.push_back(arg4);
+
+    // CallInst *call = CallInst::Create(fun, memcpyArgs, "", before);
 
     //insert memcpy
-    CallInst *call = CallInst::Create(fun, memcpyArgs, "", before);
+    IRBuilder<> builder(before);
+    CallInst *call = builder.CreateMemCpy(bCast1, 2, bCast2, 2, arg3);
 
     // debugging
     //call->dump();
@@ -341,7 +344,7 @@ void Modify::cpaso(Instruction* before, Instruction* ar, GlobalVariable *g){
     indices.push_back(start);
     indices.push_back(load);
 
-    GetElementPtrInst *GEP = GetElementPtrInst::Create(structVar->getType()->getContainedType(0), structVar, indices, "access", before);
+    GetElementPtrInst *GEP = GetElementPtrInst::CreateInBounds(structVar->getType()->getContainedType(0), structVar, indices, "access", before);
     LoadInst *loadArray = new LoadInst(GEP->getType()->getContainedType(0), GEP, "tmp", before);
     loadArray->setAlignment(MaybeAlign(2));
 
@@ -353,7 +356,7 @@ void Modify::cpaso(Instruction* before, Instruction* ar, GlobalVariable *g){
     vector<Value*> indices1;
     indices1.push_back(start);
     indices1.push_back(load1);
-    GetElementPtrInst *GEP1 = GetElementPtrInst::Create(structVar1->getType()->getContainedType(0), structVar1, indices1, "access", before);
+    GetElementPtrInst *GEP1 = GetElementPtrInst::CreateInBounds(structVar1->getType()->getContainedType(0), structVar1, indices1, "access", before);
     // LoadInst *loadArray1 = new LoadInst(GEP1->getType()->getContainedType(0), GEP1, "tmp", before);
     // loadArray1->setAlignment(MaybeAlign(2));
 

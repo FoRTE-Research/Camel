@@ -591,77 +591,77 @@ int main(){
     // The buffers are equal
 
   while(MGV(lookup_count) < NUM_LOOKUPS) {
-        //prepare_task_generate_key();
+        prepare_task_generate_key();
         //memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t));
         task_generate_key();
         commit();
+        writes_task_generate_key();
         task_commit();
-        //writes_task_generate_key();
 
-        //prepare_task_calc_indexes();
+        prepare_task_calc_indexes();
         //memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t));
         task_calc_indexes();
         commit();
+        writes_task_calc_indexes();
         task_commit();
-        //writes_task_calc_indexes();
 
-        //prepare_task_calc_indexes_index_1();
+        prepare_task_calc_indexes_index_1();
         //memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t));
         task_calc_indexes_index_1();
         commit();
+        writes_task_calc_indexes_index_1();
         task_commit();
-        //writes_task_calc_indexes_index_1();
 
-        //prepare_task_calc_indexes_index_2();
+        prepare_task_calc_indexes_index_2();
         //memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t));
         task_calc_indexes_index_2();
         commit();
+        writes_task_calc_indexes_index_2();
         task_commit();
-        //writes_task_calc_indexes_index_2();
 
         if(MGV(insert_count) < NUM_INSERTS) {
-            //prepare_task_add();
+            prepare_task_add();
             //memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t));
             task_add();
             commit();
+            writes_task_calc_indexes();
             task_commit();
-            //writes_task_calc_indexes();
-
+            
             if(MGV(filter)[MGV(index1)] && MGV(filter)[MGV(index2)]) {
                 while(MGV(success) == false && (MGV(relocation_count) < MAX_RELOCATIONS)) {
-                    //prepare_task_relocate();
+                    prepare_task_relocate();
                     //memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t));
                     task_relocate();
                     commit();
+                    writes_task_relocate();
                     task_commit();
-                    //writes_task_relocate();
                 }
             }
 
-            //prepare_task_insert_done();
+            prepare_task_insert_done();
             //memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t));
             task_insert_done();
             commit();
+            writes_task_insert_done();
             task_commit();
-            //task_commit();
-            //writes_task_insert_done();
+            
         } else {
-            //prepare_task_lookup_search();
+            prepare_task_lookup_search();
             //memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t));
             task_lookup_search();
             commit();
+            writes_task_lookup_search();
             task_commit();
-            //writes_task_lookup_search();
 
-            //prepare_task_lookup_done();
+            prepare_task_lookup_done();
             //memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t));
             task_lookup_done();
             commit();
+            writes_task_lookup_done();
             task_commit();
-            //writes_task_lookup_done();
         }
     }
-
+    
     //memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t));
     task_done();
 }
