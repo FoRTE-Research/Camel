@@ -10,6 +10,7 @@ class TaskAnalysis {
         void AnalyzeTask(Function &F);
         void traverseLoad(LoadInst *load);
         void traverseStore(StoreInst *store);
+        void traverseMemcpy(CallInst *call);
         bool isGlobalStructAccess(GEPOperator *gep, StringRef name);
         void initializeTaskLists(Function &F);
         void getTaskCalls(Function &F);

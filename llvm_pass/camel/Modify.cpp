@@ -193,6 +193,19 @@ void Modify::cps(Instruction* before, vector<Instruction*> varList) {
     LoadInst *loadVar = new LoadInst(structVar->getType()->getContainedType(0), structVar, "tmp", before);
     loadVar->setAlignment(MaybeAlign(2));
 
+    if (structVar->getType()->getContainedType(0)->isIntegerTy()){
+
+        if (structVar->getType()->getContainedType(0)->getIntegerBitWidth() == 8){
+            
+            //TruncInst *bool_inst = new TruncInst(loadVar, loadVar->getType(), "trunc", before);
+            //auto bool_temp2 = new ZExtInst(bool_temp1, bool_temp1->getType()->getContainedType(0), "zext", before);
+
+            // bool_temp1->dump();
+            // bool_temp2->dump();
+        }
+
+    }
+
     //debugging
     //loadVar->dump();
 

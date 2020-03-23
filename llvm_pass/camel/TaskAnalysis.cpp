@@ -27,7 +27,7 @@ void TaskAnalysis::AnalyzeModule(Module &M){
         }
     }
 
-    //printList(writes);
+    printList(reads);
 }
 
 void TaskAnalysis::AnalyzeTask(Function &F){
@@ -45,6 +45,9 @@ void TaskAnalysis::AnalyzeTask(Function &F){
 
                 traverseStore(store);
 
+            } else if (CallInst *call = dyn_cast<CallInst>(&I)){
+
+                traverseMemcpy(call);
             }
         }
     }
@@ -54,6 +57,57 @@ void TaskAnalysis::AnalyzeTask(Function &F){
     checkStore.clear();
     checkLoadIndex.clear();
     checkStoreIndex.clear();
+}
+
+void TaskAnalysis::traverseMemcpy(CallInst *call){
+
+    Function *func = call->getCalledFunction();
+    StringRef name = func->getName();
+
+    if (name.contains("llvm.memcpy")) {
+
+        Value *to = call->getOperand(0);
+        Value *from = call->getOperand(1);
+
+        to = dyn_cast<Instruction>(to)->getOperand(0);
+        from = dyn_cast<Instruction>(from)->getOperand(0);
+
+        to = dyn_cast<Instruction>(to)->getOperand(0);
+        from = dyn_cast<Instruction>(from)->getOperand(0);
+
+        if (GEPOperator *gep = dyn_cast<GEPOperator>(to)){
+
+            if (checkStore.find(gep->getOperand(2)) == checkStore.end()){
+                
+                //gep->dump();
+
+                vector <Instruction*> inst;
+                inst.push_back(dyn_cast<Instruction>(gep));
+                inst.push_back(NULL);
+                writes[getParentTask(gep)].push_back(inst);
+                if (checkLoad.find(gep->getOperand(2)) == checkLoad.end()){
+                    writeFirst[getParentTask(gep)].push_back(inst);
+                }
+            }
+        }
+        
+        if (GEPOperator *gep = dyn_cast<GEPOperator>(from)) {
+
+            if (checkLoad.find(gep->getOperand(2)) == checkLoad.end()){
+
+                //gep->dump();
+
+                vector <Instruction*> inst;
+                inst.push_back(dyn_cast<Instruction>(gep));
+                inst.push_back(NULL);
+                reads[getParentTask(gep)].push_back(inst);
+                if (checkStore.find(gep->getOperand(2)) == checkStore.end()){
+                    readFirst[getParentTask(gep)].push_back(inst);
+                }
+            }
+        }
+
+    }   
 }
 
 void TaskAnalysis::traverseLoad(LoadInst *load){
@@ -66,6 +120,7 @@ void TaskAnalysis::traverseLoad(LoadInst *load){
             inst.push_back(dyn_cast<Instruction>(gep));
             if (gep->getSourceElementType()->isArrayTy()) {
 
+                errs() << "array ty\n";
                 LoadInst *myLoad = dyn_cast<LoadInst>(gep->getOperand(2));
                 Instruction *index1 = dyn_cast<Instruction>(myLoad->getOperand(0));
                 Instruction *index = dyn_cast<Instruction>(gep->getOperand(0));
@@ -83,6 +138,7 @@ void TaskAnalysis::traverseLoad(LoadInst *load){
             if (inst.size() == 1) {
                 comp = gep;
                 if (checkLoad.find(comp->getOperand(2)) == checkLoad.end()){
+                    //comp->dump();
                     reads[getParentTask(comp)].push_back(inst);
                     if (checkStore.find(comp->getOperand(2)) == checkStore.end()){
                         readFirst[getParentTask(comp)].push_back(inst);
@@ -91,6 +147,8 @@ void TaskAnalysis::traverseLoad(LoadInst *load){
             }
             else if (inst.size() == 2){
                 comp = dyn_cast<GEPOperator>(gep->getOperand(0));
+
+                comp->dump();
 
                 Constant *var = dyn_cast<Constant>(comp->getOperand(2));
                 set<Value*> myIndices;
@@ -132,13 +190,14 @@ void TaskAnalysis::traverseLoad(LoadInst *load){
 void TaskAnalysis::traverseStore(StoreInst *store){
 
     if (GEPOperator *gep = dyn_cast<GEPOperator>(store->getOperand(1))){
-
+        
         vector <Instruction*> inst;
         if (isGlobalStructAccess(gep, "unsafe")) {
 
-            inst.push_back(dyn_cast<Instruction>(gep));
+                inst.push_back(dyn_cast<Instruction>(gep));
             if (gep->getSourceElementType()->isArrayTy()) {
 
+                errs() << "array ty\n";
                 LoadInst *myLoad = dyn_cast<LoadInst>(inst[0]->getOperand(2));
                 Instruction *index1 = dyn_cast<Instruction>(myLoad->getOperand(0));
                 Instruction *index = dyn_cast<Instruction>(inst[0]->getOperand(0));
@@ -155,10 +214,10 @@ void TaskAnalysis::traverseStore(StoreInst *store){
             GEPOperator *comp;
             if (inst.size() == 1){
                 comp = gep;
-
                 if (checkStore.find(comp->getOperand(2)) == checkStore.end()){
-                    writes[getParentTask(comp)].push_back(inst);
 
+                    //comp->dump();
+                    writes[getParentTask(comp)].push_back(inst);
                     if (checkLoad.find(comp->getOperand(2)) == checkLoad.end()){
                         writeFirst[getParentTask(comp)].push_back(inst);
                     }
@@ -167,6 +226,8 @@ void TaskAnalysis::traverseStore(StoreInst *store){
             else if (inst.size() == 2){ 
 
                 comp = dyn_cast<GEPOperator>(gep->getOperand(0));
+
+                comp->dump();
 
                 Constant *var = dyn_cast<Constant>(comp->getOperand(2));
                 set<Value*> myIndices;
@@ -302,8 +363,11 @@ bool TaskAnalysis::isGlobalStructAccess(GEPOperator *gep, StringRef name){
 
     }
 
-    LoadInst *temp = dyn_cast<LoadInst>(prev->getOperand(0));
-    return temp->getOperand(0)->getName().contains(name);
+    if (LoadInst *temp = dyn_cast<LoadInst>(prev->getOperand(0)))
+        return temp->getOperand(0)->getName().contains(name);
+    else
+        return "";
+        
 }
 
 LoopInfoBase<BasicBlock, Loop>* TaskAnalysis::getTaskLoops(Function &F) {

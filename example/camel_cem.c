@@ -28,7 +28,6 @@ typedef struct _node_t {
 } node_t;
 
 void task_init();
-void task_init_dict();
 void task_sample();
 void task_measure_temp();
 void task_letterize();
@@ -125,7 +124,7 @@ typedef struct camel_global_t
 	node_t sibling_node;
 	index_t symbol;
 	//global for checking which branch to take
-	int check=0;
+	int check;
 } camel_global_t;
 // End globals
 
@@ -236,24 +235,22 @@ void task_init()
 	GV(prev_sample) = 0;
 	GV(letter_idx) = 0;;
 	GV(sample_count) = 1;
-}
-
-void task_init_dict()
-{
+	GV(check) = 0;
 
 	while (GV(letter) < NUM_LETTERS){
+
 		node_t node = {
 			.letter = GV(letter),
 			.sibling = NIL, // no siblings for 'root' nodes
 			.child = NIL, // init an empty list for children
 		};
+
 		int i = GV(letter);	
-		dict[i] = node; 
+		GV(dict)[i] = node; 
 		GV(letter)++;
 	}
 
 	GV(node_count) = NUM_LETTERS;
-
 }
 
 void task_sample()
@@ -300,7 +297,7 @@ void task_compress()
 {
 	node_t parent_node;
 	index_t parent = GV(parent_next);
-	parent_node = GV(dict, parent);
+	parent_node = GV(dict)[parent];
 
 	GV(sibling) = parent_node.child;
 	GV(parent_node) = parent_node;
@@ -316,7 +313,7 @@ void task_find_sibling()
 
 	if (GV(sibling) != NIL) {
 		int i = GV(sibling);
-		sibling_node = &dict[i]; 
+		sibling_node = &GV(dict)[i]; 
 
 		if (sibling_node->letter == GV(letter)) { // found
 
@@ -348,7 +345,7 @@ void task_add_node()
 	node_t *sibling_node;
 
 	int i = GV(sibling);
-	sibling_node = &dict[i];
+	sibling_node = &GV(dict)[i];
 
 	if (sibling_node->sibling != NIL) {
 		index_t next_sibling = sibling_node->sibling;
@@ -383,7 +380,7 @@ void task_add_insert()
 		node_t parent_node_obj = GV(parent_node);
 		parent_node_obj.child = child;
 		int i = GV(parent);
-		dict[i] = parent_node_obj;
+		GV(dict)[i] = parent_node_obj;
 
 	} else { // a sibling
 
@@ -391,9 +388,9 @@ void task_add_insert()
 		node_t last_sibling_node = GV(sibling_node);                   
 
 		last_sibling_node.sibling = child;
-		dict[last_sibling] = last_sibling_node;
+		GV(dict)[last_sibling] = last_sibling_node;
 	}
-	dict[child] = child_node;
+	GV(dict)[child] = child_node;
 	GV(symbol) = GV(parent);
 	GV(node_count)++;
 
@@ -402,7 +399,7 @@ void task_add_insert()
 void task_append_compressed()
 {
 	int i = GV(out_len);
-	compressed_data[i].letter = GV(symbol);
+	GV(compressed_data[i]).letter = GV(symbol);
 
 	if (++GV(out_len) == BLOCK_SIZE) {
 		//TRANSITION_TO(task_print);
@@ -416,40 +413,63 @@ void task_done()
 	exit(0);
 }
 
+void task_commit(){
+
+}
+
 int main() {
 
+    camel.flag = CKPT_1_FLG;
+    safe = &(camel.buf1);
+    unsafe = &(camel.buf2);
 	camel_init();
 	
 	task_init();
-	task_init_dict();
+	commit();
+	task_commit();
 
-	while (GV(out_len) < BLOCK_SIZE){
+	while (MGV(out_len) < BLOCK_SIZE){
 
-		if (GV(check) == 1){
+		if (MGV(check) == 1){
 			task_measure_temp();
+			commit();
+			task_commit();
 		}
 
 		while(1){
 
 			task_letterize();
+			commit();
+			task_commit();
+
 			task_compress();
+			commit();
+			task_commit();
 
 			while(1){
 				task_find_sibling();
-
-				if (GV(check) != 2)
+				commit();
+				task_commit();
+				if (MGV(check) != 2)
 					break;
 			}
 
-			if (GV(check) != 1)
+			if (MGV(check) != 1)
 				break;
 		}	
 
-		if (GV(check) == 3)
-			task_add_node():
+		if (MGV(check) == 3)
+			task_add_node();
+			commit();
+			task_commit();
 
 		task_add_insert();
-		task_append_compressed();		
+		commit();
+		task_commit();
+
+		task_append_compressed();
+		commit();
+		task_commit();	
 	}
 
 	task_done();
