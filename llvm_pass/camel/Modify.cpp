@@ -12,11 +12,21 @@ void Modify::copyVariables(StringRef task, Instruction* before, map < StringRef,
     for (int i=0; i<varList.size(); i++){
         
         if (varList[i].size() == 1) {
-            cps(before, varList[i]);
+
+            if (varList[i][0]->getType()->getContainedType(0)->isStructTy())
+                cps_s(before, varList[i]);
+            else
+                cps(before, varList[i]);
         }
         else if (varList[i].size() == 2){
             
-            cpas(before, varList[i]);
+            auto ty = dyn_cast<CompositeType>(varList[i][0]->getType()->getContainedType(0));
+            if (ty->getTypeAtIndex(1)->isStructTy()){
+                cpas_s(before, varList[i]);
+            }
+            else{
+                cpas(before, varList[i]);
+            }
 
         }
     }    
@@ -145,7 +155,7 @@ GetElementPtrInst* Modify::accessStructVar(Instruction *before, GetElementPtrIns
     return GEP;
 }
 
-GetElementPtrInst* Modify::accessIndex(Instruction *before, GetElementPtrInst* index, Instruction* ar) {
+GetElementPtrInst* Modify::accessIndex(Instruction *before, Instruction* index, Instruction* ar) {
 
     Type *i16_type = IntegerType::getInt16Ty(myModule->getContext());
     Constant *start = ConstantInt::get(i16_type, 0);
@@ -192,19 +202,6 @@ void Modify::cps(Instruction* before, vector<Instruction*> varList) {
     GetElementPtrInst *structVar = accessStructVar(before, Struct,  first->getOperand(1),  first->getOperand(2));
     LoadInst *loadVar = new LoadInst(structVar->getType()->getContainedType(0), structVar, "tmp", before);
     loadVar->setAlignment(MaybeAlign(2));
-
-    if (structVar->getType()->getContainedType(0)->isIntegerTy()){
-
-        if (structVar->getType()->getContainedType(0)->getIntegerBitWidth() == 8){
-            
-            //TruncInst *bool_inst = new TruncInst(loadVar, loadVar->getType(), "trunc", before);
-            //auto bool_temp2 = new ZExtInst(bool_temp1, bool_temp1->getType()->getContainedType(0), "zext", before);
-
-            // bool_temp1->dump();
-            // bool_temp2->dump();
-        }
-
-    }
 
     //debugging
     //loadVar->dump();
@@ -376,4 +373,74 @@ void Modify::cpaso(Instruction* before, Instruction* ar, GlobalVariable *g){
     StoreInst *store = new StoreInst(loadArray, GEP1, before);
     store->setAlignment(MaybeAlign(2));
 
+}
+
+void Modify::cps_s(Instruction *before, vector<Instruction*> varList){
+
+    errs() << "CPS_S\n";
+    Type *pi8 = Type::getInt8PtrTy(myModule->getContext());
+
+    GEPOperator *first = dyn_cast<GEPOperator>(varList[0]);
+    GEPOperator *second = dyn_cast<GEPOperator>(varList[1]);
+
+    GetElementPtrInst *Struct = accessStruct(before, "safe");
+    GetElementPtrInst *structVar = accessStructVar(before, Struct,  first->getOperand(1),  first->getOperand(2));
+
+    GetElementPtrInst *Struct2 = accessStruct(before, "unsafe");
+    GetElementPtrInst *structVar2 = accessStructVar(before, Struct2,  first->getOperand(1),  first->getOperand(2));
+
+    BitCastInst *bCast1 = new BitCastInst(structVar, pi8, "cast", before);
+    BitCastInst *bCast2 = new BitCastInst(structVar2, pi8, "cast", before);
+
+    auto dl = myModule->getDataLayout();
+    auto size_of_struct = dl.getTypeAllocSize(structVar2->getType()->getContainedType(0));
+    Type *i64_type = IntegerType::getInt64Ty(myModule->getContext());
+    Constant *arg3 = ConstantInt::get(i64_type, size_of_struct);
+
+    IRBuilder<> builder(before);
+    CallInst *call = builder.CreateMemCpy(bCast1, 2, bCast2, 2, arg3);
+
+}
+
+void Modify::cpas_s(Instruction *before, vector<Instruction*> varList) {
+
+    if (!varList[1]){
+        cpa(before, varList);
+        return;
+    }
+
+    errs() << "CPAS_S\n";
+
+    GEPOperator *first = dyn_cast<GEPOperator>(varList[0]);
+    GEPOperator *second = dyn_cast<GEPOperator>(varList[1]);
+
+    GetElementPtrInst *Struct = accessStruct(before, "unsafe");
+    GetElementPtrInst *structVar = accessStructVar(before, Struct,  first->getOperand(1),  first->getOperand(2));
+    GetElementPtrInst *Struct1 = accessStruct(before, "unsafe");
+    GetElementPtrInst *structVar1 = accessStructVar(before, Struct1,  second->getOperand(1),  second->getOperand(2));
+    // LoadInst *load = new LoadInst(structVar1->getType()->getContainedType(0), structVar1, "tmp", before);
+    // load->setAlignment(MaybeAlign(2));
+
+    GetElementPtrInst* arrayidx = accessIndex(before, structVar1, structVar);
+
+    GetElementPtrInst *Struct2 = accessStruct(before, "safe");
+    GetElementPtrInst *structVar2 = accessStructVar(before, Struct2,  first->getOperand(1),  first->getOperand(2));
+    GetElementPtrInst *Struct3 = accessStruct(before, "unsafe");
+    GetElementPtrInst *structVar3 = accessStructVar(before, Struct3,  second->getOperand(1),  second->getOperand(2));
+    // LoadInst *load1 = new LoadInst(structVar3->getType()->getContainedType(0), structVar3, "tmp", before);
+    // load1->setAlignment(MaybeAlign(2));
+
+    GetElementPtrInst* arrayidx2 = accessIndex(before, structVar3, structVar2);
+
+    Type *pi8 = Type::getInt8PtrTy(myModule->getContext());
+    BitCastInst *bCast1 = new BitCastInst(arrayidx, pi8, "cast", before);
+    BitCastInst *bCast2 = new BitCastInst(arrayidx2, pi8, "cast", before);   
+
+    auto dl = myModule->getDataLayout();
+    auto size_of_struct = dl.getTypeAllocSize(structVar2->getType()->getContainedType(0));
+    Type *i64_type = IntegerType::getInt64Ty(myModule->getContext());
+    Constant *arg3 = ConstantInt::get(i64_type, size_of_struct);
+
+    IRBuilder<> builder(before);
+    CallInst *call = builder.CreateMemCpy(bCast1, 2, bCast2, 2, arg3);   
 }

@@ -58,6 +58,9 @@ uint16_t tmp_stack_buf_crc;
 #define cpaso(x, y) unsafe->globals.x[y] = safe->globals.x[y]
 #define cpa(x,y) memcpy(unsafe->globals.x,safe->globals.x,y)
 
+#define cps_s(x, y) memcpy(unsafe->globals.x, safe->globals.x, y)
+#define cpas_a(x,y) memcpy(unsafe->globals.x[y], safe->globals.x[y], sizeof(safe->globals.x[y]))
+
 #if (CRC_ON && CRC_OFF) || !(CRC_ON || CRC_OFF)
 #error You must define exactly one of CRC_ON and CRC_OFF
 #endif
@@ -123,6 +126,10 @@ typedef struct camel_global_t
 	node_t compressed_data[BLOCK_SIZE];
 	node_t sibling_node;
 	index_t symbol;
+	//indexes to aid writing to array
+	unsigned write1;
+	unsigned write2;
+
 	//global for checking which branch to take
 	int check;
 } camel_global_t;
@@ -235,16 +242,14 @@ void task_init()
 	GV(prev_sample) = 0;
 	GV(letter_idx) = 0;;
 	GV(sample_count) = 1;
-	GV(check) = 0;
 
-	while (GV(letter) < NUM_LETTERS){
+	while (GV(letter) < NUM_LETTERS) {
 
 		node_t node = {
 			.letter = GV(letter),
 			.sibling = NIL, // no siblings for 'root' nodes
 			.child = NIL, // init an empty list for children
 		};
-
 		int i = GV(letter);	
 		GV(dict)[i] = node; 
 		GV(letter)++;
@@ -255,17 +260,20 @@ void task_init()
 
 void task_sample()
 {
-
 	unsigned next_letter_idx = GV(letter_idx) + 1;
 	if (next_letter_idx == NUM_LETTERS_IN_SAMPLE)
 		next_letter_idx = 0;
 
 	if (GV(letter_idx) == 0) {
 		GV(letter_idx) = next_letter_idx;
-		GV(check) = 1;
+		GV(check) = 0;
+
+		//TRANSITION_TO(task_measure_temp);
 	} else {
 		GV(letter_idx) = next_letter_idx;
-		GV(check) = 0;
+		GV(check) = 1;
+
+		//TRANSITION_TO(task_letterize);
 	}
 }
 
@@ -278,6 +286,7 @@ void task_measure_temp()
 	prev_sample = sample;
 	GV(prev_sample) = prev_sample;
 	GV(sample) = sample;
+	//TRANSITION_TO(task_letterize);
 }
 
 void task_letterize()
@@ -291,6 +300,7 @@ void task_letterize()
 	letter_t letter = (GV(sample) & (LETTER_MASK << letter_shift)) >> letter_shift;
 
 	GV(letter) = letter;
+	//TRANSITION_TO(task_compress);
 }
 
 void task_compress()
@@ -305,6 +315,7 @@ void task_compress()
 	GV(child) = parent_node.child;
 	GV(sample_count)++;
 
+	//TRANSITION_TO(task_find_sibling);
 }
 
 void task_find_sibling()
@@ -319,12 +330,15 @@ void task_find_sibling()
 
 			GV(parent_next) = GV(sibling);
 
-			GV(check) = 1;
-
+			GV(check) = 0;
+			//TRANSITION_TO(task_letterize);
+			return;
 		} else { // continue traversing the siblings
 			if(sibling_node->sibling != 0){
 				GV(sibling) = sibling_node->sibling;
-				GV(check) = 2;
+				GV(check) = 1;	
+				//TRANSITION_TO(task_find_sibling);
+				return;
 			}
 		}
 
@@ -334,9 +348,11 @@ void task_find_sibling()
 	GV(parent_next) = starting_node_idx;
 
 	if (GV(child) == NIL) {
-		GV(check) = 3;
+		GV(check) = 2;
+		//TRANSITION_TO(task_add_insert);
 	} else {
-		GV(check) = 4;
+		GV(check) = 3;
+		//TRANSITION_TO(task_add_node); 
 	}
 }
 
@@ -351,12 +367,16 @@ void task_add_node()
 		index_t next_sibling = sibling_node->sibling;
 		GV(sibling) = next_sibling;
 
-	} else { // found last sibling in the list
+		//TRANSITION_TO(task_add_node);
+		GV(check) = 0;
 
+	} else { // found last sibling in the list
 
 		node_t sibling_node_obj = *sibling_node;
 		GV(sibling_node) = sibling_node_obj;
 
+		//TRANSITION_TO(task_add_insert);
+		GV(check) = 1;
 	}
 }
 
@@ -366,7 +386,6 @@ void task_add_insert()
 	if (GV(node_count) == DICT_SIZE) { // wipe the table if full
 		while (1);
 	}
-
 
 	index_t child = GV(node_count);
 	node_t child_node = {
@@ -379,30 +398,48 @@ void task_add_insert()
 
 		node_t parent_node_obj = GV(parent_node);
 		parent_node_obj.child = child;
-		int i = GV(parent);
-		GV(dict)[i] = parent_node_obj;
+		//int i = GV(parent);
+		//opt
+		GV(write1) = GV(parent);
+		GV(dict)[GV(write1)] = parent_node_obj;
 
 	} else { // a sibling
 
-		index_t last_sibling = GV(sibling);
+		//index_t last_sibling = GV(sibling);
+		GV(write2) = GV(sibling);
 		node_t last_sibling_node = GV(sibling_node);                   
 
 		last_sibling_node.sibling = child;
-		GV(dict)[last_sibling] = last_sibling_node;
+		//GV(dict)[last_sibling] = last_sibling_node;
+		GV(dict)[GV(write2)] = last_sibling_node;
 	}
-	GV(dict)[child] = child_node;
+	GV(dict)[GV(child)] = child_node;
 	GV(symbol) = GV(parent);
 	GV(node_count)++;
 
+	//TRANSITION_TO(task_append_compressed);
 }
 
 void task_append_compressed()
 {
-	int i = GV(out_len);
-	GV(compressed_data[i]).letter = GV(symbol);
+	//int i = GV(out_len);
+	//opt
+	GV(write1) = GV(out_len);
+
+	//can change here
+	//GV(compressed_data)[i].letter = GV(symbol);
+
+	//opt
+	node_t copy = {
+		.letter = GV(symbol),
+		.sibling = GV(compressed_data)[GV(write1)].sibling,
+		.child = GV(compressed_data)[GV(write1)].child,
+	};
+
+	GV(compressed_data)[GV(write1)] = copy;
 
 	if (++GV(out_len) == BLOCK_SIZE) {
-		//TRANSITION_TO(task_print);
+		//TRANSITION_TO(task_done);
 	} else {
 		//TRANSITION_TO(task_sample);
 	}
@@ -422,21 +459,28 @@ int main() {
     camel.flag = CKPT_1_FLG;
     safe = &(camel.buf1);
     unsafe = &(camel.buf2);
-	camel_init();
-	
+    camel_init();
+
+	unsafe->globals.dict[unsafe->globals.letter_idx] = safe->globals.dict[safe->globals.letter_idx];
+
 	task_init();
 	commit();
 	task_commit();
 
-	while (MGV(out_len) < BLOCK_SIZE){
+	while(MGV(out_len) < BLOCK_SIZE){
 
-		if (MGV(check) == 1){
+		task_sample();
+		commit();
+		task_commit();
+
+		if (MGV(check) == 0){
+
 			task_measure_temp();
 			commit();
 			task_commit();
 		}
 
-		while(1){
+		while (1) {
 
 			task_letterize();
 			commit();
@@ -446,22 +490,25 @@ int main() {
 			commit();
 			task_commit();
 
-			while(1){
+			while (MGV(check) == 1) {
+
 				task_find_sibling();
 				commit();
 				task_commit();
-				if (MGV(check) != 2)
-					break;
+
 			}
 
-			if (MGV(check) != 1)
+			if (MGV(check) != 0)
 				break;
-		}	
+		}
 
-		if (MGV(check) == 3)
-			task_add_node();
-			commit();
-			task_commit();
+		if (MGV(check) == 3) {
+			do{
+				task_add_node();
+				commit();
+				task_commit();
+			} while (MGV(check) == 0);
+		}
 
 		task_add_insert();
 		commit();
@@ -469,7 +516,7 @@ int main() {
 
 		task_append_compressed();
 		commit();
-		task_commit();	
+		task_commit();
 	}
 
 	task_done();

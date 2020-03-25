@@ -28,19 +28,19 @@ bool CamelPass::runOnModule(Module &M){
     // //copy everything after task_init
     // modifyTasks.copyBuffers(analysisInfo.taskCallList[1], "unsafe", "safe");
 
-    // for( int i=2; i<analysisInfo.taskCallList.size(); i = i+2){
+    for( int i=2; i<analysisInfo.taskCallList.size(); i = i+2){
 
-    //     CallInst *taskCall = dyn_cast<CallInst>(analysisInfo.taskCallList[i]);
-    //     StringRef taskName = taskCall->getCalledFunction()->getName();
-    //     errs () << taskName + "\n";
+        CallInst *taskCall = dyn_cast<CallInst>(analysisInfo.taskCallList[i]);
+        StringRef taskName = taskCall->getCalledFunction()->getName();
+        errs () << taskName + "\n";
 
-    //     errs () << "Before Task\n";
-    //     modifyTasks.copyVariables(taskName, analysisInfo.taskCallList[i], analysisInfo.reads);
+        errs () << "Before Task\n";
+        modifyTasks.copyVariables(taskName, analysisInfo.taskCallList[i], analysisInfo.reads);
 
-    //     errs () << "After Task\n";
-    //     modifyTasks.copyVariables(taskName, analysisInfo.taskCallList[i+1], analysisInfo.writes);
+        errs () << "After Task\n";
+        modifyTasks.copyVariables(taskName, analysisInfo.taskCallList[i+1], analysisInfo.writes);
         
-    // }
+    }
 
     // testing
     // for(int i=0; i<analysisInfo.taskCallList.size(); i++){

@@ -27,7 +27,7 @@ void TaskAnalysis::AnalyzeModule(Module &M){
         }
     }
 
-    printList(reads);
+    //printList(writes);
 }
 
 void TaskAnalysis::AnalyzeTask(Function &F){
@@ -37,6 +37,7 @@ void TaskAnalysis::AnalyzeTask(Function &F){
         for (auto &I: B) {
 
             //check for load or store
+
             if (LoadInst *load = dyn_cast<LoadInst>(&I)) {
 
                 traverseLoad(load);
@@ -72,18 +73,28 @@ void TaskAnalysis::traverseMemcpy(CallInst *call){
         to = dyn_cast<Instruction>(to)->getOperand(0);
         from = dyn_cast<Instruction>(from)->getOperand(0);
 
-        to = dyn_cast<Instruction>(to)->getOperand(0);
-        from = dyn_cast<Instruction>(from)->getOperand(0);
+        // to = dyn_cast<Instruction>(to)->getOperand(0);
+        // from = dyn_cast<Instruction>(from)->getOperand(0);
 
         if (GEPOperator *gep = dyn_cast<GEPOperator>(to)){
 
             if (checkStore.find(gep->getOperand(2)) == checkStore.end()){
-                
-                //gep->dump();
-
+    
                 vector <Instruction*> inst;
-                inst.push_back(dyn_cast<Instruction>(gep));
-                inst.push_back(NULL);
+                if (gep->getSourceElementType()->isArrayTy()){
+
+
+                    Instruction *index = dyn_cast<Instruction>(gep->getOperand(2));
+                    index = dyn_cast<Instruction>(index->getOperand(0));
+
+                    gep = dyn_cast<GEPOperator>(gep->getOperand(0));
+
+                    inst.push_back(dyn_cast<Instruction>(gep));
+                    inst.push_back(index);
+                } else {
+                    inst.push_back(dyn_cast<Instruction>(gep));
+                }
+
                 writes[getParentTask(gep)].push_back(inst);
                 if (checkLoad.find(gep->getOperand(2)) == checkLoad.end()){
                     writeFirst[getParentTask(gep)].push_back(inst);
@@ -95,11 +106,15 @@ void TaskAnalysis::traverseMemcpy(CallInst *call){
 
             if (checkLoad.find(gep->getOperand(2)) == checkLoad.end()){
 
-                //gep->dump();
-
                 vector <Instruction*> inst;
-                inst.push_back(dyn_cast<Instruction>(gep));
-                inst.push_back(NULL);
+                if (gep->getSourceElementType()->isArrayTy()){
+                    gep = dyn_cast<GEPOperator>(gep->getOperand(0));
+                    inst.push_back(dyn_cast<Instruction>(gep));
+                    inst.push_back(NULL);
+                } else {
+                    inst.push_back(dyn_cast<Instruction>(gep));
+                }
+                
                 reads[getParentTask(gep)].push_back(inst);
                 if (checkStore.find(gep->getOperand(2)) == checkStore.end()){
                     readFirst[getParentTask(gep)].push_back(inst);
@@ -120,7 +135,6 @@ void TaskAnalysis::traverseLoad(LoadInst *load){
             inst.push_back(dyn_cast<Instruction>(gep));
             if (gep->getSourceElementType()->isArrayTy()) {
 
-                errs() << "array ty\n";
                 LoadInst *myLoad = dyn_cast<LoadInst>(gep->getOperand(2));
                 Instruction *index1 = dyn_cast<Instruction>(myLoad->getOperand(0));
                 Instruction *index = dyn_cast<Instruction>(gep->getOperand(0));
@@ -133,7 +147,7 @@ void TaskAnalysis::traverseLoad(LoadInst *load){
             }
 
             //change getOperand(2) to getOperand(3) for optimization levels higher than O0
-
+            //gep->dump();
             GEPOperator *comp;
             if (inst.size() == 1) {
                 comp = gep;
@@ -147,9 +161,6 @@ void TaskAnalysis::traverseLoad(LoadInst *load){
             }
             else if (inst.size() == 2){
                 comp = dyn_cast<GEPOperator>(gep->getOperand(0));
-
-                comp->dump();
-
                 Constant *var = dyn_cast<Constant>(comp->getOperand(2));
                 set<Value*> myIndices;
 
@@ -197,7 +208,6 @@ void TaskAnalysis::traverseStore(StoreInst *store){
                 inst.push_back(dyn_cast<Instruction>(gep));
             if (gep->getSourceElementType()->isArrayTy()) {
 
-                errs() << "array ty\n";
                 LoadInst *myLoad = dyn_cast<LoadInst>(inst[0]->getOperand(2));
                 Instruction *index1 = dyn_cast<Instruction>(myLoad->getOperand(0));
                 Instruction *index = dyn_cast<Instruction>(inst[0]->getOperand(0));
@@ -226,9 +236,6 @@ void TaskAnalysis::traverseStore(StoreInst *store){
             else if (inst.size() == 2){ 
 
                 comp = dyn_cast<GEPOperator>(gep->getOperand(0));
-
-                comp->dump();
-
                 Constant *var = dyn_cast<Constant>(comp->getOperand(2));
                 set<Value*> myIndices;
 
@@ -366,7 +373,7 @@ bool TaskAnalysis::isGlobalStructAccess(GEPOperator *gep, StringRef name){
     if (LoadInst *temp = dyn_cast<LoadInst>(prev->getOperand(0)))
         return temp->getOperand(0)->getName().contains(name);
     else
-        return "";
+        return 0;
         
 }
 
