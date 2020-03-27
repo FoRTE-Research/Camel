@@ -307,10 +307,10 @@ void Modify::cpa(Instruction* before, vector<Instruction*> varList) {
 
     // set memcpy arguments
     auto dl = myModule->getDataLayout();
-    auto size_of_struct = dl.getTypeAllocSize(arraydecay->getType()->getContainedType(0));
+    auto size_of_struct = dl.getTypeAllocSize(structVar1->getType()->getContainedType(0));
 
     Type *i64_type = IntegerType::getInt64Ty(myModule->getContext());
-    Constant *arg3 = ConstantInt::get(i64_type, size_of_struct);
+    Constant *arg3 = ConstantInt::get(i16_type, size_of_struct);
     Constant *arg4 = ConstantInt::getFalse(myModule->getContext());
 
     //get intrinsic memcpy here to copy the two arrays
@@ -383,10 +383,10 @@ void Modify::cps_s(Instruction *before, vector<Instruction*> varList){
     GEPOperator *first = dyn_cast<GEPOperator>(varList[0]);
     GEPOperator *second = dyn_cast<GEPOperator>(varList[1]);
 
-    GetElementPtrInst *Struct = accessStruct(before, "safe");
+    GetElementPtrInst *Struct = accessStruct(before, "unsafe");
     GetElementPtrInst *structVar = accessStructVar(before, Struct,  first->getOperand(1),  first->getOperand(2));
 
-    GetElementPtrInst *Struct2 = accessStruct(before, "unsafe");
+    GetElementPtrInst *Struct2 = accessStruct(before, "safe");
     GetElementPtrInst *structVar2 = accessStructVar(before, Struct2,  first->getOperand(1),  first->getOperand(2));
 
     BitCastInst *bCast1 = new BitCastInst(structVar, pi8, "cast", before);
@@ -394,8 +394,8 @@ void Modify::cps_s(Instruction *before, vector<Instruction*> varList){
 
     auto dl = myModule->getDataLayout();
     auto size_of_struct = dl.getTypeAllocSize(structVar2->getType()->getContainedType(0));
-    Type *i64_type = IntegerType::getInt64Ty(myModule->getContext());
-    Constant *arg3 = ConstantInt::get(i64_type, size_of_struct);
+    Type *i16_type = IntegerType::getInt16Ty(myModule->getContext());
+    Constant *arg3 = ConstantInt::get(i16_type, size_of_struct);
 
     IRBuilder<> builder(before);
     CallInst *call = builder.CreateMemCpy(bCast1, 2, bCast2, 2, arg3);
@@ -437,9 +437,12 @@ void Modify::cpas_s(Instruction *before, vector<Instruction*> varList) {
     BitCastInst *bCast2 = new BitCastInst(arrayidx2, pi8, "cast", before);   
 
     auto dl = myModule->getDataLayout();
-    auto size_of_struct = dl.getTypeAllocSize(structVar2->getType()->getContainedType(0));
-    Type *i64_type = IntegerType::getInt64Ty(myModule->getContext());
-    Constant *arg3 = ConstantInt::get(i64_type, size_of_struct);
+
+    auto tyy = dyn_cast<CompositeType>(structVar2->getType()->getContainedType(0));
+
+    auto size_of_struct = dl.getTypeAllocSize(tyy->getTypeAtIndex(1));
+    Type *i16_type = IntegerType::getInt16Ty(myModule->getContext());
+    Constant *arg3 = ConstantInt::get(i16_type, size_of_struct);
 
     IRBuilder<> builder(before);
     CallInst *call = builder.CreateMemCpy(bCast1, 2, bCast2, 2, arg3);   

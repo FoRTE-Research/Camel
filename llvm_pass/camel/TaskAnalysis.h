@@ -15,6 +15,9 @@ class TaskAnalysis {
         void initializeTaskLists(Function &F);
         void getTaskCalls(Function &F);
 
+        void insertStore(vector<Instruction*> inst, GEPOperator *gep);
+        void insertLoad(vector<Instruction*> inst, GEPOperator *gep);
+
         void generateTaskIdem(Function &taskFunc);
         LoopInfoBase<BasicBlock, Loop>* getTaskLoops(Function &F);
         bool isPartOfLoop(Instruction *I, Instruction *a);

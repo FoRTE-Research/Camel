@@ -65,6 +65,8 @@ void TaskAnalysis::traverseMemcpy(CallInst *call){
     Function *func = call->getCalledFunction();
     StringRef name = func->getName();
 
+    //errs() << name+"\n";
+
     if (name.contains("llvm.memcpy")) {
 
         Value *to = call->getOperand(0);
@@ -78,24 +80,23 @@ void TaskAnalysis::traverseMemcpy(CallInst *call){
 
         if (GEPOperator *gep = dyn_cast<GEPOperator>(to)){
 
+            vector <Instruction*> inst;
+            if (gep->getSourceElementType()->isArrayTy()){
+
+                Instruction *index = dyn_cast<Instruction>(gep->getOperand(2));
+                index = dyn_cast<Instruction>(index->getOperand(0));
+
+                gep = dyn_cast<GEPOperator>(gep->getOperand(0));
+
+                inst.push_back(dyn_cast<Instruction>(gep));
+                inst.push_back(index);
+            } else {
+                inst.push_back(dyn_cast<Instruction>(gep));
+            }
+
             if (checkStore.find(gep->getOperand(2)) == checkStore.end()){
-    
-                vector <Instruction*> inst;
-                if (gep->getSourceElementType()->isArrayTy()){
-
-
-                    Instruction *index = dyn_cast<Instruction>(gep->getOperand(2));
-                    index = dyn_cast<Instruction>(index->getOperand(0));
-
-                    gep = dyn_cast<GEPOperator>(gep->getOperand(0));
-
-                    inst.push_back(dyn_cast<Instruction>(gep));
-                    inst.push_back(index);
-                } else {
-                    inst.push_back(dyn_cast<Instruction>(gep));
-                }
-
                 writes[getParentTask(gep)].push_back(inst);
+                //checkStore.insert(gep->getOperand(2));
                 if (checkLoad.find(gep->getOperand(2)) == checkLoad.end()){
                     writeFirst[getParentTask(gep)].push_back(inst);
                 }
@@ -104,18 +105,18 @@ void TaskAnalysis::traverseMemcpy(CallInst *call){
         
         if (GEPOperator *gep = dyn_cast<GEPOperator>(from)) {
 
-            if (checkLoad.find(gep->getOperand(2)) == checkLoad.end()){
-
-                vector <Instruction*> inst;
-                if (gep->getSourceElementType()->isArrayTy()){
-                    gep = dyn_cast<GEPOperator>(gep->getOperand(0));
-                    inst.push_back(dyn_cast<Instruction>(gep));
-                    inst.push_back(NULL);
-                } else {
-                    inst.push_back(dyn_cast<Instruction>(gep));
-                }
+            vector <Instruction*> inst;
+            if (gep->getSourceElementType()->isArrayTy()){
+                gep = dyn_cast<GEPOperator>(gep->getOperand(0));
+                inst.push_back(dyn_cast<Instruction>(gep));
+                inst.push_back(NULL);
+            } else {
+                inst.push_back(dyn_cast<Instruction>(gep));
+            }
                 
+            if (checkLoad.find(gep->getOperand(2)) == checkLoad.end()){
                 reads[getParentTask(gep)].push_back(inst);
+                checkLoad.insert(gep->getOperand(2));
                 if (checkStore.find(gep->getOperand(2)) == checkStore.end()){
                     readFirst[getParentTask(gep)].push_back(inst);
                 }
@@ -146,54 +147,7 @@ void TaskAnalysis::traverseLoad(LoadInst *load){
 
             }
 
-            //change getOperand(2) to getOperand(3) for optimization levels higher than O0
-            //gep->dump();
-            GEPOperator *comp;
-            if (inst.size() == 1) {
-                comp = gep;
-                if (checkLoad.find(comp->getOperand(2)) == checkLoad.end()){
-                    //comp->dump();
-                    reads[getParentTask(comp)].push_back(inst);
-                    if (checkStore.find(comp->getOperand(2)) == checkStore.end()){
-                        readFirst[getParentTask(comp)].push_back(inst);
-                    }
-                }
-            }
-            else if (inst.size() == 2){
-                comp = dyn_cast<GEPOperator>(gep->getOperand(0));
-                Constant *var = dyn_cast<Constant>(comp->getOperand(2));
-                set<Value*> myIndices;
-
-                if (!checkLoadIndex.count(var)){
-                    pair<Constant*, set<Value*>> p(var, myIndices);
-                    checkLoadIndex.insert(p);
-                }
-
-                if (checkLoad.find(comp->getOperand(2)) == checkLoad.end()){
-                    //reads[getParentTask(comp)].push_back(inst);
-
-                    vector <Instruction*> inst2;
-                    inst2.push_back(inst[0]);
-                    inst2.push_back(NULL);
-                    reads[getParentTask(comp)].push_back(inst2);
-
-                    if (checkStore.find(comp->getOperand(2)) == checkStore.end()){
-                        readFirst[getParentTask(comp)].push_back(inst);
-                    }
-                } else if(checkLoadIndex[var].find(inst[1]) == checkLoadIndex[var].end()) {
-
-                    //reads[getParentTask(comp)].push_back(inst);
-                    readFirst[getParentTask(comp)].push_back(inst);
-
-                }
-
-                if (auto a = dyn_cast<AllocaInst>(inst[1]))
-                    checkStoreIndex[var].insert(inst[1]);
-                else 
-                    checkStoreIndex[var].insert(inst[1]->getOperand(2));
-            }
-
-            checkLoad.insert(comp->getOperand(2));
+            insertLoad(inst, gep);
         }
     }
 }
@@ -221,53 +175,109 @@ void TaskAnalysis::traverseStore(StoreInst *store){
 
             //change getOperand(2) to getOperand(3) for optimization levels higher than O0
 
-            GEPOperator *comp;
-            if (inst.size() == 1){
-                comp = gep;
-                if (checkStore.find(comp->getOperand(2)) == checkStore.end()){
-
-                    //comp->dump();
-                    writes[getParentTask(comp)].push_back(inst);
-                    if (checkLoad.find(comp->getOperand(2)) == checkLoad.end()){
-                        writeFirst[getParentTask(comp)].push_back(inst);
-                    }
-                }
-            }
-            else if (inst.size() == 2){ 
-
-                comp = dyn_cast<GEPOperator>(gep->getOperand(0));
-                Constant *var = dyn_cast<Constant>(comp->getOperand(2));
-                set<Value*> myIndices;
-
-                if (!checkLoadIndex.count(var)){
-                    pair<Constant*, set<Value*>> p(var, myIndices);
-                    checkLoadIndex.insert(p);
-                }
-
-                if (checkStore.find(comp->getOperand(2)) == checkStore.end()){
-
-                    writes[getParentTask(comp)].push_back(inst);
-
-                    if (checkLoad.find(comp->getOperand(2)) == checkLoad.end()){
-                        writeFirst[getParentTask(comp)].push_back(inst);
-                    }
-                } else if (checkStoreIndex[var].find(inst[1]) == checkStoreIndex[var].end()) {
-
-                    writes[getParentTask(comp)].push_back(inst);
-                    writeFirst[getParentTask(comp)].push_back(inst);
-
-                }
-
-                if (auto a = dyn_cast<AllocaInst>(inst[1]))
-                    checkStoreIndex[var].insert(inst[1]);
-                else 
-                    checkStoreIndex[var].insert(inst[1]->getOperand(2));
-
-            }
-
-            checkStore.insert(comp->getOperand(2));
+            insertStore(inst, gep);
         }
     }
+}
+
+void TaskAnalysis::insertLoad(vector<Instruction*> inst, GEPOperator *gep) {
+
+    GEPOperator *comp;
+    if (inst.size() == 1) {
+        comp = gep;
+        if (checkLoad.find(comp->getOperand(2)) == checkLoad.end()){
+            //comp->dump();
+            reads[getParentTask(comp)].push_back(inst);
+            if (checkStore.find(comp->getOperand(2)) == checkStore.end()){
+                readFirst[getParentTask(comp)].push_back(inst);
+            }
+        }
+    }
+    else if (inst.size() == 2){
+        comp = dyn_cast<GEPOperator>(gep->getOperand(0));
+        Constant *var = dyn_cast<Constant>(comp->getOperand(2));
+        set<Value*> myIndices;
+
+        if (!checkLoadIndex.count(var)){
+            pair<Constant*, set<Value*>> p(var, myIndices);
+            checkLoadIndex.insert(p);
+        }
+
+        if (checkLoad.find(comp->getOperand(2)) == checkLoad.end()){
+            //reads[getParentTask(comp)].push_back(inst);
+
+            vector <Instruction*> inst2;
+            inst2.push_back(inst[0]);
+            inst2.push_back(NULL);
+            reads[getParentTask(comp)].push_back(inst2);
+
+            if (checkStore.find(comp->getOperand(2)) == checkStore.end()){
+                readFirst[getParentTask(comp)].push_back(inst);
+            }
+        } else if(checkLoadIndex[var].find(inst[1]) == checkLoadIndex[var].end()) {
+
+            //reads[getParentTask(comp)].push_back(inst);
+            readFirst[getParentTask(comp)].push_back(inst);
+
+        }
+
+        if (auto a = dyn_cast<AllocaInst>(inst[1]))
+            checkStoreIndex[var].insert(inst[1]);
+        else 
+            checkStoreIndex[var].insert(inst[1]->getOperand(2));
+    }
+
+    checkLoad.insert(comp->getOperand(2));
+
+}
+
+void TaskAnalysis::insertStore(vector<Instruction*> inst, GEPOperator *gep) {
+
+    GEPOperator *comp;
+    if (inst.size() == 1){
+        comp = gep;
+        if (checkStore.find(comp->getOperand(2)) == checkStore.end()){
+
+            writes[getParentTask(comp)].push_back(inst);
+            if (checkLoad.find(comp->getOperand(2)) == checkLoad.end()){
+                writeFirst[getParentTask(comp)].push_back(inst);
+            }
+        }
+    }
+    else if (inst.size() == 2){ 
+
+        comp = dyn_cast<GEPOperator>(gep->getOperand(0));
+        Constant *var = dyn_cast<Constant>(comp->getOperand(2));
+        set<Value*> myIndices;
+
+        if (!checkLoadIndex.count(var)){
+            pair<Constant*, set<Value*>> p(var, myIndices);
+            checkLoadIndex.insert(p);
+        }
+
+        if (checkStore.find(comp->getOperand(2)) == checkStore.end()){
+
+            writes[getParentTask(comp)].push_back(inst);
+
+            if (checkLoad.find(comp->getOperand(2)) == checkLoad.end()){
+                writeFirst[getParentTask(comp)].push_back(inst);
+            }
+        } else if (checkStoreIndex[var].find(inst[1]) == checkStoreIndex[var].end()) {
+
+            writes[getParentTask(comp)].push_back(inst);
+            writeFirst[getParentTask(comp)].push_back(inst);
+
+        }
+
+        if (auto a = dyn_cast<AllocaInst>(inst[1]))
+            checkStoreIndex[var].insert(inst[1]);
+        else 
+            checkStoreIndex[var].insert(inst[1]->getOperand(2));
+
+    }
+
+    checkStore.insert(comp->getOperand(2));
+
 }
 
 void TaskAnalysis::traverseLoadFast(LoadInst *load){
@@ -370,10 +380,17 @@ bool TaskAnalysis::isGlobalStructAccess(GEPOperator *gep, StringRef name){
 
     }
 
-    if (LoadInst *temp = dyn_cast<LoadInst>(prev->getOperand(0)))
+    // gep->dump();
+    // prev->dump();
+    // prev->getOperand(0)->dump();
+    // errs () << "\n";
+
+    if (LoadInst *temp = dyn_cast<LoadInst>(prev->getOperand(0))){
         return temp->getOperand(0)->getName().contains(name);
-    else
-        return 0;
+    }
+    else{
+        return false;
+    }
         
 }
 
@@ -417,8 +434,15 @@ void TaskAnalysis::generateTaskIdem(Function &taskFunc) {
                 }
                 else if (writes[task][i].size() == 2 && readFirst[task][j].size() == 2) {
 
-                    AllocaInst *a = dyn_cast<AllocaInst>(writes[task][i][1]);
-                    AllocaInst *b = dyn_cast<AllocaInst>(readFirst[task][j][1]); 
+                    AllocaInst *a = NULL;
+                    AllocaInst *b = NULL;
+
+                    if (writes[task][i][1])
+                        a = dyn_cast<AllocaInst>(writes[task][i][1]);
+                    
+                    if (readFirst[task][j][1])
+                        b = dyn_cast<AllocaInst>(readFirst[task][j][1]); 
+
                     if (a && b) {
 
                         if (writes[task][i][1] == readFirst[task][j][1]){
@@ -428,9 +452,11 @@ void TaskAnalysis::generateTaskIdem(Function &taskFunc) {
                     }
                     else if (!(a || b)) {
 
-                        if (writes[task][i][1]->getOperand(2) == readFirst[task][j][1]->getOperand(2)){
-                            idem[task].push_back(writes[task][i]);
-                            break;
+                        if (writes[task][i][1] && readFirst[task][j][1]){
+                            if (writes[task][i][1]->getOperand(2) == readFirst[task][j][1]->getOperand(2)){
+                                idem[task].push_back(writes[task][i]);
+                                break;
+                            }
                         }
                     }
                 }
