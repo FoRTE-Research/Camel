@@ -1,7 +1,7 @@
 outputs = camel_cuckoo.bc camel_cuckoo.ll camel_cuckoo_mod.bc camel_cuckoo_mod.ll camel_cuckoo_mod.s camel_cuckoo.s #camel_cuckoo.out
 #outputs += camel_cem.bc camel_cem.ll camel_cem_mod.bc camel_cem_mod.ll camel_cem_mod.s camel_cem.s #camel_cuckoo.out
 #override outputs += basic_math.bc basic_math.ll basic_math_mod.bc basic_math_mod.ll basic_math_mod.s basic_math.s basic_math.out 
-VPATH = ../example
+VPATH = ../benchmarks
 
 GCC_DIR =  /home/saim/ti/msp430-gcc
 LLVM_DIR = /home/saim/Desktop/llvm-project/build
@@ -50,7 +50,6 @@ all: $(outputs)
 
 %.bc : %.c ../checkpoint/camel_helpers.S
 	$(CLANG) -emit-llvm -c -fheinous-gnu-extensions $(CFLAGS) -D$(CRC) -D$(MODE) $< -o $@
-	$(RM) camel_cuckoo.d
 	
 %.ll : %.bc
 	$(DIS) $< -o $@
