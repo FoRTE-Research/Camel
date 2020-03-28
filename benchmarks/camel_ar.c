@@ -3,6 +3,8 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
+#include "../checkpoint/camel_ckpt_defines.h"
+
 // Number of samples to discard before recording training set
 #define NUM_WARMUP_SAMPLES 3
 
@@ -12,6 +14,12 @@
 
 // Number of classifications to complete in one experiment
 #define SAMPLES_TO_COLLECT 128
+
+typedef struct {
+     int8_t x;
+     int8_t y;
+     int8_t z;
+ } threeAxis_t_8;
 
 typedef threeAxis_t_8 accelReading;
 typedef accelReading accelWindow[ACCEL_WINDOW_SIZE];
@@ -233,13 +241,13 @@ void camel_recover(){
     #endif
 }
 
+unsigned ACCEL_singleSample_(threeAxis_t_8* result, unsigned seed){
+	result->x = (seed*17)%85;
+	result->y = (seed*17*17)%85;
+	result->z = (seed*17*17*17)%85;
+	++seed;
 
-//Saim: change this function. Make sure it doesn't modify any global vars
-void ACCEL_singleSample_(threeAxis_t_8* result){
-	result->x = (GV(seed)*17)%85;
-	result->y = (GV(seed)*17*17)%85;
-	result->z = (GV(seed)*17*17*17)%85;
-	++GV(seed);
+	return seed;
 }
 
 void task_init()
@@ -253,9 +261,9 @@ void task_init()
 #if ALL
     #define prepare_task_selectMode() memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t))
 #elif READS
-    #define prepare_task_selectMode() cps(count); cps(pinState)
+    #define prepare_task_selectMode() cps(count); cps(pinState); 
 #elif WRITES
-	#define prepare_task_selectMode() 
+	#define prepare_task_selectMode() cps(count); cps(pinState); cps(discardedSamplesCount); cps(mode); cps(class); cps(samplesInWindow)
 #elif IDEM
     #define prepare_task_selectMode() 
 #elif NONE
@@ -274,8 +282,8 @@ void task_selectMode()
 	if(GV(count)>=5) pin_state=0;
 	if (GV(count) >= 7) {
 
-		while(1);
-		//Saim: make changes here
+		task_done();
+		//while(1);
 		//TRANSITION_TO(task_init);
 	}
 	run_mode_t mode;
@@ -318,6 +326,7 @@ void task_selectMode()
 			break;
 
 		default:
+			break;
 			//TRANSITION_TO(task_idle);
 	}
 }
@@ -370,8 +379,8 @@ void task_sample()
 	while (GV(samplesInWindow) < ACCEL_WINDOW_SIZE){
 
 		accelReading sample;
-		ACCEL_singleSample_(&sample);
-		GV(window, _global_samplesInWindow) = sample;
+		GV(seed) = ACCEL_singleSample_(&sample, GV(seed));
+		GV(window)[GV(samplesInWindow)] = sample;
 		++GV(samplesInWindow);
 
 	}
@@ -415,16 +424,16 @@ void task_transform()
 	accelReading transformedSample;
 
 	for (i = 0; i < ACCEL_WINDOW_SIZE; i++) {
-		if (GV(window, i).x < SAMPLE_NOISE_FLOOR ||
-				GV(window, i).y < SAMPLE_NOISE_FLOOR ||
-				GV(window, i).z < SAMPLE_NOISE_FLOOR) {
+		if (GV(window)[i].x < SAMPLE_NOISE_FLOOR ||
+				GV(window)[i].y < SAMPLE_NOISE_FLOOR ||
+				GV(window)[i].z < SAMPLE_NOISE_FLOOR) {
 
-			GV(window, i).x = (GV(window, i).x > SAMPLE_NOISE_FLOOR)
-				? GV(window, i).x : 0;
-			GV(window, i).y = (GV(window, i).y > SAMPLE_NOISE_FLOOR)
-				? GV(window, i).y : 0;
-			GV(window, i).z = (GV(window, i).z > SAMPLE_NOISE_FLOOR)
-				? GV(window, i).z : 0;
+			GV(window)[i].x = (GV(window)[i].x > SAMPLE_NOISE_FLOOR)
+				? GV(window)[i].x : 0;
+			GV(window)[i].y = (GV(window)[i].y > SAMPLE_NOISE_FLOOR)
+				? GV(window)[i].y : 0;
+			GV(window)[i].z = (GV(window)[i].z > SAMPLE_NOISE_FLOOR)
+				? GV(window)[i].z : 0;
 		}
 	}
 	//TRANSITION_TO(task_featurize);
@@ -455,21 +464,21 @@ void task_featurize()
 	int i;
 	for (i = 0; i < ACCEL_WINDOW_SIZE; i++) {
 
-		mean.x += GV(window, i).x;
-		mean.y += GV(window, i).y;
-		mean.z += GV(window, i).z;
+		mean.x += GV(window)[i].x;
+		mean.y += GV(window)[i].y;
+		mean.z += GV(window)[i].z;
 	}
 	mean.x >>= 2;
 	mean.y >>= 2;
 	mean.z >>= 2;
 
 	for (i = 0; i < ACCEL_WINDOW_SIZE; i++) {
-		stddev.x += GV(window, i).x > mean.x ? GV(window, i).x - mean.x
-			: mean.x - GV(window, i).x;
-		stddev.y += GV(window, i).y > mean.y ? GV(window, i).y - mean.y
-			: mean.y - GV(window, i).y;
-		stddev.z += GV(window, i).z > mean.z ? GV(window, i).z - mean.z
-			: mean.z - GV(window, i).z;
+		stddev.x += GV(window)[i].x > mean.x ? GV(window)[i].x - mean.x
+			: mean.x - GV(window)[i].x;
+		stddev.y += GV(window)[i].y > mean.y ? GV(window)[i].y - mean.y
+			: mean.y - GV(window)[i].y;
+		stddev.z += GV(window)[i].z > mean.z ? GV(window)[i].z - mean.z
+			: mean.z - GV(window)[i].z;
 	}
 	stddev.x >>= 2;
 	stddev.y >>= 2;
@@ -523,21 +532,21 @@ void task_classify() {
 	stddevmag = GV(features).stddevmag;
 
 	for (i = 0; i < MODEL_SIZE; ++i) {
-		long int stat_mean_err = (GV(model_stationary, i).meanmag > meanmag)
-			? (GV(model_stationary, i).meanmag - meanmag)
-			: (meanmag - GV(model_stationary, i).meanmag);
+		long int stat_mean_err = (GV(model_stationary)[i].meanmag > meanmag)
+			? (GV(model_stationary)[i].meanmag - meanmag)
+			: (meanmag - GV(model_stationary)[i].meanmag);
 
-		long int stat_sd_err = (GV(model_stationary, i).stddevmag > stddevmag)
-			? (GV(model_stationary, i).stddevmag - stddevmag)
-			: (stddevmag - GV(model_stationary, i).stddevmag);
+		long int stat_sd_err = (GV(model_stationary)[i].stddevmag > stddevmag)
+			? (GV(model_stationary)[i].stddevmag - stddevmag)
+			: (stddevmag - GV(model_stationary)[i].stddevmag);
 
-		long int move_mean_err = (GV(model_moving, i).meanmag > meanmag)
-			? (GV(model_moving, i).meanmag - meanmag)
-			: (meanmag - GV(model_moving, i).meanmag);
+		long int move_mean_err = (GV(model_moving)[i].meanmag > meanmag)
+			? (GV(model_moving)[i].meanmag - meanmag)
+			: (meanmag - GV(model_moving)[i].meanmag);
 
-		long int move_sd_err = (GV(model_moving, i).stddevmag > stddevmag)
-			? (GV(model_moving, i).stddevmag - stddevmag)
-			: (stddevmag - GV(model_moving, i).stddevmag);
+		long int move_sd_err = (GV(model_moving)[i].stddevmag > stddevmag)
+			? (GV(model_moving)[i].stddevmag - stddevmag)
+			: (stddevmag - GV(model_moving)[i].stddevmag);
 
 		if (move_mean_err < stat_mean_err) {
 			move_less_error++;
@@ -626,7 +635,7 @@ void task_warmup()
 	while (GV(discardedSamplesCount) < NUM_WARMUP_SAMPLES) {
 
 		threeAxis_t_8 sample;
-		ACCEL_singleSample_(&sample);
+		GV(seed) = ACCEL_singleSample_(&sample, GV(seed));
 		++GV(discardedSamplesCount);
 
 	}
@@ -670,10 +679,10 @@ void task_train()
 
 	switch (GV(class)) {
 		case CLASS_STATIONARY:
-			GV(model_stationary, _global_trainingSetSize) = GV(features);
+			GV(model_stationary)[GV(trainingSetSize)] = GV(features);
 			break;
 		case CLASS_MOVING:
-			GV(model_moving, _global_trainingSetSize) = GV(features);
+			GV(model_moving)[GV(trainingSetSize)] = GV(features);
 			break;
 	}
 
@@ -689,14 +698,17 @@ void task_train()
 
 void task_done() {
 
-	//Saim: make the program exit here
 	exit(0);
 	//TRANSITION_TO(task_selectMode);
 }
 
 int main() {
 	
+    camel.flag = CKPT_1_FLG;
+    safe = &(camel.buf1);
+    unsafe = &(camel.buf2);
 	camel_init();
+
 	task_init();
 
 	while (MGV(count) < 7) {
