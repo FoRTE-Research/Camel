@@ -8,7 +8,7 @@ bool CamelPass::runOnModule(Module &M){
     modifyTasks.myModule = myModule;
     
     // analyze all tasks
-    //analysisInfo.AnalyzeModule(M);
+    analysisInfo.AnalyzeModule(M);
 
     errs() << "\nVERSIONING \n";
 
@@ -23,9 +23,7 @@ bool CamelPass::runOnModule(Module &M){
     // MODE "LIST"
     // LIST can equal reads 1, writes 2, idem 3
 
-    // //copy everything before task_init
-    // modifyTasks.copyBuffers(analysisInfo.taskCallList[0], "unsafe", "safe");
-    // //copy everything after task_init
+    //copy everything after task_init
     // modifyTasks.copyBuffers(analysisInfo.taskCallList[1], "unsafe", "safe");
 
     // for( int i=2; i<analysisInfo.taskCallList.size(); i = i+2){

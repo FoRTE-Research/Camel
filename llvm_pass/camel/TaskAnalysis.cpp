@@ -27,7 +27,7 @@ void TaskAnalysis::AnalyzeModule(Module &M){
         }
     }
 
-    //printList(writes);
+    printList(reads);
 }
 
 void TaskAnalysis::AnalyzeTask(Function &F){
@@ -63,9 +63,12 @@ void TaskAnalysis::AnalyzeTask(Function &F){
 void TaskAnalysis::traverseMemcpy(CallInst *call){
 
     Function *func = call->getCalledFunction();
-    StringRef name = func->getName();
+    StringRef name;
 
-    //errs() << name+"\n";
+    if (func)
+        name = func->getName();
+    else
+        return;
 
     if (name.contains("llvm.memcpy")) {
 
@@ -133,6 +136,15 @@ void TaskAnalysis::traverseLoad(LoadInst *load){
         vector <Instruction*> inst;
         if (isGlobalStructAccess(gep, "unsafe")) {
 
+
+            if (gep->getSourceElementType()->isStructTy()){
+
+                StringRef name = dyn_cast<StructType>(gep->getSourceElementType())->getName();
+
+                if (!(name == "struct.camel_global_t"))
+                    gep = dyn_cast<GEPOperator>(gep->getOperand(0));
+            }
+
             inst.push_back(dyn_cast<Instruction>(gep));
             if (gep->getSourceElementType()->isArrayTy()) {
 
@@ -159,7 +171,7 @@ void TaskAnalysis::traverseStore(StoreInst *store){
         vector <Instruction*> inst;
         if (isGlobalStructAccess(gep, "unsafe")) {
 
-                inst.push_back(dyn_cast<Instruction>(gep));
+            inst.push_back(dyn_cast<Instruction>(gep));
             if (gep->getSourceElementType()->isArrayTy()) {
 
                 LoadInst *myLoad = dyn_cast<LoadInst>(inst[0]->getOperand(2));
@@ -172,7 +184,6 @@ void TaskAnalysis::traverseStore(StoreInst *store){
                     isPartOfLoop(myLoad, a);
 
             }
-
             //change getOperand(2) to getOperand(3) for optimization levels higher than O0
 
             insertStore(inst, gep);
@@ -360,7 +371,6 @@ bool TaskAnalysis::isPartOfLoop(Instruction *I, Instruction *a) {
                 if (loopVar->getOperand(0) == a){
 
                     return true;
-
                 }
             }
         }
@@ -369,7 +379,7 @@ bool TaskAnalysis::isPartOfLoop(Instruction *I, Instruction *a) {
     return false;
 }
 
-bool TaskAnalysis::isGlobalStructAccess(GEPOperator *gep, StringRef name){
+bool TaskAnalysis::isGlobalStructAccess(GEPOperator *gep, StringRef name) {
 
     GEPOperator *prev;
     GEPOperator *iter = gep;
