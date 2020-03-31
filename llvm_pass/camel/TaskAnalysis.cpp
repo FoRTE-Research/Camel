@@ -27,7 +27,7 @@ void TaskAnalysis::AnalyzeModule(Module &M){
         }
     }
 
-    printList(reads);
+    //printList(idem);
 }
 
 void TaskAnalysis::AnalyzeTask(Function &F){
@@ -82,7 +82,6 @@ void TaskAnalysis::traverseMemcpy(CallInst *call){
         // from = dyn_cast<Instruction>(from)->getOperand(0);
 
         if (GEPOperator *gep = dyn_cast<GEPOperator>(to)){
-
             vector <Instruction*> inst;
             if (gep->getSourceElementType()->isArrayTy()){
 
@@ -99,7 +98,7 @@ void TaskAnalysis::traverseMemcpy(CallInst *call){
 
             if (checkStore.find(gep->getOperand(2)) == checkStore.end()){
                 writes[getParentTask(gep)].push_back(inst);
-                //checkStore.insert(gep->getOperand(2));
+                checkStore.insert(gep->getOperand(2));
                 if (checkLoad.find(gep->getOperand(2)) == checkLoad.end()){
                     writeFirst[getParentTask(gep)].push_back(inst);
                 }
@@ -136,11 +135,10 @@ void TaskAnalysis::traverseLoad(LoadInst *load){
         vector <Instruction*> inst;
         if (isGlobalStructAccess(gep, "unsafe")) {
 
-
+            //added for AR
             if (gep->getSourceElementType()->isStructTy()){
 
                 StringRef name = dyn_cast<StructType>(gep->getSourceElementType())->getName();
-
                 if (!(name == "struct.camel_global_t"))
                     gep = dyn_cast<GEPOperator>(gep->getOperand(0));
             }
@@ -171,6 +169,14 @@ void TaskAnalysis::traverseStore(StoreInst *store){
         vector <Instruction*> inst;
         if (isGlobalStructAccess(gep, "unsafe")) {
 
+            //added for AR
+            if (gep->getSourceElementType()->isStructTy()){
+
+                StringRef name = dyn_cast<StructType>(gep->getSourceElementType())->getName();
+                if (!(name == "struct.camel_global_t"))
+                    gep = dyn_cast<GEPOperator>(gep->getOperand(0));
+            }
+
             inst.push_back(dyn_cast<Instruction>(gep));
             if (gep->getSourceElementType()->isArrayTy()) {
 
@@ -180,9 +186,13 @@ void TaskAnalysis::traverseStore(StoreInst *store){
                 inst[0] = index;
                 inst.push_back(index1);
 
-                if (AllocaInst *a = dyn_cast<AllocaInst>(index1))
-                    isPartOfLoop(myLoad, a);
+                if (AllocaInst *a = dyn_cast<AllocaInst>(index1)){
 
+                    isPartOfLoop(myLoad, a);
+                    // added for AR
+                    inst[1] = NULL;
+
+                }
             }
             //change getOperand(2) to getOperand(3) for optimization levels higher than O0
 
@@ -197,7 +207,6 @@ void TaskAnalysis::insertLoad(vector<Instruction*> inst, GEPOperator *gep) {
     if (inst.size() == 1) {
         comp = gep;
         if (checkLoad.find(comp->getOperand(2)) == checkLoad.end()){
-            //comp->dump();
             reads[getParentTask(comp)].push_back(inst);
             if (checkStore.find(comp->getOperand(2)) == checkStore.end()){
                 readFirst[getParentTask(comp)].push_back(inst);
@@ -223,7 +232,7 @@ void TaskAnalysis::insertLoad(vector<Instruction*> inst, GEPOperator *gep) {
             reads[getParentTask(comp)].push_back(inst2);
 
             if (checkStore.find(comp->getOperand(2)) == checkStore.end()){
-                readFirst[getParentTask(comp)].push_back(inst);
+                readFirst[getParentTask(comp)].push_back(inst2);
             }
         } else if(checkLoadIndex[var].find(inst[1]) == checkLoadIndex[var].end()) {
 
@@ -255,7 +264,7 @@ void TaskAnalysis::insertStore(vector<Instruction*> inst, GEPOperator *gep) {
             }
         }
     }
-    else if (inst.size() == 2){ 
+    else if (inst.size() == 2 || inst.size() == 3){ 
 
         comp = dyn_cast<GEPOperator>(gep->getOperand(0));
         Constant *var = dyn_cast<Constant>(comp->getOperand(2));
@@ -267,9 +276,7 @@ void TaskAnalysis::insertStore(vector<Instruction*> inst, GEPOperator *gep) {
         }
 
         if (checkStore.find(comp->getOperand(2)) == checkStore.end()){
-
             writes[getParentTask(comp)].push_back(inst);
-
             if (checkLoad.find(comp->getOperand(2)) == checkLoad.end()){
                 writeFirst[getParentTask(comp)].push_back(inst);
             }
@@ -280,11 +287,15 @@ void TaskAnalysis::insertStore(vector<Instruction*> inst, GEPOperator *gep) {
 
         }
 
-        if (auto a = dyn_cast<AllocaInst>(inst[1]))
-            checkStoreIndex[var].insert(inst[1]);
-        else 
-            checkStoreIndex[var].insert(inst[1]->getOperand(2));
-
+        //added for AR
+        if (inst[1]) {
+            if (auto a = dyn_cast<AllocaInst>(inst[1]))
+                checkStoreIndex[var].insert(inst[1]);
+            else 
+                checkStoreIndex[var].insert(inst[1]->getOperand(2));
+        } else {
+            checkStoreIndex[var].insert(NULL);
+        }
     }
 
     checkStore.insert(comp->getOperand(2));
@@ -443,6 +454,11 @@ void TaskAnalysis::generateTaskIdem(Function &taskFunc) {
                     break;
                 }
                 else if (writes[task][i].size() == 2 && readFirst[task][j].size() == 2) {
+
+                    if (writes[task][i][1] == NULL && readFirst[task][i][1] == NULL){
+                        idem[task].push_back(writes[task][i]);
+                        break;
+                    }
 
                     AllocaInst *a = NULL;
                     AllocaInst *b = NULL;

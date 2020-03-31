@@ -350,18 +350,18 @@ task_transform:                         ; @task_transform
 	push	r10
 	push	r9
 	sub	#8, r1
-	clr	6(r1)
+	clr	0(r1)
 	jmp	.LBB7_1
 .LBB7_1:                                ; %for.cond
                                         ; =>This Inner Loop Header: Depth=1
-	mov	6(r1), r12
+	mov	0(r1), r12
 	cmp	#3, r12
 	jhs	.LBB7_17
 	jmp	.LBB7_2
 .LBB7_2:                                ; %for.body
                                         ;   in Loop: Header=BB7_1 Depth=1
 	mov	&unsafe, r10
-	mov	6(r1), r12
+	mov	0(r1), r12
 	mov	#3, r13
 	call	#__mspabi_mpyi
 	add	r12, r10
@@ -373,7 +373,7 @@ task_transform:                         ; @task_transform
 .LBB7_3:                                ; %lor.lhs.false
                                         ;   in Loop: Header=BB7_1 Depth=1
 	mov	&unsafe, r10
-	mov	6(r1), r12
+	mov	0(r1), r12
 	mov	#3, r13
 	call	#__mspabi_mpyi
 	add	r12, r10
@@ -385,7 +385,7 @@ task_transform:                         ; @task_transform
 .LBB7_4:                                ; %lor.lhs.false9
                                         ;   in Loop: Header=BB7_1 Depth=1
 	mov	&unsafe, r10
-	mov	6(r1), r12
+	mov	0(r1), r12
 	mov	#3, r13
 	call	#__mspabi_mpyi
 	add	r12, r10
@@ -397,7 +397,7 @@ task_transform:                         ; @task_transform
 .LBB7_5:                                ; %if.then
                                         ;   in Loop: Header=BB7_1 Depth=1
 	mov	&unsafe, r10
-	mov	6(r1), r12
+	mov	0(r1), r12
 	mov	#3, r13
 	call	#__mspabi_mpyi
 	add	r12, r10
@@ -409,7 +409,7 @@ task_transform:                         ; @task_transform
 .LBB7_6:                                ; %cond.true
                                         ;   in Loop: Header=BB7_1 Depth=1
 	mov	&unsafe, r10
-	mov	6(r1), r12
+	mov	0(r1), r12
 	mov	#3, r13
 	call	#__mspabi_mpyi
 	add	r12, r10
@@ -423,13 +423,13 @@ task_transform:                         ; @task_transform
 .LBB7_8:                                ; %cond.end
                                         ;   in Loop: Header=BB7_1 Depth=1
 	mov	&unsafe, r9
-	mov	6(r1), r12
+	mov	0(r1), r12
 	mov	#3, r13
 	call	#__mspabi_mpyi
 	add	r12, r9
 	mov.b	r10, 34(r9)
 	mov	&unsafe, r10
-	mov	6(r1), r12
+	mov	0(r1), r12
 	mov	#3, r13
 	call	#__mspabi_mpyi
 	add	r12, r10
@@ -441,7 +441,7 @@ task_transform:                         ; @task_transform
 .LBB7_9:                                ; %cond.true40
                                         ;   in Loop: Header=BB7_1 Depth=1
 	mov	&unsafe, r10
-	mov	6(r1), r12
+	mov	0(r1), r12
 	mov	#3, r13
 	call	#__mspabi_mpyi
 	add	r12, r10
@@ -455,13 +455,13 @@ task_transform:                         ; @task_transform
 .LBB7_11:                               ; %cond.end47
                                         ;   in Loop: Header=BB7_1 Depth=1
 	mov	&unsafe, r9
-	mov	6(r1), r12
+	mov	0(r1), r12
 	mov	#3, r13
 	call	#__mspabi_mpyi
 	add	r12, r9
 	mov.b	r10, 35(r9)
 	mov	&unsafe, r10
-	mov	6(r1), r12
+	mov	0(r1), r12
 	mov	#3, r13
 	call	#__mspabi_mpyi
 	add	r12, r10
@@ -473,7 +473,7 @@ task_transform:                         ; @task_transform
 .LBB7_12:                               ; %cond.true61
                                         ;   in Loop: Header=BB7_1 Depth=1
 	mov	&unsafe, r10
-	mov	6(r1), r12
+	mov	0(r1), r12
 	mov	#3, r13
 	call	#__mspabi_mpyi
 	add	r12, r10
@@ -487,7 +487,7 @@ task_transform:                         ; @task_transform
 .LBB7_14:                               ; %cond.end68
                                         ;   in Loop: Header=BB7_1 Depth=1
 	mov	&unsafe, r9
-	mov	6(r1), r12
+	mov	0(r1), r12
 	mov	#3, r13
 	call	#__mspabi_mpyi
 	add	r12, r9
@@ -498,9 +498,9 @@ task_transform:                         ; @task_transform
 	jmp	.LBB7_16
 .LBB7_16:                               ; %for.inc
                                         ;   in Loop: Header=BB7_1 Depth=1
-	mov	6(r1), r12
+	mov	0(r1), r12
 	inc	r12
-	mov	r12, 6(r1)
+	mov	r12, 0(r1)
 	jmp	.LBB7_1
 .LBB7_17:                               ; %for.end
 	add	#8, r1
@@ -793,31 +793,19 @@ task_featurize:                         ; @task_featurize
 	mov	r12, 8(r1)
 	mov	&unsafe, r12
 	mov	180(r12), r12
-	tst	r12
-	jeq	.LBB8_20
+	cmp	#3, r12
+	jhs	.LBB8_19
 	jmp	.LBB8_18
-.LBB8_18:                               ; %for.end137
-	add	#-1, r12
-	cmp	#2, r12
-	jhs	.LBB8_21
-	jmp	.LBB8_19
-.LBB8_19:                               ; %sw.bb
+.LBB8_18:                               ; %sw.bb
 	mov	&unsafe, r12
 	mov	8(r1), r13
 	mov	r13, 46(r12)
 	mov	6(r1), r13
 	mov	r13, 44(r12)
-	jmp	.LBB8_22
-.LBB8_20:                               ; %sw.bb189
-	mov	&unsafe, r12
-	mov	8(r1), r13
-	mov	r13, 46(r12)
-	mov	6(r1), r13
-	mov	r13, 44(r12)
-	jmp	.LBB8_22
-.LBB8_21:                               ; %sw.default
-	jmp	.LBB8_22
-.LBB8_22:                               ; %sw.epilog
+	jmp	.LBB8_20
+.LBB8_19:                               ; %sw.default
+	jmp	.LBB8_20
+.LBB8_20:                               ; %sw.epilog
 	add	#16, r1
 	pop	r9
 	pop	r10

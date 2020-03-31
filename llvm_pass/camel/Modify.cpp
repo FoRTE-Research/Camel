@@ -27,9 +27,8 @@ void Modify::copyVariables(StringRef task, Instruction* before, map < StringRef,
             else{
                 cpas(before, varList[i]);
             }
-
         }
-    }    
+    }
 }
 
 Function* Modify::getIntrinsicMemcpy() {

@@ -420,12 +420,12 @@ void task_sample()
 //edit this task to meet our system's requirements
 void task_transform()
 {
-	unsigned i;
+	//unsigned i;
 
 	accelReading *sample;
 	accelReading transformedSample;
 
-	for (i = 0; i < ACCEL_WINDOW_SIZE; i++) {
+	for (unsigned i = 0; i < ACCEL_WINDOW_SIZE; i++) {
 		if (GV(window)[i].x < SAMPLE_NOISE_FLOOR ||
 				GV(window)[i].y < SAMPLE_NOISE_FLOOR ||
 				GV(window)[i].z < SAMPLE_NOISE_FLOOR) {
@@ -494,9 +494,9 @@ void task_featurize()
 	switch (GV(mode)) {
 		case MODE_TRAIN_STATIONARY:
 		case MODE_TRAIN_MOVING:
-			GV(features) = features;
+			//GV(features) = features;
 			//TRANSITION_TO(task_train);
-			break;
+			//break;
 		case MODE_RECOGNIZE:
 			GV(features) = features;
 			//TRANSITION_TO(task_classify);
@@ -672,7 +672,7 @@ void task_warmup()
 #else
     #error type of system not defined
 #endif
-#define writes_task_train() cps(trainingSetSize)
+#define writes_task_train() cpas_s(model_stationary, trainingSetSize); cpas_s(model_moving, trainingSetSize); cps(trainingSetSize)
 
 void task_train()
 {
