@@ -8,7 +8,7 @@ bool CamelPass::runOnModule(Module &M){
     modifyTasks.myModule = myModule;
     
     // analyze all tasks
-    analysisInfo.AnalyzeModule(M);
+    //analysisInfo.AnalyzeModule(M);
 
     errs() << "\nVERSIONING \n";
 
@@ -33,7 +33,7 @@ bool CamelPass::runOnModule(Module &M){
     //     errs () << taskName + "\n";
 
     //     errs () << "Before Task\n";
-    //     modifyTasks.copyVariables(taskName, analysisInfo.taskCallList[i], analysisInfo.reads);
+    //     modifyTasks.copyVariables(taskName, analysisInfo.taskCallList[i], analysisInfo.idem);
 
     //     errs () << "After Task\n";
     //     modifyTasks.copyVariables(taskName, analysisInfo.taskCallList[i+1], analysisInfo.writes);

@@ -1,5 +1,6 @@
-#outputs = camel_cuckoo.bc camel_cuckoo.ll camel_cuckoo_mod.bc camel_cuckoo_mod.ll camel_cuckoo_mod.s camel_cuckoo.s #camel_cuckoo.out
-override outputs = camel_ar.bc camel_ar.ll camel_ar_mod.bc camel_ar_mod.ll camel_ar_mod.s camel_ar.s #camel_ar.out
+#outputs += camel_cuckoo.bc camel_cuckoo.ll camel_cuckoo_mod.bc camel_cuckoo_mod.ll camel_cuckoo_mod.s camel_cuckoo.s #camel_cuckoo.out
+override outputs += camel_rsa.bc camel_rsa.ll camel_rsa_mod.bc camel_rsa_mod.ll camel_rsa_mod.s camel_rsa.s #camel_cuckoo.out
+#override outputs += camel_ar.bc camel_ar.ll camel_ar_mod.bc camel_ar_mod.ll camel_ar_mod.s camel_ar.s #camel_ar.out
 #override outputs += camel_cem.bc camel_cem.ll camel_cem_mod.bc camel_cem_mod.ll camel_cem_mod.s camel_cem.s #camel_cuckoo.out
 #override outputs += basic_math.bc basic_math.ll basic_math_mod.bc basic_math_mod.ll basic_math_mod.s basic_math.s basic_math.out 
 VPATH = ../benchmarks
@@ -21,7 +22,7 @@ GCC = $(GCC_BIN)/msp430-elf-gcc
 
 DEVICE  = __MSP430FR6989__
 CRC = CRC_ON
-MODE = ALL
+MODE = NONE
 
 override CFLAGS += \
 	--target=msp430 \
@@ -72,4 +73,4 @@ all: $(outputs)
 #	$(GCC_BIN)/msp430-elf-gcc -I $(GCC_INCLUDE) -mmcu=msp430fr6989 -Wall -g -fdata-sections -ffunction-sections -T ../ld/msp430fr6989.ld ../checkpoint/camel_helpers.S -L $(GCC_INCLUDE) $< -o $@
 
 clean:
-	$(RM) *.bc *.ll *.s *.out
+	$(RM) *.bc *.ll *.s *.out *.d

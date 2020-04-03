@@ -16,10 +16,15 @@ class Modify {
         GlobalVariable* createGlob(StringRef name, AllocaInst* var);
         void varToGlob(GlobalVariable* g, AllocaInst *a);
 
+        // single variable
         void cps(Instruction* before, vector<Instruction*> varList);
+
+        // array
         void cpas(Instruction *before, vector<Instruction*> varList);
         void cpa(Instruction* before, vector<Instruction*> varList);
         void cpaso(Instruction* before, Instruction *ar, GlobalVariable *g);
+
+        // structs
         void cps_s(Instruction *before, vector<Instruction*> varList);
         void cpas_s(Instruction *before, vector<Instruction*> varList);
 

@@ -595,48 +595,48 @@ int main(){
     camel_init();
 
 	task_init();
-	commit();
-	task_commit();
+	//commit();
+	//task_commit();
 
 	while(MGV(out_len) < BLOCK_SIZE) {
 
-		prepare_task_sample();
+		//prepare_task_sample();
 		task_sample();
-		commit();
-		writes_task_sample();
-		task_commit();
+		//commit();
+		//writes_task_sample();
+		//task_commit();
 
 		if (MGV(check) == 0){
 
-			prepare_task_measure_temp();
+			//prepare_task_measure_temp();
 			task_measure_temp();
-			commit();
-			writes_task_measure_temp();
-			task_commit();
+			//commit();
+			//writes_task_measure_temp();
+			//task_commit();
 
 		}
 
 		while (1) {
 
-			prepare_task_letterize();
+			//prepare_task_letterize();
 			task_letterize();
-			commit();
-			writes_task_letterize();
-			task_commit();
+			//commit();
+			//writes_task_letterize();
+			//task_commit();
 
-			prepare_task_compress();
+			//prepare_task_compress();
 			task_compress();
-			commit();
-			writes_task_compress();
-			task_commit();
+			//commit();
+			//writes_task_compress();
+			//task_commit();
 
 			while (MGV(check) == 1) {
 
-				prepare_task_find_sibling();
+				//prepare_task_find_sibling();
 				task_find_sibling();
-				commit();
-				writes_task_find_sibling();
-				task_commit();
+				//commit();
+				//writes_task_find_sibling();
+				//task_commit();
 
 			}
 
@@ -647,28 +647,39 @@ int main(){
 		if (MGV(check) == 3) {
 			do{
 
-				prepare_task_add_node();
+				//prepare_task_add_node();
 				task_add_node();
-				commit();
-				writes_task_add_node();
-				task_commit();
+				//commit();
+				//writes_task_add_node();
+				//task_commit();
 
 			} while (MGV(check) == 0);
 		}
 
-		prepare_task_add_insert();
+		//prepare_task_add_insert();
 		task_add_insert();
-		commit();
-		writes_task_add_insert();
-		task_commit();
+		//commit();
+		//writes_task_add_insert();
+		//task_commit();
 
-		prepare_task_append_compressed();
+		//prepare_task_append_compressed();
 		task_append_compressed();
-		commit();
-		writes_task_append_compressed();
-		task_commit();
+		//commit();
+		//writes_task_append_compressed();
+		//task_commit();
 
 	}
 
 	task_done();
 }
+
+#ifdef __MSP430FR6989__
+__attribute__((section("__interrupt_vector_56"), used))
+static void (*reset_vector)(void) = camel_recover;
+#elif __MSP430F5529__
+__attribute__((section("__interrupt_vector_64"), used))
+static void (*reset_vector)(void) = camel_recover;
+#else
+#error Board not supported
+#endif
+

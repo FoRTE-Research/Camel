@@ -716,33 +716,33 @@ int main() {
 	camel_init();
 
 	task_init();
-	commit();
+	//commit();
 	//memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t))
-	task_commit;
+	//task_commit();
 
 	while (MGV(count) < 7) {
 
 		//prepare_task_selectMode();
 		task_selectMode();
-		commit();
+		//commit();
 		//writes_task_selectMode();
-		task_commit();
+		//task_commit();
 
 		if (MGV(mode) == 2 || MGV(mode) == 1){
 
 			//prepare_task_warmup();
 			task_warmup();
-			commit();
+			//commit();
 			//writes_task_warmup();
-			task_commit();
+			//task_commit();
 
 		} else if (MGV(mode) == 0) {
 
 			//prepare_task_resetStats();
 			task_resetStats();
-			commit();
+			//commit();
 			//writes_task_resetStats();
-			task_commit();
+			//task_commit();
 
 		} else {
 
@@ -751,31 +751,31 @@ int main() {
 
 		while (1) {
 
-			//prepare_task_sample()
+			//prepare_task_sample();
 			task_sample();
-			commit();
+			//commit();
 			//writes_task_sample();
-			task_commit();
+			//task_commit();
 
 			//prepare_task_transform();
 			task_transform();
-			commit();
+			//commit();
 			//writes_task_transform();
-			task_commit();
+			//task_commit();
 
-			//prepare_task_featurize()
+			//prepare_task_featurize();
 			task_featurize();
-			commit();
+			//commit();
 			//writes_task_featurize();
-			task_commit();
+			//task_commit();
 
 			if (MGV(mode) == 2 || MGV(mode) == 1){
 
 				//prepare_task_train();
 				task_train();
-				commit();
+				//commit();
 				//writes_task_train();
-				task_done();
+				//task_commit();
 
 				if (GV(trainingSetSize) >= MODEL_SIZE)
 					break;
@@ -784,15 +784,15 @@ int main() {
 
 				//prepare_task_classify();
 				task_classify();
-				commit();
+				//commit();
 				//writes_task_classify();
-				task_commit();
+				//task_commit();
 
 				//prepare_task_stats();
 				task_stats();
-				commit();
-				//writes_task_classify();
-				task_commit();
+				//commit();
+				//writes_task_stats();
+				//task_commit();
 
 				if (GV(totalCount) == SAMPLES_TO_COLLECT)
 					break;
@@ -805,3 +805,13 @@ int main() {
 
 	task_done();
 }
+
+#ifdef __MSP430FR6989__
+__attribute__((section("__interrupt_vector_56"), used))
+static void (*reset_vector)(void) = camel_recover;
+#elif __MSP430F5529__
+__attribute__((section("__interrupt_vector_64"), used))
+static void (*reset_vector)(void) = camel_recover;
+#else
+#error Board not supported
+#endif

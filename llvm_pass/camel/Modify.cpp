@@ -80,8 +80,8 @@ void Modify::copyBuffers(Instruction *before, string to, string from) {
     // set memcpy arguments
     auto dl = myModule->getDataLayout();
     auto size_of_struct = dl.getTypeAllocSize(GEP1->getType()->getContainedType(0));
-    Type *i64_type = IntegerType::getInt64Ty(myModule->getContext());
-    Constant *arg3 = ConstantInt::get(i64_type, size_of_struct);
+    Type *i16_type = IntegerType::getInt16Ty(myModule->getContext());
+    Constant *arg3 = ConstantInt::get(i16_type, size_of_struct);
     Constant *arg4 = ConstantInt::getFalse(myModule->getContext());
 
     // Function *fun = getIntrinsicMemcpy();
@@ -380,7 +380,7 @@ void Modify::cps_s(Instruction *before, vector<Instruction*> varList){
     Type *pi8 = Type::getInt8PtrTy(myModule->getContext());
 
     GEPOperator *first = dyn_cast<GEPOperator>(varList[0]);
-    GEPOperator *second = dyn_cast<GEPOperator>(varList[1]);
+    //GEPOperator *second = dyn_cast<GEPOperator>(varList[1]);
 
     GetElementPtrInst *Struct = accessStruct(before, "unsafe");
     GetElementPtrInst *structVar = accessStructVar(before, Struct,  first->getOperand(1),  first->getOperand(2));
