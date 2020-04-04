@@ -39,7 +39,7 @@ camel_recover:                          ; @camel_recover
 	jmp	.LBB1_1
 .LBB1_1:                                ; %if.then
 	mov	#camel+2, &safe
-	mov	#camel+350, &unsafe
+	mov	#camel+348, &unsafe
 	jmp	.LBB1_6
 .LBB1_2:                                ; %if.else
 	mov	&camel, r12
@@ -47,7 +47,7 @@ camel_recover:                          ; @camel_recover
 	jne	.LBB1_4
 	jmp	.LBB1_3
 .LBB1_3:                                ; %if.then2
-	mov	#camel+350, &safe
+	mov	#camel+348, &safe
 	mov	#camel+2, &unsafe
 	jmp	.LBB1_5
 .LBB1_4:                                ; %if.else3
@@ -83,19 +83,19 @@ camel_recover:                          ; @camel_recover
 	mov	r12, &tmp_stack_crc
 	mov	&safe, r12
 	mov	&tmp_stack_crc, r14
-	mov	#346, r13
+	mov	#344, r13
 	call	#__fast_hw_crc
 	mov	r12, &tmp_stack_buf_crc
 	mov	&tmp_stack_buf_crc, r12
 	mov	&safe, r13
-	mov	346(r13), r13
+	mov	344(r13), r13
 	cmp	r13, r12
 	jne	.LBB1_8
 	jmp	.LBB1_7
 .LBB1_7:                                ; %if.then10
 	mov	&unsafe, r12
 	mov	&safe, r13
-	mov	#348, r14
+	mov	#346, r14
 	call	#memcpy
 	call	#camel_init
 	mov	&safe, r12
@@ -150,9 +150,9 @@ task_init:                              ; @task_init
 	mov	&unsafe, r12
 	clr	94(r12)
 	mov	&unsafe, r12
-	clr	344(r12)
-	mov	&unsafe, r12
 	clr	342(r12)
+	mov	&unsafe, r12
+	clr	340(r12)
 	add	#4, r1
 	ret
 .Lfunc_end2:
@@ -245,6 +245,9 @@ task_pad:                               ; @task_pad
 	jmp	.LBB3_10
 .LBB3_13:                               ; %for.end22
 	mov	&unsafe, r12
+	mov	0(r1), r13
+	add	r13, r13
+	add	r13, r12
 	mov	#1, 274(r12)
 	mov	#1, 2(r1)
 	jmp	.LBB3_14
@@ -277,7 +280,7 @@ task_pad:                               ; @task_pad
 	add	#3, r13
 	mov	r13, 90(r12)
 	mov	&unsafe, r12
-	clr	342(r12)
+	clr	340(r12)
 	add	#4, r1
 	ret
 .Lfunc_end3:
@@ -302,6 +305,8 @@ task_exp:                               ; @task_exp
 	mov	r13, 86(r12)
 	mov	&unsafe, r12
 	clr	342(r12)
+	mov	&unsafe, r12
+	clr	340(r12)
 	jmp	.LBB4_3
 .LBB4_2:                                ; %if.else
 	mov	&unsafe, r12
@@ -311,6 +316,8 @@ task_exp:                               ; @task_exp
 	mov	r13, 86(r12)
 	mov	&unsafe, r12
 	mov	#1, 342(r12)
+	mov	&unsafe, r12
+	mov	#1, 340(r12)
 	jmp	.LBB4_3
 .LBB4_3:                                ; %if.end
 	ret
@@ -324,7 +331,7 @@ task_mult_block:                        ; @task_mult_block
 .Lfunc_begin5:
 ; %bb.0:                                ; %entry
 	mov	&unsafe, r12
-	clr	344(r12)
+	clr	342(r12)
 	ret
 .Lfunc_end5:
 	.size	task_mult_block, .Lfunc_end5-task_mult_block
@@ -367,7 +374,9 @@ task_mult_block_get_result:             ; @task_mult_block_get_result
 	jmp	.LBB6_5
 .LBB6_5:                                ; %if.then
 	mov	&unsafe, r12
-	mov	#100, 342(r12)
+	mov	#100, 340(r12)
+	mov	&unsafe, r12
+	mov	#1, 342(r12)
 	jmp	.LBB6_13
 .LBB6_6:                                ; %if.else
 	mov	&unsafe, r12
@@ -376,16 +385,16 @@ task_mult_block_get_result:             ; @task_mult_block_get_result
 	cmp	#17, r12
 	jhs	.LBB6_12
 	jmp	.LBB6_7
-.LBB6_7:                                ; %if.then8
+.LBB6_7:                                ; %if.then9
 	clr	0(r1)
 	jmp	.LBB6_8
-.LBB6_8:                                ; %for.cond9
+.LBB6_8:                                ; %for.cond10
                                         ; =>This Inner Loop Header: Depth=1
 	mov	0(r1), r12
 	cmp	#4, r12
 	jge	.LBB6_11
 	jmp	.LBB6_9
-.LBB6_9:                                ; %for.body11
+.LBB6_9:                                ; %for.body12
                                         ;   in Loop: Header=BB6_8 Depth=1
 	mov	&unsafe, r12
 	mov	r12, r13
@@ -404,17 +413,17 @@ task_mult_block_get_result:             ; @task_mult_block_get_result
 	inc	r13
 	mov	r13, 94(r12)
 	jmp	.LBB6_10
-.LBB6_10:                               ; %for.inc21
+.LBB6_10:                               ; %for.inc22
                                         ;   in Loop: Header=BB6_8 Depth=1
 	mov	0(r1), r12
 	inc	r12
 	mov	r12, 0(r1)
 	jmp	.LBB6_8
-.LBB6_11:                               ; %for.end23
+.LBB6_11:                               ; %for.end24
 	jmp	.LBB6_12
 .LBB6_12:                               ; %if.end
 	jmp	.LBB6_13
-.LBB6_13:                               ; %if.end24
+.LBB6_13:                               ; %if.end25
 	add	#2, r1
 	ret
 .Lfunc_end6:
@@ -427,7 +436,7 @@ task_square_base:                       ; @task_square_base
 .Lfunc_begin7:
 ; %bb.0:                                ; %entry
 	mov	&unsafe, r12
-	mov	#1, 344(r12)
+	mov	#1, 342(r12)
 	ret
 .Lfunc_end7:
 	.size	task_square_base, .Lfunc_end7-task_square_base
@@ -464,7 +473,7 @@ task_square_base_get_result:            ; @task_square_base_get_result
 	jmp	.LBB8_1
 .LBB8_4:                                ; %for.end
 	mov	&unsafe, r12
-	clr	342(r12)
+	clr	340(r12)
 	add	#4, r1
 	ret
 .Lfunc_end8:
@@ -573,8 +582,6 @@ task_mult:                              ; @task_mult
 	add	r14, r13
 	mov	r12, 22(r13)
 	mov	&unsafe, r12
-	clr.b	340(r12)
-	mov	&unsafe, r12
 	mov	168(r12), r13
 	inc	r13
 	mov	r13, 168(r12)
@@ -583,18 +590,18 @@ task_mult:                              ; @task_mult
 	cmp	#8, r12
 	jhs	.LBB10_9
 	jmp	.LBB10_8
-.LBB10_8:                               ; %if.then28
+.LBB10_8:                               ; %if.then27
 	mov	4(r1), r12
 	mov	&unsafe, r13
 	mov	r12, 170(r13)
 	mov	&unsafe, r12
-	clr	342(r12)
+	clr	340(r12)
 	jmp	.LBB10_10
 .LBB10_9:                               ; %if.else
 	mov	&unsafe, r12
-	mov	#1, 342(r12)
+	mov	#1, 340(r12)
 	jmp	.LBB10_10
-.LBB10_10:                              ; %if.end34
+.LBB10_10:                              ; %if.end33
 	add	#12, r1
 	ret
 .Lfunc_end10:
@@ -654,14 +661,16 @@ task_reduce_digits:                     ; @task_reduce_digits
 	jmp	.LBB11_8
 .LBB11_8:                               ; %if.then
 	mov	&unsafe, r12
-	clr	342(r12)
-	jmp	.LBB11_9
+	clr	340(r12)
+	jmp	.LBB11_10
 .LBB11_9:                               ; %if.end
 	mov	0(r1), r12
 	mov	&unsafe, r13
 	mov	r12, 172(r13)
 	mov	&unsafe, r12
-	mov	#1, 342(r12)
+	mov	#1, 340(r12)
+	jmp	.LBB11_10
+.LBB11_10:                              ; %return
 	add	#2, r1
 	ret
 .Lfunc_end11:
@@ -759,7 +768,7 @@ task_reduce_normalizable:               ; @task_reduce_normalizable
 	jmp	.LBB12_12
 .LBB12_12:                              ; %if.then26
 	mov	&unsafe, r12
-	mov	#2, 342(r12)
+	mov	#2, 340(r12)
 	jmp	.LBB12_13
 .LBB12_13:                              ; %if.end28
 	mov.b	1(r1), r12
@@ -768,11 +777,11 @@ task_reduce_normalizable:               ; @task_reduce_normalizable
 	jmp	.LBB12_14
 .LBB12_14:                              ; %if.then30
 	mov	&unsafe, r12
-	clr	342(r12)
+	clr	340(r12)
 	jmp	.LBB12_16
 .LBB12_15:                              ; %if.else33
 	mov	&unsafe, r12
-	mov	#1, 342(r12)
+	mov	#1, 340(r12)
 	jmp	.LBB12_16
 .LBB12_16:                              ; %if.end36
 	add	#10, r1
@@ -787,8 +796,6 @@ task_reduce_normalize:                  ; @task_reduce_normalize
 .Lfunc_begin13:
 ; %bb.0:                                ; %entry
 	sub	#12, r1
-	mov	&unsafe, r12
-	clr.b	340(r12)
 	clr	2(r1)
 	clr	0(r1)
 	jmp	.LBB13_1
@@ -861,13 +868,13 @@ task_reduce_normalize:                  ; @task_reduce_normalize
 	tst	r12
 	jeq	.LBB13_9
 	jmp	.LBB13_8
-.LBB13_8:                               ; %if.then17
+.LBB13_8:                               ; %if.then16
 	jmp	.LBB13_10
-.LBB13_9:                               ; %if.else18
+.LBB13_9:                               ; %if.else17
 	mov	&unsafe, r12
-	mov	#2, 342(r12)
+	mov	#2, 340(r12)
 	jmp	.LBB13_10
-.LBB13_10:                              ; %if.end20
+.LBB13_10:                              ; %if.end19
 	add	#12, r1
 	ret
 .Lfunc_end13:
@@ -1102,8 +1109,6 @@ task_reduce_multiply:                   ; @task_reduce_multiply
 	mov	r12, 8(r1)
 	jmp	.LBB16_5
 .LBB16_11:                              ; %for.end19
-	mov	&unsafe, r12
-	mov.b	#1, 340(r12)
 	add	#10, r1
 	ret
 .Lfunc_end16:
@@ -1174,11 +1179,11 @@ task_reduce_compare:                    ; @task_reduce_compare
 	jmp	.LBB17_11
 .LBB17_11:                              ; %if.then15
 	mov	&unsafe, r12
-	clr	342(r12)
+	clr	340(r12)
 	jmp	.LBB17_13
 .LBB17_12:                              ; %if.else17
 	mov	&unsafe, r12
-	mov	#1, 342(r12)
+	mov	#1, 340(r12)
 	jmp	.LBB17_13
 .LBB17_13:                              ; %if.end20
 	add	#4, r1
@@ -1271,8 +1276,6 @@ task_reduce_add:                        ; @task_reduce_add
 	mov	r12, 10(r1)
 	jmp	.LBB18_1
 .LBB18_7:                               ; %for.end
-	mov	&unsafe, r12
-	clr.b	340(r12)
 	add	#12, r1
 	ret
 .Lfunc_end18:
@@ -1361,18 +1364,16 @@ task_reduce_subtract:                   ; @task_reduce_subtract
 	jmp	.LBB19_1
 .LBB19_9:                               ; %for.end
 	mov	&unsafe, r12
-	clr.b	340(r12)
-	mov	&unsafe, r12
 	mov	172(r12), r12
 	inc	r12
 	cmp	#5, r12
 	jlo	.LBB19_11
 	jmp	.LBB19_10
-.LBB19_10:                              ; %if.then19
+.LBB19_10:                              ; %if.then18
 	jmp	.LBB19_12
-.LBB19_11:                              ; %if.else20
+.LBB19_11:                              ; %if.else19
 	jmp	.LBB19_12
-.LBB19_12:                              ; %if.end21
+.LBB19_12:                              ; %if.end20
 	add	#12, r1
 	ret
 .Lfunc_end19:
@@ -1405,18 +1406,18 @@ task_done:                              ; @task_done
 main:                                   ; @main
 .Lfunc_begin22:
 ; %bb.0:                                ; %entry
-	sub	#306, r1
-	clr	304(r1)
+	sub	#274, r1
+	clr	272(r1)
 	mov	#1, &camel
 	mov	#camel+2, &safe
-	mov	#camel+350, &unsafe
+	mov	#camel+348, &unsafe
 	call	#camel_init
 	jmp	.LBB22_1
 .LBB22_1:                               ; %while.body
                                         ; =>This Loop Header: Depth=1
                                         ;     Child Loop BB22_7 Depth 2
-                                        ;       Child Loop BB22_41 Depth 3
-                                        ;       Child Loop BB22_85 Depth 3
+                                        ;       Child Loop BB22_28 Depth 3
+                                        ;       Child Loop BB22_72 Depth 3
 	call	#task_init
 	jmp	.LBB22_2
 .LBB22_2:                               ; %do.body
@@ -1427,209 +1428,7 @@ main:                                   ; @main
 	jmp	.LBB22_3
 .LBB22_3:                               ; %if.then
                                         ;   in Loop: Header=BB22_1 Depth=1
-	mov	#camel+350, &safe
-	mov	#camel+2, &unsafe
-	mov	&safe, r12
-	call	#__dump_registers
-	;APP
-	mov	r1, r12
-	;NO_APP
-	mov	r12, 302(r1)
-	mov	302(r1), r12
-	mov	r12, 300(r1)
-	mov	300(r1), r12
-	incd	r12
-	;APP
-	mov	r1, r13
-	;NO_APP
-	mov	r13, 298(r1)
-	mov	298(r1), r13
-	mov	r13, 296(r1)
-	mov	296(r1), r14
-	mov	#9214, r13
-	sub	r14, r13
-	mov	#-1, r14
-	call	#__fast_hw_crc
-	mov	r12, &tmp_stack_crc
-	mov	&safe, r12
-	mov	&tmp_stack_crc, r14
-	mov	#346, r13
-	call	#__fast_hw_crc
-	mov	r12, &tmp_stack_buf_crc
-	mov	&tmp_stack_buf_crc, r12
-	mov	&safe, r13
-	mov	r12, 346(r13)
-	mov	#2, &camel
-	jmp	.LBB22_5
-.LBB22_4:                               ; %if.else
-                                        ;   in Loop: Header=BB22_1 Depth=1
-	mov	#camel+2, &safe
-	mov	#camel+350, &unsafe
-	mov	&safe, r12
-	call	#__dump_registers
-	;APP
-	mov	r1, r12
-	;NO_APP
-	mov	r12, 294(r1)
-	mov	294(r1), r12
-	mov	r12, 292(r1)
-	mov	292(r1), r12
-	incd	r12
-	;APP
-	mov	r1, r13
-	;NO_APP
-	mov	r13, 290(r1)
-	mov	290(r1), r13
-	mov	r13, 288(r1)
-	mov	288(r1), r14
-	mov	#9214, r13
-	sub	r14, r13
-	mov	#-1, r14
-	call	#__fast_hw_crc
-	mov	r12, &tmp_stack_crc
-	mov	&safe, r12
-	mov	&tmp_stack_crc, r14
-	mov	#346, r13
-	call	#__fast_hw_crc
-	mov	r12, &tmp_stack_buf_crc
-	mov	&tmp_stack_buf_crc, r12
-	mov	&safe, r13
-	mov	r12, 346(r13)
-	mov	#1, &camel
-	jmp	.LBB22_5
-.LBB22_5:                               ; %if.end
-                                        ;   in Loop: Header=BB22_1 Depth=1
-	jmp	.LBB22_6
-.LBB22_6:                               ; %do.end
-                                        ;   in Loop: Header=BB22_1 Depth=1
-	call	#task_commit
-	jmp	.LBB22_7
-.LBB22_7:                               ; %while.body18
-                                        ;   Parent Loop BB22_1 Depth=1
-                                        ; =>  This Loop Header: Depth=2
-                                        ;       Child Loop BB22_41 Depth 3
-                                        ;       Child Loop BB22_85 Depth 3
-	mov	&safe, r12
-	mov	344(r12), r12
-	tst	r12
-	jne	.LBB22_15
-	jmp	.LBB22_8
-.LBB22_8:                               ; %land.lhs.true
-                                        ;   in Loop: Header=BB22_7 Depth=2
-	mov	&unsafe, r12
-	mov	342(r12), r12
-	cmp	#100, r12
-	jeq	.LBB22_15
-	jmp	.LBB22_9
-.LBB22_9:                               ; %if.then22
-                                        ;   in Loop: Header=BB22_7 Depth=2
-	call	#task_pad
-	jmp	.LBB22_10
-.LBB22_10:                              ; %do.body23
-                                        ;   in Loop: Header=BB22_7 Depth=2
-	mov	&camel, r12
-	cmp	#1, r12
-	jne	.LBB22_12
-	jmp	.LBB22_11
-.LBB22_11:                              ; %if.then25
-                                        ;   in Loop: Header=BB22_7 Depth=2
-	mov	#camel+350, &safe
-	mov	#camel+2, &unsafe
-	mov	&safe, r12
-	call	#__dump_registers
-	;APP
-	mov	r1, r12
-	;NO_APP
-	mov	r12, 286(r1)
-	mov	286(r1), r12
-	mov	r12, 284(r1)
-	mov	284(r1), r12
-	incd	r12
-	;APP
-	mov	r1, r13
-	;NO_APP
-	mov	r13, 282(r1)
-	mov	282(r1), r13
-	mov	r13, 280(r1)
-	mov	280(r1), r14
-	mov	#9214, r13
-	sub	r14, r13
-	mov	#-1, r14
-	call	#__fast_hw_crc
-	mov	r12, &tmp_stack_crc
-	mov	&safe, r12
-	mov	&tmp_stack_crc, r14
-	mov	#346, r13
-	call	#__fast_hw_crc
-	mov	r12, &tmp_stack_buf_crc
-	mov	&tmp_stack_buf_crc, r12
-	mov	&safe, r13
-	mov	r12, 346(r13)
-	mov	#2, &camel
-	jmp	.LBB22_13
-.LBB22_12:                              ; %if.else38
-                                        ;   in Loop: Header=BB22_7 Depth=2
-	mov	#camel+2, &safe
-	mov	#camel+350, &unsafe
-	mov	&safe, r12
-	call	#__dump_registers
-	;APP
-	mov	r1, r12
-	;NO_APP
-	mov	r12, 278(r1)
-	mov	278(r1), r12
-	mov	r12, 276(r1)
-	mov	276(r1), r12
-	incd	r12
-	;APP
-	mov	r1, r13
-	;NO_APP
-	mov	r13, 274(r1)
-	mov	274(r1), r13
-	mov	r13, 272(r1)
-	mov	272(r1), r14
-	mov	#9214, r13
-	sub	r14, r13
-	mov	#-1, r14
-	call	#__fast_hw_crc
-	mov	r12, &tmp_stack_crc
-	mov	&safe, r12
-	mov	&tmp_stack_crc, r14
-	mov	#346, r13
-	call	#__fast_hw_crc
-	mov	r12, &tmp_stack_buf_crc
-	mov	&tmp_stack_buf_crc, r12
-	mov	&safe, r13
-	mov	r12, 346(r13)
-	mov	#1, &camel
-	jmp	.LBB22_13
-.LBB22_13:                              ; %if.end51
-                                        ;   in Loop: Header=BB22_7 Depth=2
-	jmp	.LBB22_14
-.LBB22_14:                              ; %do.end52
-                                        ;   in Loop: Header=BB22_7 Depth=2
-	call	#task_commit
-	jmp	.LBB22_15
-.LBB22_15:                              ; %if.end53
-                                        ;   in Loop: Header=BB22_7 Depth=2
-	mov	&unsafe, r12
-	mov	342(r12), r12
-	cmp	#100, r12
-	jeq	.LBB22_22
-	jmp	.LBB22_16
-.LBB22_16:                              ; %if.then57
-                                        ;   in Loop: Header=BB22_7 Depth=2
-	call	#task_exp
-	jmp	.LBB22_17
-.LBB22_17:                              ; %do.body58
-                                        ;   in Loop: Header=BB22_7 Depth=2
-	mov	&camel, r12
-	cmp	#1, r12
-	jne	.LBB22_19
-	jmp	.LBB22_18
-.LBB22_18:                              ; %if.then60
-                                        ;   in Loop: Header=BB22_7 Depth=2
-	mov	#camel+350, &safe
+	mov	#camel+348, &safe
 	mov	#camel+2, &unsafe
 	mov	&safe, r12
 	call	#__dump_registers
@@ -1655,18 +1454,18 @@ main:                                   ; @main
 	mov	r12, &tmp_stack_crc
 	mov	&safe, r12
 	mov	&tmp_stack_crc, r14
-	mov	#346, r13
+	mov	#344, r13
 	call	#__fast_hw_crc
 	mov	r12, &tmp_stack_buf_crc
 	mov	&tmp_stack_buf_crc, r12
 	mov	&safe, r13
-	mov	r12, 346(r13)
+	mov	r12, 344(r13)
 	mov	#2, &camel
-	jmp	.LBB22_20
-.LBB22_19:                              ; %if.else73
-                                        ;   in Loop: Header=BB22_7 Depth=2
+	jmp	.LBB22_5
+.LBB22_4:                               ; %if.else
+                                        ;   in Loop: Header=BB22_1 Depth=1
 	mov	#camel+2, &safe
-	mov	#camel+350, &unsafe
+	mov	#camel+348, &unsafe
 	mov	&safe, r12
 	call	#__dump_registers
 	;APP
@@ -1691,41 +1490,51 @@ main:                                   ; @main
 	mov	r12, &tmp_stack_crc
 	mov	&safe, r12
 	mov	&tmp_stack_crc, r14
-	mov	#346, r13
+	mov	#344, r13
 	call	#__fast_hw_crc
 	mov	r12, &tmp_stack_buf_crc
 	mov	&tmp_stack_buf_crc, r12
 	mov	&safe, r13
-	mov	r12, 346(r13)
+	mov	r12, 344(r13)
 	mov	#1, &camel
-	jmp	.LBB22_20
-.LBB22_20:                              ; %if.end86
-                                        ;   in Loop: Header=BB22_7 Depth=2
-	jmp	.LBB22_21
-.LBB22_21:                              ; %do.end87
-                                        ;   in Loop: Header=BB22_7 Depth=2
+	jmp	.LBB22_5
+.LBB22_5:                               ; %if.end
+                                        ;   in Loop: Header=BB22_1 Depth=1
+	jmp	.LBB22_6
+.LBB22_6:                               ; %do.end
+                                        ;   in Loop: Header=BB22_1 Depth=1
 	call	#task_commit
-	jmp	.LBB22_22
-.LBB22_22:                              ; %if.end88
-                                        ;   in Loop: Header=BB22_7 Depth=2
+	jmp	.LBB22_7
+.LBB22_7:                               ; %while.body18
+                                        ;   Parent Loop BB22_1 Depth=1
+                                        ; =>  This Loop Header: Depth=2
+                                        ;       Child Loop BB22_28 Depth 3
+                                        ;       Child Loop BB22_72 Depth 3
 	mov	&safe, r12
 	mov	342(r12), r12
 	tst	r12
-	jne	.LBB22_29
-	jmp	.LBB22_23
-.LBB22_23:                              ; %if.then92
+	jne	.LBB22_15
+	jmp	.LBB22_8
+.LBB22_8:                               ; %land.lhs.true
                                         ;   in Loop: Header=BB22_7 Depth=2
-	call	#task_mult_block
-	jmp	.LBB22_24
-.LBB22_24:                              ; %do.body93
+	mov	&unsafe, r12
+	mov	340(r12), r12
+	cmp	#100, r12
+	jeq	.LBB22_15
+	jmp	.LBB22_9
+.LBB22_9:                               ; %if.then22
+                                        ;   in Loop: Header=BB22_7 Depth=2
+	call	#task_pad
+	jmp	.LBB22_10
+.LBB22_10:                              ; %do.body23
                                         ;   in Loop: Header=BB22_7 Depth=2
 	mov	&camel, r12
 	cmp	#1, r12
-	jne	.LBB22_26
-	jmp	.LBB22_25
-.LBB22_25:                              ; %if.then95
+	jne	.LBB22_12
+	jmp	.LBB22_11
+.LBB22_11:                              ; %if.then25
                                         ;   in Loop: Header=BB22_7 Depth=2
-	mov	#camel+350, &safe
+	mov	#camel+348, &safe
 	mov	#camel+2, &unsafe
 	mov	&safe, r12
 	call	#__dump_registers
@@ -1751,18 +1560,18 @@ main:                                   ; @main
 	mov	r12, &tmp_stack_crc
 	mov	&safe, r12
 	mov	&tmp_stack_crc, r14
-	mov	#346, r13
+	mov	#344, r13
 	call	#__fast_hw_crc
 	mov	r12, &tmp_stack_buf_crc
 	mov	&tmp_stack_buf_crc, r12
 	mov	&safe, r13
-	mov	r12, 346(r13)
+	mov	r12, 344(r13)
 	mov	#2, &camel
-	jmp	.LBB22_27
-.LBB22_26:                              ; %if.else108
+	jmp	.LBB22_13
+.LBB22_12:                              ; %if.else38
                                         ;   in Loop: Header=BB22_7 Depth=2
 	mov	#camel+2, &safe
-	mov	#camel+350, &unsafe
+	mov	#camel+348, &unsafe
 	mov	&safe, r12
 	call	#__dump_registers
 	;APP
@@ -1787,34 +1596,41 @@ main:                                   ; @main
 	mov	r12, &tmp_stack_crc
 	mov	&safe, r12
 	mov	&tmp_stack_crc, r14
-	mov	#346, r13
+	mov	#344, r13
 	call	#__fast_hw_crc
 	mov	r12, &tmp_stack_buf_crc
 	mov	&tmp_stack_buf_crc, r12
 	mov	&safe, r13
-	mov	r12, 346(r13)
+	mov	r12, 344(r13)
 	mov	#1, &camel
-	jmp	.LBB22_27
-.LBB22_27:                              ; %if.end121
+	jmp	.LBB22_13
+.LBB22_13:                              ; %if.end51
                                         ;   in Loop: Header=BB22_7 Depth=2
-	jmp	.LBB22_28
-.LBB22_28:                              ; %do.end122
+	jmp	.LBB22_14
+.LBB22_14:                              ; %do.end52
                                         ;   in Loop: Header=BB22_7 Depth=2
 	call	#task_commit
-	jmp	.LBB22_35
-.LBB22_29:                              ; %if.else123
+	jmp	.LBB22_15
+.LBB22_15:                              ; %if.end53
                                         ;   in Loop: Header=BB22_7 Depth=2
-	call	#task_square_base
-	jmp	.LBB22_30
-.LBB22_30:                              ; %do.body124
+	mov	&unsafe, r12
+	mov	340(r12), r12
+	cmp	#100, r12
+	jeq	.LBB22_22
+	jmp	.LBB22_16
+.LBB22_16:                              ; %if.then57
+                                        ;   in Loop: Header=BB22_7 Depth=2
+	call	#task_exp
+	jmp	.LBB22_17
+.LBB22_17:                              ; %do.body58
                                         ;   in Loop: Header=BB22_7 Depth=2
 	mov	&camel, r12
 	cmp	#1, r12
-	jne	.LBB22_32
-	jmp	.LBB22_31
-.LBB22_31:                              ; %if.then126
+	jne	.LBB22_19
+	jmp	.LBB22_18
+.LBB22_18:                              ; %if.then60
                                         ;   in Loop: Header=BB22_7 Depth=2
-	mov	#camel+350, &safe
+	mov	#camel+348, &safe
 	mov	#camel+2, &unsafe
 	mov	&safe, r12
 	call	#__dump_registers
@@ -1840,18 +1656,18 @@ main:                                   ; @main
 	mov	r12, &tmp_stack_crc
 	mov	&safe, r12
 	mov	&tmp_stack_crc, r14
-	mov	#346, r13
+	mov	#344, r13
 	call	#__fast_hw_crc
 	mov	r12, &tmp_stack_buf_crc
 	mov	&tmp_stack_buf_crc, r12
 	mov	&safe, r13
-	mov	r12, 346(r13)
+	mov	r12, 344(r13)
 	mov	#2, &camel
-	jmp	.LBB22_33
-.LBB22_32:                              ; %if.else139
+	jmp	.LBB22_20
+.LBB22_19:                              ; %if.else73
                                         ;   in Loop: Header=BB22_7 Depth=2
 	mov	#camel+2, &safe
-	mov	#camel+350, &unsafe
+	mov	#camel+348, &unsafe
 	mov	&safe, r12
 	call	#__dump_registers
 	;APP
@@ -1876,34 +1692,34 @@ main:                                   ; @main
 	mov	r12, &tmp_stack_crc
 	mov	&safe, r12
 	mov	&tmp_stack_crc, r14
-	mov	#346, r13
+	mov	#344, r13
 	call	#__fast_hw_crc
 	mov	r12, &tmp_stack_buf_crc
 	mov	&tmp_stack_buf_crc, r12
 	mov	&safe, r13
-	mov	r12, 346(r13)
+	mov	r12, 344(r13)
 	mov	#1, &camel
-	jmp	.LBB22_33
-.LBB22_33:                              ; %if.end152
+	jmp	.LBB22_20
+.LBB22_20:                              ; %if.end86
                                         ;   in Loop: Header=BB22_7 Depth=2
-	jmp	.LBB22_34
-.LBB22_34:                              ; %do.end153
+	jmp	.LBB22_21
+.LBB22_21:                              ; %do.end87
                                         ;   in Loop: Header=BB22_7 Depth=2
 	call	#task_commit
-	jmp	.LBB22_35
-.LBB22_35:                              ; %if.end154
+	jmp	.LBB22_22
+.LBB22_22:                              ; %if.end88
                                         ;   in Loop: Header=BB22_7 Depth=2
 	call	#task_mult_mod
-	jmp	.LBB22_36
-.LBB22_36:                              ; %do.body155
+	jmp	.LBB22_23
+.LBB22_23:                              ; %do.body89
                                         ;   in Loop: Header=BB22_7 Depth=2
 	mov	&camel, r12
 	cmp	#1, r12
-	jne	.LBB22_38
-	jmp	.LBB22_37
-.LBB22_37:                              ; %if.then157
+	jne	.LBB22_25
+	jmp	.LBB22_24
+.LBB22_24:                              ; %if.then91
                                         ;   in Loop: Header=BB22_7 Depth=2
-	mov	#camel+350, &safe
+	mov	#camel+348, &safe
 	mov	#camel+2, &unsafe
 	mov	&safe, r12
 	call	#__dump_registers
@@ -1929,18 +1745,18 @@ main:                                   ; @main
 	mov	r12, &tmp_stack_crc
 	mov	&safe, r12
 	mov	&tmp_stack_crc, r14
-	mov	#346, r13
+	mov	#344, r13
 	call	#__fast_hw_crc
 	mov	r12, &tmp_stack_buf_crc
 	mov	&tmp_stack_buf_crc, r12
 	mov	&safe, r13
-	mov	r12, 346(r13)
+	mov	r12, 344(r13)
 	mov	#2, &camel
-	jmp	.LBB22_39
-.LBB22_38:                              ; %if.else170
+	jmp	.LBB22_26
+.LBB22_25:                              ; %if.else104
                                         ;   in Loop: Header=BB22_7 Depth=2
 	mov	#camel+2, &safe
-	mov	#camel+350, &unsafe
+	mov	#camel+348, &unsafe
 	mov	&safe, r12
 	call	#__dump_registers
 	;APP
@@ -1965,36 +1781,36 @@ main:                                   ; @main
 	mov	r12, &tmp_stack_crc
 	mov	&safe, r12
 	mov	&tmp_stack_crc, r14
-	mov	#346, r13
+	mov	#344, r13
 	call	#__fast_hw_crc
 	mov	r12, &tmp_stack_buf_crc
 	mov	&tmp_stack_buf_crc, r12
 	mov	&safe, r13
-	mov	r12, 346(r13)
+	mov	r12, 344(r13)
 	mov	#1, &camel
-	jmp	.LBB22_39
-.LBB22_39:                              ; %if.end183
+	jmp	.LBB22_26
+.LBB22_26:                              ; %if.end117
                                         ;   in Loop: Header=BB22_7 Depth=2
-	jmp	.LBB22_40
-.LBB22_40:                              ; %do.end184
+	jmp	.LBB22_27
+.LBB22_27:                              ; %do.end118
                                         ;   in Loop: Header=BB22_7 Depth=2
 	call	#task_commit
-	jmp	.LBB22_41
-.LBB22_41:                              ; %do.body185
+	jmp	.LBB22_28
+.LBB22_28:                              ; %do.body119
                                         ;   Parent Loop BB22_1 Depth=1
                                         ;     Parent Loop BB22_7 Depth=2
                                         ; =>    This Inner Loop Header: Depth=3
 	call	#task_mult
-	jmp	.LBB22_42
-.LBB22_42:                              ; %do.body186
-                                        ;   in Loop: Header=BB22_41 Depth=3
+	jmp	.LBB22_29
+.LBB22_29:                              ; %do.body120
+                                        ;   in Loop: Header=BB22_28 Depth=3
 	mov	&camel, r12
 	cmp	#1, r12
-	jne	.LBB22_44
-	jmp	.LBB22_43
-.LBB22_43:                              ; %if.then188
-                                        ;   in Loop: Header=BB22_41 Depth=3
-	mov	#camel+350, &safe
+	jne	.LBB22_31
+	jmp	.LBB22_30
+.LBB22_30:                              ; %if.then122
+                                        ;   in Loop: Header=BB22_28 Depth=3
+	mov	#camel+348, &safe
 	mov	#camel+2, &unsafe
 	mov	&safe, r12
 	call	#__dump_registers
@@ -2020,18 +1836,18 @@ main:                                   ; @main
 	mov	r12, &tmp_stack_crc
 	mov	&safe, r12
 	mov	&tmp_stack_crc, r14
-	mov	#346, r13
+	mov	#344, r13
 	call	#__fast_hw_crc
 	mov	r12, &tmp_stack_buf_crc
 	mov	&tmp_stack_buf_crc, r12
 	mov	&safe, r13
-	mov	r12, 346(r13)
+	mov	r12, 344(r13)
 	mov	#2, &camel
-	jmp	.LBB22_45
-.LBB22_44:                              ; %if.else201
-                                        ;   in Loop: Header=BB22_41 Depth=3
+	jmp	.LBB22_32
+.LBB22_31:                              ; %if.else135
+                                        ;   in Loop: Header=BB22_28 Depth=3
 	mov	#camel+2, &safe
-	mov	#camel+350, &unsafe
+	mov	#camel+348, &unsafe
 	mov	&safe, r12
 	call	#__dump_registers
 	;APP
@@ -2056,41 +1872,41 @@ main:                                   ; @main
 	mov	r12, &tmp_stack_crc
 	mov	&safe, r12
 	mov	&tmp_stack_crc, r14
-	mov	#346, r13
+	mov	#344, r13
 	call	#__fast_hw_crc
 	mov	r12, &tmp_stack_buf_crc
 	mov	&tmp_stack_buf_crc, r12
 	mov	&safe, r13
-	mov	r12, 346(r13)
+	mov	r12, 344(r13)
 	mov	#1, &camel
-	jmp	.LBB22_45
-.LBB22_45:                              ; %if.end214
-                                        ;   in Loop: Header=BB22_41 Depth=3
-	jmp	.LBB22_46
-.LBB22_46:                              ; %do.end215
-                                        ;   in Loop: Header=BB22_41 Depth=3
+	jmp	.LBB22_32
+.LBB22_32:                              ; %if.end148
+                                        ;   in Loop: Header=BB22_28 Depth=3
+	jmp	.LBB22_33
+.LBB22_33:                              ; %do.end149
+                                        ;   in Loop: Header=BB22_28 Depth=3
 	call	#task_commit
-	jmp	.LBB22_47
-.LBB22_47:                              ; %do.cond
-                                        ;   in Loop: Header=BB22_41 Depth=3
+	jmp	.LBB22_34
+.LBB22_34:                              ; %do.cond
+                                        ;   in Loop: Header=BB22_28 Depth=3
 	mov	&safe, r12
-	mov	342(r12), r12
+	mov	340(r12), r12
 	tst	r12
-	jeq	.LBB22_41
-	jmp	.LBB22_48
-.LBB22_48:                              ; %do.end219
+	jeq	.LBB22_28
+	jmp	.LBB22_35
+.LBB22_35:                              ; %do.end153
                                         ;   in Loop: Header=BB22_7 Depth=2
 	call	#task_reduce_digits
-	jmp	.LBB22_49
-.LBB22_49:                              ; %do.body220
+	jmp	.LBB22_36
+.LBB22_36:                              ; %do.body154
                                         ;   in Loop: Header=BB22_7 Depth=2
 	mov	&camel, r12
 	cmp	#1, r12
-	jne	.LBB22_51
-	jmp	.LBB22_50
-.LBB22_50:                              ; %if.then222
+	jne	.LBB22_38
+	jmp	.LBB22_37
+.LBB22_37:                              ; %if.then156
                                         ;   in Loop: Header=BB22_7 Depth=2
-	mov	#camel+350, &safe
+	mov	#camel+348, &safe
 	mov	#camel+2, &unsafe
 	mov	&safe, r12
 	call	#__dump_registers
@@ -2116,18 +1932,18 @@ main:                                   ; @main
 	mov	r12, &tmp_stack_crc
 	mov	&safe, r12
 	mov	&tmp_stack_crc, r14
-	mov	#346, r13
+	mov	#344, r13
 	call	#__fast_hw_crc
 	mov	r12, &tmp_stack_buf_crc
 	mov	&tmp_stack_buf_crc, r12
 	mov	&safe, r13
-	mov	r12, 346(r13)
+	mov	r12, 344(r13)
 	mov	#2, &camel
-	jmp	.LBB22_52
-.LBB22_51:                              ; %if.else235
+	jmp	.LBB22_39
+.LBB22_38:                              ; %if.else169
                                         ;   in Loop: Header=BB22_7 Depth=2
 	mov	#camel+2, &safe
-	mov	#camel+350, &unsafe
+	mov	#camel+348, &unsafe
 	mov	&safe, r12
 	call	#__dump_registers
 	;APP
@@ -2152,41 +1968,41 @@ main:                                   ; @main
 	mov	r12, &tmp_stack_crc
 	mov	&safe, r12
 	mov	&tmp_stack_crc, r14
-	mov	#346, r13
+	mov	#344, r13
 	call	#__fast_hw_crc
 	mov	r12, &tmp_stack_buf_crc
 	mov	&tmp_stack_buf_crc, r12
 	mov	&safe, r13
-	mov	r12, 346(r13)
+	mov	r12, 344(r13)
 	mov	#1, &camel
-	jmp	.LBB22_52
-.LBB22_52:                              ; %if.end248
+	jmp	.LBB22_39
+.LBB22_39:                              ; %if.end182
                                         ;   in Loop: Header=BB22_7 Depth=2
-	jmp	.LBB22_53
-.LBB22_53:                              ; %do.end250
+	jmp	.LBB22_40
+.LBB22_40:                              ; %do.end184
                                         ;   in Loop: Header=BB22_7 Depth=2
 	call	#task_commit
 	mov	&safe, r12
-	mov	342(r12), r12
+	mov	340(r12), r12
 	tst	r12
-	jne	.LBB22_55
-	jmp	.LBB22_54
-.LBB22_54:                              ; %if.then254
+	jne	.LBB22_42
+	jmp	.LBB22_41
+.LBB22_41:                              ; %if.then188
                                         ;   in Loop: Header=BB22_1 Depth=1
-	br	#.LBB22_132
-.LBB22_55:                              ; %if.end255
+	br	#.LBB22_119
+.LBB22_42:                              ; %if.end189
                                         ;   in Loop: Header=BB22_7 Depth=2
 	call	#task_reduce_normalizable
-	jmp	.LBB22_56
-.LBB22_56:                              ; %do.body256
+	jmp	.LBB22_43
+.LBB22_43:                              ; %do.body190
                                         ;   in Loop: Header=BB22_7 Depth=2
 	mov	&camel, r12
 	cmp	#1, r12
-	jne	.LBB22_58
-	jmp	.LBB22_57
-.LBB22_57:                              ; %if.then258
+	jne	.LBB22_45
+	jmp	.LBB22_44
+.LBB22_44:                              ; %if.then192
                                         ;   in Loop: Header=BB22_7 Depth=2
-	mov	#camel+350, &safe
+	mov	#camel+348, &safe
 	mov	#camel+2, &unsafe
 	mov	&safe, r12
 	call	#__dump_registers
@@ -2212,18 +2028,18 @@ main:                                   ; @main
 	mov	r12, &tmp_stack_crc
 	mov	&safe, r12
 	mov	&tmp_stack_crc, r14
-	mov	#346, r13
+	mov	#344, r13
 	call	#__fast_hw_crc
 	mov	r12, &tmp_stack_buf_crc
 	mov	&tmp_stack_buf_crc, r12
 	mov	&safe, r13
-	mov	r12, 346(r13)
+	mov	r12, 344(r13)
 	mov	#2, &camel
-	jmp	.LBB22_59
-.LBB22_58:                              ; %if.else271
+	jmp	.LBB22_46
+.LBB22_45:                              ; %if.else205
                                         ;   in Loop: Header=BB22_7 Depth=2
 	mov	#camel+2, &safe
-	mov	#camel+350, &unsafe
+	mov	#camel+348, &unsafe
 	mov	&safe, r12
 	call	#__dump_registers
 	;APP
@@ -2248,38 +2064,38 @@ main:                                   ; @main
 	mov	r12, &tmp_stack_crc
 	mov	&safe, r12
 	mov	&tmp_stack_crc, r14
-	mov	#346, r13
+	mov	#344, r13
 	call	#__fast_hw_crc
 	mov	r12, &tmp_stack_buf_crc
 	mov	&tmp_stack_buf_crc, r12
 	mov	&safe, r13
-	mov	r12, 346(r13)
+	mov	r12, 344(r13)
 	mov	#1, &camel
-	jmp	.LBB22_59
-.LBB22_59:                              ; %if.end284
+	jmp	.LBB22_46
+.LBB22_46:                              ; %if.end218
                                         ;   in Loop: Header=BB22_7 Depth=2
-	jmp	.LBB22_60
-.LBB22_60:                              ; %do.end286
+	jmp	.LBB22_47
+.LBB22_47:                              ; %do.end220
                                         ;   in Loop: Header=BB22_7 Depth=2
 	call	#task_commit
 	mov	&safe, r12
-	mov	342(r12), r12
+	mov	340(r12), r12
 	tst	r12
-	jne	.LBB22_74
-	jmp	.LBB22_61
-.LBB22_61:                              ; %if.then290
+	jne	.LBB22_61
+	jmp	.LBB22_48
+.LBB22_48:                              ; %if.then224
                                         ;   in Loop: Header=BB22_7 Depth=2
 	call	#task_reduce_normalize
-	jmp	.LBB22_62
-.LBB22_62:                              ; %do.body291
+	jmp	.LBB22_49
+.LBB22_49:                              ; %do.body225
                                         ;   in Loop: Header=BB22_7 Depth=2
 	mov	&camel, r12
 	cmp	#1, r12
-	jne	.LBB22_64
-	jmp	.LBB22_63
-.LBB22_63:                              ; %if.then293
+	jne	.LBB22_51
+	jmp	.LBB22_50
+.LBB22_50:                              ; %if.then227
                                         ;   in Loop: Header=BB22_7 Depth=2
-	mov	#camel+350, &safe
+	mov	#camel+348, &safe
 	mov	#camel+2, &unsafe
 	mov	&safe, r12
 	call	#__dump_registers
@@ -2305,18 +2121,18 @@ main:                                   ; @main
 	mov	r12, &tmp_stack_crc
 	mov	&safe, r12
 	mov	&tmp_stack_crc, r14
-	mov	#346, r13
+	mov	#344, r13
 	call	#__fast_hw_crc
 	mov	r12, &tmp_stack_buf_crc
 	mov	&tmp_stack_buf_crc, r12
 	mov	&safe, r13
-	mov	r12, 346(r13)
+	mov	r12, 344(r13)
 	mov	#2, &camel
-	jmp	.LBB22_65
-.LBB22_64:                              ; %if.else306
+	jmp	.LBB22_52
+.LBB22_51:                              ; %if.else240
                                         ;   in Loop: Header=BB22_7 Depth=2
 	mov	#camel+2, &safe
-	mov	#camel+350, &unsafe
+	mov	#camel+348, &unsafe
 	mov	&safe, r12
 	call	#__dump_registers
 	;APP
@@ -2341,38 +2157,38 @@ main:                                   ; @main
 	mov	r12, &tmp_stack_crc
 	mov	&safe, r12
 	mov	&tmp_stack_crc, r14
-	mov	#346, r13
+	mov	#344, r13
 	call	#__fast_hw_crc
 	mov	r12, &tmp_stack_buf_crc
 	mov	&tmp_stack_buf_crc, r12
 	mov	&safe, r13
-	mov	r12, 346(r13)
+	mov	r12, 344(r13)
 	mov	#1, &camel
-	jmp	.LBB22_65
-.LBB22_65:                              ; %if.end319
+	jmp	.LBB22_52
+.LBB22_52:                              ; %if.end253
                                         ;   in Loop: Header=BB22_7 Depth=2
-	jmp	.LBB22_66
-.LBB22_66:                              ; %do.end321
+	jmp	.LBB22_53
+.LBB22_53:                              ; %do.end255
                                         ;   in Loop: Header=BB22_7 Depth=2
 	call	#task_commit
 	mov	&unsafe, r12
 	mov	206(r12), r12
 	tst	r12
-	jeq	.LBB22_73
-	jmp	.LBB22_67
-.LBB22_67:                              ; %if.then324
+	jeq	.LBB22_60
+	jmp	.LBB22_54
+.LBB22_54:                              ; %if.then258
                                         ;   in Loop: Header=BB22_7 Depth=2
 	call	#task_reduce_n_divisor
-	jmp	.LBB22_68
-.LBB22_68:                              ; %do.body325
+	jmp	.LBB22_55
+.LBB22_55:                              ; %do.body259
                                         ;   in Loop: Header=BB22_7 Depth=2
 	mov	&camel, r12
 	cmp	#1, r12
-	jne	.LBB22_70
-	jmp	.LBB22_69
-.LBB22_69:                              ; %if.then327
+	jne	.LBB22_57
+	jmp	.LBB22_56
+.LBB22_56:                              ; %if.then261
                                         ;   in Loop: Header=BB22_7 Depth=2
-	mov	#camel+350, &safe
+	mov	#camel+348, &safe
 	mov	#camel+2, &unsafe
 	mov	&safe, r12
 	call	#__dump_registers
@@ -2398,18 +2214,18 @@ main:                                   ; @main
 	mov	r12, &tmp_stack_crc
 	mov	&safe, r12
 	mov	&tmp_stack_crc, r14
-	mov	#346, r13
+	mov	#344, r13
 	call	#__fast_hw_crc
 	mov	r12, &tmp_stack_buf_crc
 	mov	&tmp_stack_buf_crc, r12
 	mov	&safe, r13
-	mov	r12, 346(r13)
+	mov	r12, 344(r13)
 	mov	#2, &camel
-	jmp	.LBB22_71
-.LBB22_70:                              ; %if.else340
+	jmp	.LBB22_58
+.LBB22_57:                              ; %if.else274
                                         ;   in Loop: Header=BB22_7 Depth=2
 	mov	#camel+2, &safe
-	mov	#camel+350, &unsafe
+	mov	#camel+348, &unsafe
 	mov	&safe, r12
 	call	#__dump_registers
 	;APP
@@ -2434,44 +2250,44 @@ main:                                   ; @main
 	mov	r12, &tmp_stack_crc
 	mov	&safe, r12
 	mov	&tmp_stack_crc, r14
-	mov	#346, r13
+	mov	#344, r13
 	call	#__fast_hw_crc
 	mov	r12, &tmp_stack_buf_crc
 	mov	&tmp_stack_buf_crc, r12
 	mov	&safe, r13
-	mov	r12, 346(r13)
+	mov	r12, 344(r13)
 	mov	#1, &camel
-	jmp	.LBB22_71
-.LBB22_71:                              ; %if.end353
+	jmp	.LBB22_58
+.LBB22_58:                              ; %if.end287
                                         ;   in Loop: Header=BB22_7 Depth=2
-	jmp	.LBB22_72
-.LBB22_72:                              ; %do.end355
+	jmp	.LBB22_59
+.LBB22_59:                              ; %do.end289
                                         ;   in Loop: Header=BB22_7 Depth=2
 	call	#task_commit
-	jmp	.LBB22_73
-.LBB22_73:                              ; %if.end356
+	jmp	.LBB22_60
+.LBB22_60:                              ; %if.end290
                                         ;   in Loop: Header=BB22_7 Depth=2
-	jmp	.LBB22_82
-.LBB22_74:                              ; %if.else357
+	jmp	.LBB22_69
+.LBB22_61:                              ; %if.else291
                                         ;   in Loop: Header=BB22_7 Depth=2
 	mov	&safe, r12
-	mov	342(r12), r12
+	mov	340(r12), r12
 	cmp	#1, r12
-	jne	.LBB22_81
-	jmp	.LBB22_75
-.LBB22_75:                              ; %if.then361
+	jne	.LBB22_68
+	jmp	.LBB22_62
+.LBB22_62:                              ; %if.then295
                                         ;   in Loop: Header=BB22_7 Depth=2
 	call	#task_reduce_n_divisor
-	jmp	.LBB22_76
-.LBB22_76:                              ; %do.body362
+	jmp	.LBB22_63
+.LBB22_63:                              ; %do.body296
                                         ;   in Loop: Header=BB22_7 Depth=2
 	mov	&camel, r12
 	cmp	#1, r12
-	jne	.LBB22_78
-	jmp	.LBB22_77
-.LBB22_77:                              ; %if.then364
+	jne	.LBB22_65
+	jmp	.LBB22_64
+.LBB22_64:                              ; %if.then298
                                         ;   in Loop: Header=BB22_7 Depth=2
-	mov	#camel+350, &safe
+	mov	#camel+348, &safe
 	mov	#camel+2, &unsafe
 	mov	&safe, r12
 	call	#__dump_registers
@@ -2497,18 +2313,18 @@ main:                                   ; @main
 	mov	r12, &tmp_stack_crc
 	mov	&safe, r12
 	mov	&tmp_stack_crc, r14
-	mov	#346, r13
+	mov	#344, r13
 	call	#__fast_hw_crc
 	mov	r12, &tmp_stack_buf_crc
 	mov	&tmp_stack_buf_crc, r12
 	mov	&safe, r13
-	mov	r12, 346(r13)
+	mov	r12, 344(r13)
 	mov	#2, &camel
-	jmp	.LBB22_79
-.LBB22_78:                              ; %if.else377
+	jmp	.LBB22_66
+.LBB22_65:                              ; %if.else311
                                         ;   in Loop: Header=BB22_7 Depth=2
 	mov	#camel+2, &safe
-	mov	#camel+350, &unsafe
+	mov	#camel+348, &unsafe
 	mov	&safe, r12
 	call	#__dump_registers
 	;APP
@@ -2533,52 +2349,52 @@ main:                                   ; @main
 	mov	r12, &tmp_stack_crc
 	mov	&safe, r12
 	mov	&tmp_stack_crc, r14
-	mov	#346, r13
+	mov	#344, r13
 	call	#__fast_hw_crc
 	mov	r12, &tmp_stack_buf_crc
 	mov	&tmp_stack_buf_crc, r12
 	mov	&safe, r13
-	mov	r12, 346(r13)
+	mov	r12, 344(r13)
 	mov	#1, &camel
-	jmp	.LBB22_79
-.LBB22_79:                              ; %if.end390
+	jmp	.LBB22_66
+.LBB22_66:                              ; %if.end324
                                         ;   in Loop: Header=BB22_7 Depth=2
-	jmp	.LBB22_80
-.LBB22_80:                              ; %do.end392
+	jmp	.LBB22_67
+.LBB22_67:                              ; %do.end326
                                         ;   in Loop: Header=BB22_7 Depth=2
 	call	#task_commit
-	jmp	.LBB22_81
-.LBB22_81:                              ; %if.end393
+	jmp	.LBB22_68
+.LBB22_68:                              ; %if.end327
                                         ;   in Loop: Header=BB22_7 Depth=2
-	jmp	.LBB22_82
-.LBB22_82:                              ; %if.end394
+	jmp	.LBB22_69
+.LBB22_69:                              ; %if.end328
                                         ;   in Loop: Header=BB22_7 Depth=2
 	mov	&unsafe, r12
-	mov	342(r12), r12
+	mov	340(r12), r12
 	cmp	#2, r12
-	jne	.LBB22_83
-	br	#.LBB22_116
-.LBB22_83:                              ; %if.end394
+	jne	.LBB22_70
+	br	#.LBB22_103
+.LBB22_70:                              ; %if.end328
                                         ;   in Loop: Header=BB22_7 Depth=2
-	jmp	.LBB22_84
-.LBB22_84:                              ; %if.then398
+	jmp	.LBB22_71
+.LBB22_71:                              ; %if.then332
                                         ;   in Loop: Header=BB22_7 Depth=2
-	jmp	.LBB22_85
-.LBB22_85:                              ; %do.body399
+	jmp	.LBB22_72
+.LBB22_72:                              ; %do.body333
                                         ;   Parent Loop BB22_1 Depth=1
                                         ;     Parent Loop BB22_7 Depth=2
                                         ; =>    This Inner Loop Header: Depth=3
 	call	#task_reduce_quotient
-	jmp	.LBB22_86
-.LBB22_86:                              ; %do.body400
-                                        ;   in Loop: Header=BB22_85 Depth=3
+	jmp	.LBB22_73
+.LBB22_73:                              ; %do.body334
+                                        ;   in Loop: Header=BB22_72 Depth=3
 	mov	&camel, r12
 	cmp	#1, r12
-	jne	.LBB22_88
-	jmp	.LBB22_87
-.LBB22_87:                              ; %if.then402
-                                        ;   in Loop: Header=BB22_85 Depth=3
-	mov	#camel+350, &safe
+	jne	.LBB22_75
+	jmp	.LBB22_74
+.LBB22_74:                              ; %if.then336
+                                        ;   in Loop: Header=BB22_72 Depth=3
+	mov	#camel+348, &safe
 	mov	#camel+2, &unsafe
 	mov	&safe, r12
 	call	#__dump_registers
@@ -2604,18 +2420,18 @@ main:                                   ; @main
 	mov	r12, &tmp_stack_crc
 	mov	&safe, r12
 	mov	&tmp_stack_crc, r14
-	mov	#346, r13
+	mov	#344, r13
 	call	#__fast_hw_crc
 	mov	r12, &tmp_stack_buf_crc
 	mov	&tmp_stack_buf_crc, r12
 	mov	&safe, r13
-	mov	r12, 346(r13)
+	mov	r12, 344(r13)
 	mov	#2, &camel
-	jmp	.LBB22_89
-.LBB22_88:                              ; %if.else415
-                                        ;   in Loop: Header=BB22_85 Depth=3
+	jmp	.LBB22_76
+.LBB22_75:                              ; %if.else349
+                                        ;   in Loop: Header=BB22_72 Depth=3
 	mov	#camel+2, &safe
-	mov	#camel+350, &unsafe
+	mov	#camel+348, &unsafe
 	mov	&safe, r12
 	call	#__dump_registers
 	;APP
@@ -2640,31 +2456,31 @@ main:                                   ; @main
 	mov	r12, &tmp_stack_crc
 	mov	&safe, r12
 	mov	&tmp_stack_crc, r14
-	mov	#346, r13
+	mov	#344, r13
 	call	#__fast_hw_crc
 	mov	r12, &tmp_stack_buf_crc
 	mov	&tmp_stack_buf_crc, r12
 	mov	&safe, r13
-	mov	r12, 346(r13)
+	mov	r12, 344(r13)
 	mov	#1, &camel
-	jmp	.LBB22_89
-.LBB22_89:                              ; %if.end428
-                                        ;   in Loop: Header=BB22_85 Depth=3
-	jmp	.LBB22_90
-.LBB22_90:                              ; %do.end430
-                                        ;   in Loop: Header=BB22_85 Depth=3
+	jmp	.LBB22_76
+.LBB22_76:                              ; %if.end362
+                                        ;   in Loop: Header=BB22_72 Depth=3
+	jmp	.LBB22_77
+.LBB22_77:                              ; %do.end364
+                                        ;   in Loop: Header=BB22_72 Depth=3
 	call	#task_commit
 	call	#task_reduce_multiply
-	jmp	.LBB22_91
-.LBB22_91:                              ; %do.body431
-                                        ;   in Loop: Header=BB22_85 Depth=3
+	jmp	.LBB22_78
+.LBB22_78:                              ; %do.body365
+                                        ;   in Loop: Header=BB22_72 Depth=3
 	mov	&camel, r12
 	cmp	#1, r12
-	jne	.LBB22_93
-	jmp	.LBB22_92
-.LBB22_92:                              ; %if.then433
-                                        ;   in Loop: Header=BB22_85 Depth=3
-	mov	#camel+350, &safe
+	jne	.LBB22_80
+	jmp	.LBB22_79
+.LBB22_79:                              ; %if.then367
+                                        ;   in Loop: Header=BB22_72 Depth=3
+	mov	#camel+348, &safe
 	mov	#camel+2, &unsafe
 	mov	&safe, r12
 	call	#__dump_registers
@@ -2690,18 +2506,18 @@ main:                                   ; @main
 	mov	r12, &tmp_stack_crc
 	mov	&safe, r12
 	mov	&tmp_stack_crc, r14
-	mov	#346, r13
+	mov	#344, r13
 	call	#__fast_hw_crc
 	mov	r12, &tmp_stack_buf_crc
 	mov	&tmp_stack_buf_crc, r12
 	mov	&safe, r13
-	mov	r12, 346(r13)
+	mov	r12, 344(r13)
 	mov	#2, &camel
-	jmp	.LBB22_94
-.LBB22_93:                              ; %if.else446
-                                        ;   in Loop: Header=BB22_85 Depth=3
+	jmp	.LBB22_81
+.LBB22_80:                              ; %if.else380
+                                        ;   in Loop: Header=BB22_72 Depth=3
 	mov	#camel+2, &safe
-	mov	#camel+350, &unsafe
+	mov	#camel+348, &unsafe
 	mov	&safe, r12
 	call	#__dump_registers
 	;APP
@@ -2726,31 +2542,31 @@ main:                                   ; @main
 	mov	r12, &tmp_stack_crc
 	mov	&safe, r12
 	mov	&tmp_stack_crc, r14
-	mov	#346, r13
+	mov	#344, r13
 	call	#__fast_hw_crc
 	mov	r12, &tmp_stack_buf_crc
 	mov	&tmp_stack_buf_crc, r12
 	mov	&safe, r13
-	mov	r12, 346(r13)
+	mov	r12, 344(r13)
 	mov	#1, &camel
-	jmp	.LBB22_94
-.LBB22_94:                              ; %if.end459
-                                        ;   in Loop: Header=BB22_85 Depth=3
-	jmp	.LBB22_95
-.LBB22_95:                              ; %do.end461
-                                        ;   in Loop: Header=BB22_85 Depth=3
+	jmp	.LBB22_81
+.LBB22_81:                              ; %if.end393
+                                        ;   in Loop: Header=BB22_72 Depth=3
+	jmp	.LBB22_82
+.LBB22_82:                              ; %do.end395
+                                        ;   in Loop: Header=BB22_72 Depth=3
 	call	#task_commit
 	call	#task_reduce_compare
-	jmp	.LBB22_96
-.LBB22_96:                              ; %do.body462
-                                        ;   in Loop: Header=BB22_85 Depth=3
+	jmp	.LBB22_83
+.LBB22_83:                              ; %do.body396
+                                        ;   in Loop: Header=BB22_72 Depth=3
 	mov	&camel, r12
 	cmp	#1, r12
-	jne	.LBB22_98
-	jmp	.LBB22_97
-.LBB22_97:                              ; %if.then464
-                                        ;   in Loop: Header=BB22_85 Depth=3
-	mov	#camel+350, &safe
+	jne	.LBB22_85
+	jmp	.LBB22_84
+.LBB22_84:                              ; %if.then398
+                                        ;   in Loop: Header=BB22_72 Depth=3
+	mov	#camel+348, &safe
 	mov	#camel+2, &unsafe
 	mov	&safe, r12
 	call	#__dump_registers
@@ -2776,18 +2592,18 @@ main:                                   ; @main
 	mov	r12, &tmp_stack_crc
 	mov	&safe, r12
 	mov	&tmp_stack_crc, r14
-	mov	#346, r13
+	mov	#344, r13
 	call	#__fast_hw_crc
 	mov	r12, &tmp_stack_buf_crc
 	mov	&tmp_stack_buf_crc, r12
 	mov	&safe, r13
-	mov	r12, 346(r13)
+	mov	r12, 344(r13)
 	mov	#2, &camel
-	jmp	.LBB22_99
-.LBB22_98:                              ; %if.else477
-                                        ;   in Loop: Header=BB22_85 Depth=3
+	jmp	.LBB22_86
+.LBB22_85:                              ; %if.else411
+                                        ;   in Loop: Header=BB22_72 Depth=3
 	mov	#camel+2, &safe
-	mov	#camel+350, &unsafe
+	mov	#camel+348, &unsafe
 	mov	&safe, r12
 	call	#__dump_registers
 	;APP
@@ -2812,38 +2628,38 @@ main:                                   ; @main
 	mov	r12, &tmp_stack_crc
 	mov	&safe, r12
 	mov	&tmp_stack_crc, r14
-	mov	#346, r13
+	mov	#344, r13
 	call	#__fast_hw_crc
 	mov	r12, &tmp_stack_buf_crc
 	mov	&tmp_stack_buf_crc, r12
 	mov	&safe, r13
-	mov	r12, 346(r13)
+	mov	r12, 344(r13)
 	mov	#1, &camel
-	jmp	.LBB22_99
-.LBB22_99:                              ; %if.end490
-                                        ;   in Loop: Header=BB22_85 Depth=3
-	jmp	.LBB22_100
-.LBB22_100:                             ; %do.end492
-                                        ;   in Loop: Header=BB22_85 Depth=3
+	jmp	.LBB22_86
+.LBB22_86:                              ; %if.end424
+                                        ;   in Loop: Header=BB22_72 Depth=3
+	jmp	.LBB22_87
+.LBB22_87:                              ; %do.end426
+                                        ;   in Loop: Header=BB22_72 Depth=3
 	call	#task_commit
 	mov	&safe, r12
-	mov	342(r12), r12
+	mov	340(r12), r12
 	tst	r12
-	jne	.LBB22_107
-	jmp	.LBB22_101
-.LBB22_101:                             ; %if.then496
-                                        ;   in Loop: Header=BB22_85 Depth=3
+	jne	.LBB22_94
+	jmp	.LBB22_88
+.LBB22_88:                              ; %if.then430
+                                        ;   in Loop: Header=BB22_72 Depth=3
 	call	#task_reduce_add
-	jmp	.LBB22_102
-.LBB22_102:                             ; %do.body497
-                                        ;   in Loop: Header=BB22_85 Depth=3
+	jmp	.LBB22_89
+.LBB22_89:                              ; %do.body431
+                                        ;   in Loop: Header=BB22_72 Depth=3
 	mov	&camel, r12
 	cmp	#1, r12
-	jne	.LBB22_104
-	jmp	.LBB22_103
-.LBB22_103:                             ; %if.then499
-                                        ;   in Loop: Header=BB22_85 Depth=3
-	mov	#camel+350, &safe
+	jne	.LBB22_91
+	jmp	.LBB22_90
+.LBB22_90:                              ; %if.then433
+                                        ;   in Loop: Header=BB22_72 Depth=3
+	mov	#camel+348, &safe
 	mov	#camel+2, &unsafe
 	mov	&safe, r12
 	call	#__dump_registers
@@ -2869,18 +2685,18 @@ main:                                   ; @main
 	mov	r12, &tmp_stack_crc
 	mov	&safe, r12
 	mov	&tmp_stack_crc, r14
-	mov	#346, r13
+	mov	#344, r13
 	call	#__fast_hw_crc
 	mov	r12, &tmp_stack_buf_crc
 	mov	&tmp_stack_buf_crc, r12
 	mov	&safe, r13
-	mov	r12, 346(r13)
+	mov	r12, 344(r13)
 	mov	#2, &camel
-	jmp	.LBB22_105
-.LBB22_104:                             ; %if.else512
-                                        ;   in Loop: Header=BB22_85 Depth=3
+	jmp	.LBB22_92
+.LBB22_91:                              ; %if.else446
+                                        ;   in Loop: Header=BB22_72 Depth=3
 	mov	#camel+2, &safe
-	mov	#camel+350, &unsafe
+	mov	#camel+348, &unsafe
 	mov	&safe, r12
 	call	#__dump_registers
 	;APP
@@ -2905,34 +2721,34 @@ main:                                   ; @main
 	mov	r12, &tmp_stack_crc
 	mov	&safe, r12
 	mov	&tmp_stack_crc, r14
-	mov	#346, r13
+	mov	#344, r13
 	call	#__fast_hw_crc
 	mov	r12, &tmp_stack_buf_crc
 	mov	&tmp_stack_buf_crc, r12
 	mov	&safe, r13
-	mov	r12, 346(r13)
+	mov	r12, 344(r13)
 	mov	#1, &camel
-	jmp	.LBB22_105
-.LBB22_105:                             ; %if.end525
-                                        ;   in Loop: Header=BB22_85 Depth=3
-	jmp	.LBB22_106
-.LBB22_106:                             ; %do.end527
-                                        ;   in Loop: Header=BB22_85 Depth=3
+	jmp	.LBB22_92
+.LBB22_92:                              ; %if.end459
+                                        ;   in Loop: Header=BB22_72 Depth=3
+	jmp	.LBB22_93
+.LBB22_93:                              ; %do.end461
+                                        ;   in Loop: Header=BB22_72 Depth=3
 	call	#task_commit
-	jmp	.LBB22_107
-.LBB22_107:                             ; %if.end528
-                                        ;   in Loop: Header=BB22_85 Depth=3
+	jmp	.LBB22_94
+.LBB22_94:                              ; %if.end462
+                                        ;   in Loop: Header=BB22_72 Depth=3
 	call	#task_reduce_subtract
-	jmp	.LBB22_108
-.LBB22_108:                             ; %do.body529
-                                        ;   in Loop: Header=BB22_85 Depth=3
+	jmp	.LBB22_95
+.LBB22_95:                              ; %do.body463
+                                        ;   in Loop: Header=BB22_72 Depth=3
 	mov	&camel, r12
 	cmp	#1, r12
-	jne	.LBB22_110
-	jmp	.LBB22_109
-.LBB22_109:                             ; %if.then531
-                                        ;   in Loop: Header=BB22_85 Depth=3
-	mov	#camel+350, &safe
+	jne	.LBB22_97
+	jmp	.LBB22_96
+.LBB22_96:                              ; %if.then465
+                                        ;   in Loop: Header=BB22_72 Depth=3
+	mov	#camel+348, &safe
 	mov	#camel+2, &unsafe
 	mov	&safe, r12
 	call	#__dump_registers
@@ -2958,18 +2774,18 @@ main:                                   ; @main
 	mov	r12, &tmp_stack_crc
 	mov	&safe, r12
 	mov	&tmp_stack_crc, r14
-	mov	#346, r13
+	mov	#344, r13
 	call	#__fast_hw_crc
 	mov	r12, &tmp_stack_buf_crc
 	mov	&tmp_stack_buf_crc, r12
 	mov	&safe, r13
-	mov	r12, 346(r13)
+	mov	r12, 344(r13)
 	mov	#2, &camel
-	jmp	.LBB22_111
-.LBB22_110:                             ; %if.else544
-                                        ;   in Loop: Header=BB22_85 Depth=3
+	jmp	.LBB22_98
+.LBB22_97:                              ; %if.else478
+                                        ;   in Loop: Header=BB22_72 Depth=3
 	mov	#camel+2, &safe
-	mov	#camel+350, &unsafe
+	mov	#camel+348, &unsafe
 	mov	&safe, r12
 	call	#__dump_registers
 	;APP
@@ -2994,55 +2810,55 @@ main:                                   ; @main
 	mov	r12, &tmp_stack_crc
 	mov	&safe, r12
 	mov	&tmp_stack_crc, r14
-	mov	#346, r13
+	mov	#344, r13
 	call	#__fast_hw_crc
 	mov	r12, &tmp_stack_buf_crc
 	mov	&tmp_stack_buf_crc, r12
 	mov	&safe, r13
-	mov	r12, 346(r13)
+	mov	r12, 344(r13)
 	mov	#1, &camel
-	jmp	.LBB22_111
-.LBB22_111:                             ; %if.end557
-                                        ;   in Loop: Header=BB22_85 Depth=3
-	jmp	.LBB22_112
-.LBB22_112:                             ; %do.end559
-                                        ;   in Loop: Header=BB22_85 Depth=3
+	jmp	.LBB22_98
+.LBB22_98:                              ; %if.end491
+                                        ;   in Loop: Header=BB22_72 Depth=3
+	jmp	.LBB22_99
+.LBB22_99:                              ; %do.end493
+                                        ;   in Loop: Header=BB22_72 Depth=3
 	call	#task_commit
-	jmp	.LBB22_113
-.LBB22_113:                             ; %do.cond560
-                                        ;   in Loop: Header=BB22_85 Depth=3
+	jmp	.LBB22_100
+.LBB22_100:                             ; %do.cond494
+                                        ;   in Loop: Header=BB22_72 Depth=3
 	mov	&safe, r12
 	mov	172(r12), r12
 	inc	r12
 	cmp	#5, r12
-	jlo	.LBB22_114
-	br	#.LBB22_85
-.LBB22_114:                             ; %do.cond560
+	jlo	.LBB22_101
+	br	#.LBB22_72
+.LBB22_101:                             ; %do.cond494
                                         ;   in Loop: Header=BB22_7 Depth=2
-	jmp	.LBB22_115
-.LBB22_115:                             ; %do.end564
+	jmp	.LBB22_102
+.LBB22_102:                             ; %do.end498
                                         ;   in Loop: Header=BB22_7 Depth=2
-	jmp	.LBB22_116
-.LBB22_116:                             ; %if.end565
+	jmp	.LBB22_103
+.LBB22_103:                             ; %if.end499
                                         ;   in Loop: Header=BB22_7 Depth=2
 	mov	&safe, r12
-	mov	344(r12), r12
+	mov	342(r12), r12
 	tst	r12
-	jne	.LBB22_123
-	jmp	.LBB22_117
-.LBB22_117:                             ; %if.then569
+	jne	.LBB22_110
+	jmp	.LBB22_104
+.LBB22_104:                             ; %if.then503
                                         ;   in Loop: Header=BB22_7 Depth=2
 	call	#task_mult_block_get_result
-	jmp	.LBB22_118
-.LBB22_118:                             ; %do.body570
+	jmp	.LBB22_105
+.LBB22_105:                             ; %do.body504
                                         ;   in Loop: Header=BB22_7 Depth=2
 	mov	&camel, r12
 	cmp	#1, r12
-	jne	.LBB22_120
-	jmp	.LBB22_119
-.LBB22_119:                             ; %if.then572
+	jne	.LBB22_107
+	jmp	.LBB22_106
+.LBB22_106:                             ; %if.then506
                                         ;   in Loop: Header=BB22_7 Depth=2
-	mov	#camel+350, &safe
+	mov	#camel+348, &safe
 	mov	#camel+2, &unsafe
 	mov	&safe, r12
 	call	#__dump_registers
@@ -3068,18 +2884,18 @@ main:                                   ; @main
 	mov	r12, &tmp_stack_crc
 	mov	&safe, r12
 	mov	&tmp_stack_crc, r14
-	mov	#346, r13
+	mov	#344, r13
 	call	#__fast_hw_crc
 	mov	r12, &tmp_stack_buf_crc
 	mov	&tmp_stack_buf_crc, r12
 	mov	&safe, r13
-	mov	r12, 346(r13)
+	mov	r12, 344(r13)
 	mov	#2, &camel
-	jmp	.LBB22_121
-.LBB22_120:                             ; %if.else585
+	jmp	.LBB22_108
+.LBB22_107:                             ; %if.else519
                                         ;   in Loop: Header=BB22_7 Depth=2
 	mov	#camel+2, &safe
-	mov	#camel+350, &unsafe
+	mov	#camel+348, &unsafe
 	mov	&safe, r12
 	call	#__dump_registers
 	;APP
@@ -3104,41 +2920,41 @@ main:                                   ; @main
 	mov	r12, &tmp_stack_crc
 	mov	&safe, r12
 	mov	&tmp_stack_crc, r14
-	mov	#346, r13
+	mov	#344, r13
 	call	#__fast_hw_crc
 	mov	r12, &tmp_stack_buf_crc
 	mov	&tmp_stack_buf_crc, r12
 	mov	&safe, r13
-	mov	r12, 346(r13)
+	mov	r12, 344(r13)
 	mov	#1, &camel
-	jmp	.LBB22_121
-.LBB22_121:                             ; %if.end598
+	jmp	.LBB22_108
+.LBB22_108:                             ; %if.end532
                                         ;   in Loop: Header=BB22_7 Depth=2
-	jmp	.LBB22_122
-.LBB22_122:                             ; %do.end600
+	jmp	.LBB22_109
+.LBB22_109:                             ; %do.end534
                                         ;   in Loop: Header=BB22_7 Depth=2
 	call	#task_commit
-	jmp	.LBB22_131
-.LBB22_123:                             ; %if.else601
+	jmp	.LBB22_118
+.LBB22_110:                             ; %if.else535
                                         ;   in Loop: Header=BB22_7 Depth=2
 	mov	&safe, r12
-	mov	344(r12), r12
+	mov	342(r12), r12
 	cmp	#1, r12
-	jne	.LBB22_130
-	jmp	.LBB22_124
-.LBB22_124:                             ; %if.then605
+	jne	.LBB22_117
+	jmp	.LBB22_111
+.LBB22_111:                             ; %if.then539
                                         ;   in Loop: Header=BB22_7 Depth=2
 	call	#task_square_base_get_result
-	jmp	.LBB22_125
-.LBB22_125:                             ; %do.body606
+	jmp	.LBB22_112
+.LBB22_112:                             ; %do.body540
                                         ;   in Loop: Header=BB22_7 Depth=2
 	mov	&camel, r12
 	cmp	#1, r12
-	jne	.LBB22_127
-	jmp	.LBB22_126
-.LBB22_126:                             ; %if.then608
+	jne	.LBB22_114
+	jmp	.LBB22_113
+.LBB22_113:                             ; %if.then542
                                         ;   in Loop: Header=BB22_7 Depth=2
-	mov	#camel+350, &safe
+	mov	#camel+348, &safe
 	mov	#camel+2, &unsafe
 	mov	&safe, r12
 	call	#__dump_registers
@@ -3164,18 +2980,18 @@ main:                                   ; @main
 	mov	r12, &tmp_stack_crc
 	mov	&safe, r12
 	mov	&tmp_stack_crc, r14
-	mov	#346, r13
+	mov	#344, r13
 	call	#__fast_hw_crc
 	mov	r12, &tmp_stack_buf_crc
 	mov	&tmp_stack_buf_crc, r12
 	mov	&safe, r13
-	mov	r12, 346(r13)
+	mov	r12, 344(r13)
 	mov	#2, &camel
-	jmp	.LBB22_128
-.LBB22_127:                             ; %if.else621
+	jmp	.LBB22_115
+.LBB22_114:                             ; %if.else555
                                         ;   in Loop: Header=BB22_7 Depth=2
 	mov	#camel+2, &safe
-	mov	#camel+350, &unsafe
+	mov	#camel+348, &unsafe
 	mov	&safe, r12
 	call	#__dump_registers
 	;APP
@@ -3200,35 +3016,35 @@ main:                                   ; @main
 	mov	r12, &tmp_stack_crc
 	mov	&safe, r12
 	mov	&tmp_stack_crc, r14
-	mov	#346, r13
+	mov	#344, r13
 	call	#__fast_hw_crc
 	mov	r12, &tmp_stack_buf_crc
 	mov	&tmp_stack_buf_crc, r12
 	mov	&safe, r13
-	mov	r12, 346(r13)
+	mov	r12, 344(r13)
 	mov	#1, &camel
-	jmp	.LBB22_128
-.LBB22_128:                             ; %if.end634
+	jmp	.LBB22_115
+.LBB22_115:                             ; %if.end568
                                         ;   in Loop: Header=BB22_7 Depth=2
-	jmp	.LBB22_129
-.LBB22_129:                             ; %do.end636
+	jmp	.LBB22_116
+.LBB22_116:                             ; %do.end570
                                         ;   in Loop: Header=BB22_7 Depth=2
 	call	#task_commit
-	jmp	.LBB22_130
-.LBB22_130:                             ; %if.end637
+	jmp	.LBB22_117
+.LBB22_117:                             ; %if.end571
                                         ;   in Loop: Header=BB22_7 Depth=2
-	jmp	.LBB22_131
-.LBB22_131:                             ; %if.end638
+	jmp	.LBB22_118
+.LBB22_118:                             ; %if.end572
                                         ;   in Loop: Header=BB22_7 Depth=2
 	br	#.LBB22_7
-.LBB22_132:                             ; %while.end
+.LBB22_119:                             ; %while.end
                                         ;   in Loop: Header=BB22_1 Depth=1
 	br	#.LBB22_1
 .Lfunc_end22:
 	.size	main, .Lfunc_end22-main
                                         ; -- End function
 	.type	camel,@object           ; @camel
-	.comm	camel,698,2
+	.comm	camel,694,2
 	.type	safe,@object            ; @safe
 	.comm	safe,2,2
 	.type	unsafe,@object          ; @unsafe
