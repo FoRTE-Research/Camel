@@ -482,7 +482,8 @@ void task_mult()
 	c = 0;
 	for (i = 0; i < NUM_DIGITS; ++i) {
 		if (GV(digit) - i >= 0 && GV(digit) - i < NUM_DIGITS) {
-			a = GV(base)[GV(digit)-i];
+			int op = GV(digit)-i;
+			a = GV(base)[op];
 			b = GV(block)[i];
 			dp = a * b;
 
@@ -568,9 +569,11 @@ void task_reduce_normalizable()
 
 	for (i = GV(reduce); i >= 0; --i) {
 
-		if (GV(product)[i] > GV(modulus)[i-GV(offset)]) {
+		int op = i - GV(offset);
+
+		if (GV(product)[i] > GV(modulus)[op]) {
 			break;
-		} else if (GV(product)[i] < GV(modulus)[i-GV(offset)]) {
+		} else if (GV(product)[i] < GV(modulus)[op]) {
 			normalizable = false;
 			break;
 		}
@@ -614,7 +617,10 @@ void task_reduce_normalize()
 
 	borrow = 0;
 	for (i = 0; i < NUM_DIGITS; ++i) {
-		m = GV(product)[i + GV(offset)];
+
+		int op = i + GV(offset);
+
+		m = GV(product)[op];
 		n = GV(modulus)[i];
 
 		s = n + borrow;
@@ -626,7 +632,7 @@ void task_reduce_normalize()
 		}
 		d = m - s;
 
-		GV(product)[ i + GV(offset)] = d;
+		GV(product)[op] = d;
 	}
 
 	if (GV(offset) > 0) { 
@@ -656,7 +662,9 @@ void task_reduce_normalize()
 void task_reduce_n_divisor()
 {
 
-	GV(n_div) = ( GV(modulus)[NUM_DIGITS - 1] << DIGIT_BITS) + GV(modulus)[ NUM_DIGITS -2];
+	int op1 = NUM_DIGITS - 1;
+	int op2 = NUM_DIGITS -2;
+	GV(n_div) = ( GV(modulus)[op1] << DIGIT_BITS) + GV(modulus)[op2];
 
 	//TRANSITION_TO(task_reduce_quotient);
 }
@@ -680,13 +688,17 @@ void task_reduce_quotient()
 	digit_t m_n, q;
 	uint32_t qn, n_q; 
 
-	if (GV(product)[GV(reduce)] == GV(modulus)[NUM_DIGITS - 1]) {
+	int op1 = NUM_DIGITS - 1;
+	int op2 = GV(reduce)-1;
+	int op3 = GV(reduce) - 2;
+
+	if (GV(product)[GV(reduce)] == GV(modulus)[op1]) {
 		GV(quotient) = (1 << DIGIT_BITS) - 1;
 	} else {
-		GV(quotient) = ((GV(product)[GV(reduce)] << DIGIT_BITS) + GV(product)[GV(reduce)-1] / GV(modulus)[NUM_DIGITS - 1]);
+		GV(quotient) = ((GV(product)[GV(reduce)] << DIGIT_BITS) + GV(product)[op2] / GV(modulus)[op1]);
 	}
 
-	n_q = ((uint32_t)GV(product)[GV(reduce)] << (2 * DIGIT_BITS)) + (GV(product)[GV(reduce) - 1] << DIGIT_BITS) + GV(product)[GV(reduce) - 2];
+	n_q = ((uint32_t)GV(product)[GV(reduce)] << (2 * DIGIT_BITS)) + (GV(product)[op2] << DIGIT_BITS) + GV(product)[op3];
 
 	GV(quotient)++;
 	do {
@@ -731,7 +743,9 @@ void task_reduce_multiply()
 
 		m = c;
 		if (i < offset + NUM_DIGITS) {
-			n = GV(modulus)[i - GV(offset)];
+
+			int op = i - GV(offset);
+			n = GV(modulus)[op];
 
 			m += GV(quotient) * n;
 		} else {

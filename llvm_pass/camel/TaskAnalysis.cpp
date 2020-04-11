@@ -37,7 +37,7 @@ void TaskAnalysis::AnalyzeTask(Function &F){
         for (auto &I: B) {
 
             //check for load or store
-
+            //I.dump();
             if (LoadInst *load = dyn_cast<LoadInst>(&I)) {
 
                 traverseLoad(load);
@@ -72,6 +72,8 @@ void TaskAnalysis::traverseMemcpy(CallInst *call){
 
     if (name.contains("llvm.memcpy")) {
 
+       // errs() << "memcpy\n";
+
         Value *to = call->getOperand(0);
         Value *from = call->getOperand(1);
 
@@ -85,13 +87,25 @@ void TaskAnalysis::traverseMemcpy(CallInst *call){
             vector <Instruction*> inst;
             if (gep->getSourceElementType()->isArrayTy()){
 
-                Instruction *index = dyn_cast<Instruction>(gep->getOperand(2));
-                index = dyn_cast<Instruction>(index->getOperand(0));
+                Instruction *myLoad = dyn_cast<Instruction>(gep->getOperand(2));
+                Instruction *index = dyn_cast<Instruction>(myLoad->getOperand(0));
 
                 gep = dyn_cast<GEPOperator>(gep->getOperand(0));
 
                 inst.push_back(dyn_cast<Instruction>(gep));
                 inst.push_back(index);
+
+                if (AllocaInst *a = dyn_cast<AllocaInst>(index)){
+
+                    // added for AR
+                    if (isPartOfLoop(myLoad, a)){
+                        
+                        //errs () <<"loop\n";
+                        inst[1] = NULL;
+                    }
+
+                }                
+
             } else {
                 inst.push_back(dyn_cast<Instruction>(gep));
             }
@@ -130,8 +144,12 @@ void TaskAnalysis::traverseMemcpy(CallInst *call){
 
 void TaskAnalysis::traverseLoad(LoadInst *load){
 
+    //errs () << "LOAD \n";
+    //load->dump();
+
     if (GEPOperator *gep = dyn_cast<GEPOperator>(load->getOperand(0))){
 
+        //gep->dump();
         vector <Instruction*> inst;
         if (isGlobalStructAccess(gep, "unsafe")) {
 
@@ -147,13 +165,20 @@ void TaskAnalysis::traverseLoad(LoadInst *load){
             if (gep->getSourceElementType()->isArrayTy()) {
 
                 LoadInst *myLoad = dyn_cast<LoadInst>(gep->getOperand(2));
+
+                //gep->getOperand(2)->dump();
+
                 Instruction *index1 = dyn_cast<Instruction>(myLoad->getOperand(0));
                 Instruction *index = dyn_cast<Instruction>(gep->getOperand(0));
                 inst[0] = index;
                 inst.push_back(index1);
 
-                if (AllocaInst *a = dyn_cast<AllocaInst>(index1))
-                    isPartOfLoop(myLoad, a);
+                // if (AllocaInst *a = dyn_cast<AllocaInst>(index1))
+                //     isPartOfLoop(myLoad, a);
+
+            //errs() << "here\n";
+            //inst[0]->dump();
+            //inst[1]->dump();
 
             }
 
@@ -163,6 +188,8 @@ void TaskAnalysis::traverseLoad(LoadInst *load){
 }
 
 void TaskAnalysis::traverseStore(StoreInst *store){
+
+    //errs () << "STORE\n";
 
     if (GEPOperator *gep = dyn_cast<GEPOperator>(store->getOperand(1))){
         
@@ -180,6 +207,8 @@ void TaskAnalysis::traverseStore(StoreInst *store){
             inst.push_back(dyn_cast<Instruction>(gep));
             if (gep->getSourceElementType()->isArrayTy()) {
 
+                //errs() << "array\n";
+
                 LoadInst *myLoad = dyn_cast<LoadInst>(inst[0]->getOperand(2));
                 Instruction *index1 = dyn_cast<Instruction>(myLoad->getOperand(0));
                 Instruction *index = dyn_cast<Instruction>(inst[0]->getOperand(0));
@@ -188,9 +217,11 @@ void TaskAnalysis::traverseStore(StoreInst *store){
 
                 if (AllocaInst *a = dyn_cast<AllocaInst>(index1)){
 
-                    isPartOfLoop(myLoad, a);
                     // added for AR
-                    inst[1] = NULL;
+                    if (isPartOfLoop(myLoad, a)){
+                        
+                        inst[1] = NULL;
+                    }
 
                 }
             }

@@ -261,12 +261,11 @@ static fingerprint_t hash_to_fingerprint(value_t key)
     #error type of system not defined
 #endif
 #define writes_task_init() cpa(filter, sizeof(fingerprint_t)*NUM_BUCKETS); cps(insert_count); cps(lookup_count); cps(inserted_count); cps(member_count); cps(key) // everything written needs to go here
-void __attribute__((noinline)) task_init()
+void task_init()
 {
     unsigned i;
     for (i = 0; i < NUM_BUCKETS ; ++i) {
-        GV(filter)[i] = i;
-        //GV(filter, i) = 0;
+        GV(filter)[i] = 0;
     }
     GV(insert_count) = 0;
     GV(lookup_count) = 0;
@@ -291,7 +290,7 @@ void __attribute__((noinline)) task_init()
     #error type of system not defined
 #endif
 #define writes_task_generate_key() cps(key) // everything written needs to go here
-void __attribute__((noinline)) task_generate_key()
+void task_generate_key()
 {
 
     GV(key) = (GV(key) + 1) * 17;
@@ -313,7 +312,7 @@ void __attribute__((noinline)) task_generate_key()
     #error type of system not defined
 #endif
 #define writes_task_calc_indexes() cps(fingerprint) // everything written needs to go here
-void __attribute__((noinline)) task_calc_indexes()
+void task_calc_indexes()
 {
     GV(fingerprint) = hash_to_fingerprint(GV(key));
 }
@@ -334,7 +333,7 @@ void __attribute__((noinline)) task_calc_indexes()
     #error type of system not defined
 #endif
 #define writes_task_calc_indexes_index_1() cps(index1) // everything written needs to go here
-void __attribute__((noinline)) task_calc_indexes_index_1()
+void task_calc_indexes_index_1()
 {
     GV(index1) = hash_to_index(GV(key));
 }
@@ -377,7 +376,7 @@ void __attribute__((noinline)) task_calc_indexes_index_2()
     #error type of system not defined
 #endif
 #define writes_task_add() cps(success); cpas(filter, index1); cpas(filter, index2); cps(index1); cps(relocation_count) // everything written needs to go here
-void __attribute__((noinline)) task_add()
+void task_add()
 {
     if (!GV(filter)[GV(index1)]) {
         GV(success) = true;
@@ -422,7 +421,7 @@ void __attribute__((noinline)) task_add()
     #error type of system not defined
 #endif
 #define writes_task_relocate() cps(success); cps(relocation_count); cps(index1); cps(fingerprint); //cpaso(filter,writeOpt)  // cpa(filter, sizeof(fingerprint_t)*NUM_BUCKETS); opt below; everything written needs to go here
-void __attribute__((noinline)) task_relocate()
+void task_relocate()
 {
     fingerprint_t fp_victim = GV(fingerprint);
     index_t fp_hash_victim = hash_to_index(fp_victim);
@@ -464,7 +463,7 @@ void __attribute__((noinline)) task_relocate()
     #error type of system not defined
 #endif
 #define writes_task_insert_done() cps(insert_count); cps(inserted_count); cps(key)  // everything written needs to go here
-void __attribute__((noinline)) task_insert_done()
+void task_insert_done()
 {
     ++GV(insert_count);
     GV(inserted_count) += GV(success);
@@ -491,7 +490,7 @@ void __attribute__((noinline)) task_insert_done()
     #error type of system not defined
 #endif
 #define writes_task_lookup_search() cps(member)  // everything written needs to go here
-void __attribute__((noinline)) task_lookup_search()
+void task_lookup_search()
 {
     if (GV(filter)[GV(index1)] == GV(fingerprint)) {
         GV(member) = true;
@@ -524,7 +523,7 @@ void __attribute__((noinline)) task_lookup_search()
     #error type of system not defined
 #endif
 #define writes_task_lookup_done() cps(lookup_count); cps(member_count)  // everything written needs to go here
-void __attribute__((noinline)) task_lookup_done()
+void task_lookup_done()
 {
     ++GV(lookup_count);
 
@@ -535,36 +534,14 @@ void __attribute__((noinline)) task_lookup_done()
     }
 }
 
-void __attribute__((noinline)) task_done()
+void task_done()
 {
-
-	//GV(crc) = __fast_hw_crc(safe, sizeof(camel_buffer_t) - 2, CRC_INIT);
     exit(0);
 }
 
-void __attribute__((noinline)) task_commit() {
+void task_commit() {
                                              
-    // do{                                                                                                     
-    //     _Pragma("GCC diagnostic ignored \"-Wint-conversion\"")                                                
-    //                         if(camel.flag == CKPT_1_FLG){																																					
-    //                             safe = &(camel.buf2);																																								
-    //                             unsafe = &(camel.buf1);																																							
-    //                             __dump_registers(safe->reg_file);																																		
-    //                             tmp_stack_crc 		= __fast_hw_crc(_get_SP_register()+2, SRAM_TOP-(_get_SP_register()+2), CRC_INIT);	
-    //                             tmp_stack_buf_crc = __fast_hw_crc(safe, sizeof(camel_buffer_t) - 2, tmp_stack_crc);									
-    //                             safe->stack_and_buf_crc = tmp_stack_buf_crc;																												
-    //                             camel.flag = CKPT_2_FLG;																																						
-    //                         } else{																																																
-    //                             safe = &(camel.buf1);																																								
-    //                             unsafe = &(camel.buf2);																																							
-    //                             __dump_registers(safe->reg_file);																																		
-    //                             tmp_stack_crc 		= __fast_hw_crc(_get_SP_register()+2, SRAM_TOP-(_get_SP_register()+2), CRC_INIT);	
-    //                             tmp_stack_buf_crc = __fast_hw_crc(safe, sizeof(camel_buffer_t) - 2, tmp_stack_crc);									
-    //                             safe->stack_and_buf_crc = tmp_stack_buf_crc;																												
-    //                             camel.flag = CKPT_1_FLG;																																						
-    //                         }																																																			
-    //     _Pragma("GCC diagnostic warning \"-Wint-conversion\"")                                                
-    // }while(0);																																												
+																																											
 }
 
 int writeOpt = 0;
@@ -576,99 +553,81 @@ int main(){
     unsafe = &(camel.buf2);
     camel_init();
 
-    // llvm testing start
-    //cps(key);
-    //cpas(filter, key);
-    //cpa(filter, sizeof(fingerprint_t)*NUM_BUCKETS);
-    //cpaso(filter,writeOpt);
-    // llvm testing end
-
     //prepare_task_init();
-    //memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t));
     task_init();
-    //commit();
-    //task_commit();
-    //memcpy(&(safe->globals), &(unsafe->globals), sizeof(camel_global_t)); // concise version of writes_task_init()
-    // The buffers are equal
+    commit();
+    //memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t));
+    task_commit();
 
-  while(MGV(lookup_count) < NUM_LOOKUPS) {
+  while(GV(lookup_count) < NUM_LOOKUPS) {
         //prepare_task_generate_key();
-        //memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t));
         //writes_task_generate_key();
         task_generate_key();
-        //commit();
+        commit();
         //writes_task_generate_key();
-        //task_commit();
+        task_commit();
 
         //prepare_task_calc_indexes();
-        //memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t));
         //writes_task_calc_indexes();
         task_calc_indexes();
-        //commit();
+        commit();
         //writes_task_calc_indexes();
-        //task_commit();
+        task_commit();
 
         //prepare_task_calc_indexes_index_1();
-        //memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t));
         //writes_task_calc_indexes_index_1();
         task_calc_indexes_index_1();
-        //commit();
+        commit();
         //writes_task_calc_indexes_index_1();
-        //task_commit();
+        task_commit();
 
         //prepare_task_calc_indexes_index_2();
-        //memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t));
         //writes_task_calc_indexes_index_2();
         task_calc_indexes_index_2();
-        //commit();
+        commit();
         //writes_task_calc_indexes_index_2();
-        //task_commit();
+        task_commit();
 
-        if(MGV(insert_count) < NUM_INSERTS) {
+        if(GV(insert_count) < NUM_INSERTS) {
             //prepare_task_add();
-            //memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t));
             //writes_task_add();
             task_add();
-            //commit();
+            commit();
             //writes_task_add();
-            //task_commit();
+            task_commit();
             
-            if(MGV(filter)[MGV(index1)] && MGV(filter)[MGV(index2)]) {
-                while(MGV(success) == false && (MGV(relocation_count) < MAX_RELOCATIONS)) {
+            if(GV(filter)[GV(index1)] && GV(filter)[GV(index2)]) {
+                while(GV(success) == false && (GV(relocation_count) < MAX_RELOCATIONS)) {
                     //prepare_task_relocate();
-                    //memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t));
                     //writes_task_relocate();
                     task_relocate();
-                    //commit();
+                    commit();
                     //writes_task_relocate();
-                    //task_commit();
+                    task_commit();
                 }
             }
 
             //prepare_task_insert_done();
-            //memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t));
             //writes_task_insert_done();
             task_insert_done();
-            //commit();
+            commit();
             //writes_task_insert_done();
-            //task_commit();
+            task_commit();
             
         } else {
             //prepare_task_lookup_search();
-            //memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t));
             //writes_task_lookup_search();
             task_lookup_search();
-            //commit();
+            commit();
             //writes_task_lookup_search();
             task_commit();
 
             //prepare_task_lookup_done();
-            //memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t));
             //writes_task_lookup_done();
             task_lookup_done();
-            //commit();
+            commit();
             //writes_task_lookup_done();
-            //task_commit();
+            task_commit();
         }
     }
     

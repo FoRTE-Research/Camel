@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <math.h>
 
 #include "../checkpoint/camel_ckpt_defines.h"
 
@@ -364,7 +365,7 @@ void task_resetStats()
 #elif READS
     #define prepare_task_sample() cps(samplesInWindow); cps(seed)
 #elif WRITES
-	#define prepare_task_sample() cps(seed); cpas_s(window, samplesInWindow); cps(samplesInWindow)
+	#define prepare_task_sample() cps(seed); cpa(window, sizeof(accelReading)*ACCEL_WINDOW_SIZE); cps(samplesInWindow)
 #elif IDEM
     #define prepare_task_sample() cps(seed); cps(samplesInWindow)
 #elif NONE
@@ -372,20 +373,33 @@ void task_resetStats()
 #else
     #error type of system not defined
 #endif
-#define writes_task_sample() cps(seed); cpas_s(window, samplesInWindow); cps(samplesInWindow)
+#define writes_task_sample() cps(seed); cpa(window, sizeof(accelReading)*ACCEL_WINDOW_SIZE); cps(samplesInWindow)
 
 void task_sample()
 {
-	while (GV(samplesInWindow) < ACCEL_WINDOW_SIZE){
+
+	for(int i = GV(samplesInWindow); i< ACCEL_WINDOW_SIZE; i++) {
 
 		accelReading sample;
 		GV(seed) = ACCEL_singleSample_(&sample, GV(seed));
-		GV(window)[GV(samplesInWindow)] = sample;
+		GV(window)[i] = sample;
 		++GV(samplesInWindow);
 
 	}
 
 	GV(samplesInWindow) = 0;
+
+
+	// while (GV(samplesInWindow) < ACCEL_WINDOW_SIZE){
+
+	// 	accelReading sample;
+	// 	GV(seed) = ACCEL_singleSample_(&sample, GV(seed));
+	// 	GV(window)[GV(samplesInWindow)] = sample;
+	// 	++GV(samplesInWindow);
+
+	// }
+
+	// GV(samplesInWindow) = 0;
 	//TRANSITION_TO(task_transform);
 
 	// accelReading sample;
@@ -488,8 +502,8 @@ void task_featurize()
 
 	unsigned meanmag = mean.x*mean.x + mean.y*mean.y + mean.z*mean.z;
 	unsigned stddevmag = stddev.x*stddev.x + stddev.y*stddev.y + stddev.z*stddev.z;
-	features.meanmag   = sqrt16(meanmag);
-	features.stddevmag = sqrt16(stddevmag);
+	features.meanmag   = sqrt(meanmag);
+	features.stddevmag = sqrt(stddevmag);
 
 	switch (GV(mode)) {
 		case MODE_TRAIN_STATIONARY:
@@ -717,10 +731,10 @@ int main() {
 
 	task_init();
 	//commit();
-	//memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t))
+	//memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t));
 	//task_commit();
 
-	while (MGV(count) < 7) {
+	while (1) {
 
 		//prepare_task_selectMode();
 		task_selectMode();
@@ -728,7 +742,7 @@ int main() {
 		//writes_task_selectMode();
 		//task_commit();
 
-		if (MGV(mode) == 2 || MGV(mode) == 1){
+		if (GV(mode) == 2 || GV(mode) == 1){
 
 			//prepare_task_warmup();
 			task_warmup();
@@ -736,7 +750,7 @@ int main() {
 			//writes_task_warmup();
 			//task_commit();
 
-		} else if (MGV(mode) == 0) {
+		} else if (GV(mode) == 0) {
 
 			//prepare_task_resetStats();
 			task_resetStats();
@@ -744,10 +758,7 @@ int main() {
 			//writes_task_resetStats();
 			//task_commit();
 
-		} else {
-
-			break;
-		}
+		} 
 
 		while (1) {
 
@@ -769,7 +780,7 @@ int main() {
 			//writes_task_featurize();
 			//task_commit();
 
-			if (MGV(mode) == 2 || MGV(mode) == 1){
+			if (GV(mode) == 2 || GV(mode) == 1){
 
 				//prepare_task_train();
 				task_train();
@@ -780,7 +791,7 @@ int main() {
 				if (GV(trainingSetSize) >= MODEL_SIZE)
 					break;
 
-			} else if (MGV(mode) == 0) {
+			} else if (GV(mode) == 0) {
 
 				//prepare_task_classify();
 				task_classify();
