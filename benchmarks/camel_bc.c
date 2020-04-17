@@ -7,7 +7,6 @@
 
 #include "../checkpoint/camel_ckpt_defines.h"
 
-
 #define SEED 4L
 #define ITER 100
 #define CHAR_BIT 8
@@ -22,11 +21,19 @@ uint16_t tmp_stack_crc;
 uint16_t tmp_stack_buf_crc;
 
 // Macros for calling tasks
+
+// #define TASK(func) func()														  //For uninstrumented
 // #define TASK(func) prepare_func(); func(); commit(); writes_func(); task_commit() //For modes READS, WRITES, IDEM
 // #define TASK(func) prepare_func(); func(); commit(); task_commit()                //For mode ALL
-#define TASK(func) func()														  //For uninstrumented
-// #define TASK(func) func(); commit(); task_commit()                                //For Compiler
+#define TASK(func) func(); commit(); task_commit()                                //For Compiler
 // #define TASK(func) func(); task_commit()                                          //For Awien
+
+// Macros for calling task_init
+
+// #define TASK_INIT(func) func()														//For uninstrumented
+// #define TASK_INIT(func) func(); memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t)); commit(); task_commit() //For Modes ALL, READS, WRITES and IDEM
+#define TASK_INIT(func) func(); commit(); task_commit() 							//For Compiler
+// #define TASK_INIT(func) func(); task_commit()										//for Awien
 
 // Macros and macro redefinitions!
 #define GV(x) unsafe->globals.x
@@ -422,57 +429,57 @@ void task_commit() {
 
 int main() {
 
+	//Camel Initialization
     camel.flag = CKPT_1_FLG;
     safe = &(camel.buf1);
     unsafe = &(camel.buf2);
     camel_init();
 
-	task_init();
-	memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t));
-	commit();
-	task_commit();
+	//Benchmark Initialization
+	TASK_INIT(task_init);
 
+	//Tasks
 	while (1) {
 
 		TASK(task_select_func);
 
-		if (GV(func) == 0) {
+		if (GV(func) == 1) {
 
 			while (GV(iter) < ITER) {
 				TASK(task_bitcount);
 			}
 
-		} else if (GV(func) == 1) {
+		} else if (GV(func) == 2) {
 
 			while (GV(iter) < ITER) {
 				TASK(task_bit_count);
 			}
 
-		} else if (GV(func) == 2) {
+		} else if (GV(func) == 3) {
 
 			while (GV(iter) < ITER) {
 				TASK(task_ntbl_bitcnt);
 			}
 
-		} else if (GV(func) == 3) {
+		} else if (GV(func) == 4) {
 
 			while (GV(iter) < ITER) {
 				TASK(task_ntbl_bitcount);
 			}
 			
-		} else if (GV(func) == 4) {
+		} else if (GV(func) == 5) {
 			
 			while (GV(iter) < ITER) {
 				TASK(task_BW_btbl_bitcount);
 			}
 
-		} else if (GV(func) == 5) {
+		} else if (GV(func) == 6) {
 
 			while (GV(iter) < ITER) {
 				TASK(task_AR_btbl_bitcount);
 			}
 			
-		} else if (GV(func) == 6) {
+		} else if (GV(func) == 7) {
 			
 			while (GV(iter) < ITER) {
 				TASK(task_bit_shifter);
@@ -485,6 +492,7 @@ int main() {
 		}
 	}
 
+	//Benchmark end
 	task_done();
 }
 

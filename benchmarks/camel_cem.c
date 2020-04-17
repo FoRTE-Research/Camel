@@ -4,18 +4,48 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "../checkpoint/camel_ckpt_defines.h"
 
+//Original size of buffer 3492
+////////////////////////////////////////////////////////////////////
+// #define NIL 0 // like NULL, but for indexes, not real pointers
+
+// #define DICT_SIZE         512
+// #define BLOCK_SIZE         64
+
+// #define NUM_LETTERS_IN_SAMPLE        2
+// #define LETTER_MASK             0x00FF
+// #define LETTER_SIZE_BITS             8
+// #define NUM_LETTERS (LETTER_MASK + 1)
+////////////////////////////////////////////////////////////////////
+
+// v1 size of buffer 1708
+////////////////////////////////////////////////////////////////////
+// #define NIL 0 // like NULL, but for indexes, not real pointers
+
+// #define DICT_SIZE         256
+// #define BLOCK_SIZE         32
+
+// #define NUM_LETTERS_IN_SAMPLE        2
+// #define LETTER_MASK             	0x007F
+// #define LETTER_SIZE_BITS             8
+// #define NUM_LETTERS (LETTER_MASK + 1)
+////////////////////////////////////////////////////////////////////
+
+// v2 size of buffer 908
+//////////////////////////////////////////////////////////////////////
 #define NIL 0 // like NULL, but for indexes, not real pointers
 
-#define DICT_SIZE         512
-#define BLOCK_SIZE         64
+#define DICT_SIZE         128
+#define BLOCK_SIZE         16
 
 #define NUM_LETTERS_IN_SAMPLE        2
-#define LETTER_MASK             0x00FF
+#define LETTER_MASK             	0x3F
 #define LETTER_SIZE_BITS             8
 #define NUM_LETTERS (LETTER_MASK + 1)
+//////////////////////////////////////////////////////////////////////
 
 typedef unsigned index_t;
 typedef unsigned letter_t;
@@ -132,12 +162,8 @@ typedef struct camel_global_t
 	node_t sibling_node;
 	index_t symbol;
 
-	//indexes to aid writing to array
-	unsigned write1;
-	unsigned write2;
-
 	//global for checking which branch to take
-	int check;
+	unsigned check;
 } camel_global_t;
 // End globals
 
@@ -246,7 +272,7 @@ void task_init()
 	GV(out_len) = 0;
 	GV(letter) = 0;
 	GV(prev_sample) = 0;
-	GV(letter_idx) = 0;;
+	GV(letter_idx) = 0;
 	GV(sample_count) = 1;
 
 	while (GV(letter) < NUM_LETTERS) {
@@ -479,9 +505,9 @@ void task_add_node()
 #if ALL
     #define prepare_task_add_insert() memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t))
 #elif READS
-    #define prepare_task_add_insert() cps(node_count); cps(letter); cps_s(parent_node); cps(parent); cps(write1); cps(sibling); cps_s(sibling_node); cps(write2); cps(child)
+    #define prepare_task_add_insert() cps(node_count); cps(letter); cps_s(parent_node); cps(parent); cps(sibling); cps_s(sibling_node); cps(child)
 #elif WRITES
-	#define  prepare_task_add_insert() cps(write1); cps(write2); cpas_s(dict, write1); cpas_s(dict, write2); cpas_s(dict, child); cps(symbol); cps(node_count)
+	#define  prepare_task_add_insert() cpas_s(dict, parent); cpas_s(dict, sibling); cpas_s(dict, child); cps(symbol); cps(node_count)
 #elif IDEM
     #define prepare_task_add_insert() cps(node_count)
 #elif NONE
@@ -495,6 +521,7 @@ void task_add_insert()
 {
 
 	if (GV(node_count) == DICT_SIZE) { // wipe the table if full
+		task_done();
 		while (1);
 	}
 
@@ -514,18 +541,18 @@ void task_add_insert()
 		parent_node_obj.child = child;
 		//int i = GV(parent);
 		//opt
-		GV(write1) = GV(parent);
-		GV(dict)[GV(write1)] = parent_node_obj;
+		//GV(write1) = GV(parent);
+		GV(dict)[GV(parent)] = parent_node_obj;
 
 	} else { // a sibling
 
 		//index_t last_sibling = GV(sibling);
-		GV(write2) = GV(sibling);
+		//GV(write2) = GV(sibling);
 		node_t last_sibling_node = GV(sibling_node);                   
 
 		last_sibling_node.sibling = child;
 		//GV(dict)[last_sibling] = last_sibling_node;
-		GV(dict)[GV(write2)] = last_sibling_node;
+		GV(dict)[GV(sibling)] = last_sibling_node;
 	}
 	GV(dict)[GV(child)] = child_node;
 	GV(symbol) = GV(parent);
@@ -537,7 +564,7 @@ void task_add_insert()
 #if ALL
     #define prepare_task_append_compressed() memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t))
 #elif READS
-    #define prepare_task_append_compressed() cps(out_len); cpa(compressed_data, sizeof(node_t) * BLOCK_SIZE); cps(symbol); cps(write1)
+    #define prepare_task_append_compressed() cps(out_len); cps(symbol)
 #elif WRITES
 	#define  prepare_task_append_compressed() cps(write1); cpas_s(compressed_data, write1); cps(out_len)
 #elif IDEM
@@ -553,7 +580,7 @@ void task_append_compressed()
 {
 	//int i = GV(out_len);
 	//opt
-	GV(write1) = GV(out_len);
+	//GV(write1) = GV(out_len);
 
 	//can change here
 	//GV(compressed_data)[i].letter = GV(symbol);
@@ -565,17 +592,19 @@ void task_append_compressed()
 	// 	.child = GV(compressed_data)[GV(write1)].child,
 	// };
 
-	node_t copy;
-	copy = GV(compressed_data)[GV(write1)];
-	copy.letter = GV(symbol);
+	// node_t copy;
+	// copy = GV(compressed_data)[GV(out_len)];
+	// copy.letter = GV(symbol);
 
-	GV(compressed_data)[GV(write1)] = copy;
+	GV(compressed_data)[GV(out_len)].letter = GV(symbol);
 
-	if (++GV(out_len) == BLOCK_SIZE) {
-		//TRANSITION_TO(task_done);
-	} else {
-		//TRANSITION_TO(task_sample);
-	}
+	++GV(out_len);
+
+	// if (++GV(out_len) == BLOCK_SIZE) {
+	// 	//TRANSITION_TO(task_done);
+	// } else {
+	// 	//TRANSITION_TO(task_sample);
+	// }
 }
 
 void task_done()
@@ -595,24 +624,25 @@ int main(){
     camel_init();
 
 	task_init();
-	//commit();
-	//task_commit();
+	commit();
+	//memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t));
+	task_commit();
 
-	while(MGV(out_len) < BLOCK_SIZE) {
+	while(GV(out_len) < BLOCK_SIZE) {
 
 		//prepare_task_sample();
 		task_sample();
-		//commit();
+		commit();
 		//writes_task_sample();
-		//task_commit();
+		task_commit();
 
-		if (MGV(check) == 0){
+		if (GV(check) == 0){
 
 			//prepare_task_measure_temp();
 			task_measure_temp();
-			//commit();
+			commit();
 			//writes_task_measure_temp();
-			//task_commit();
+			task_commit();
 
 		}
 
@@ -620,53 +650,53 @@ int main(){
 
 			//prepare_task_letterize();
 			task_letterize();
-			//commit();
+			commit();
 			//writes_task_letterize();
-			//task_commit();
+			task_commit();
 
 			//prepare_task_compress();
 			task_compress();
-			//commit();
+			commit();
 			//writes_task_compress();
-			//task_commit();
+			task_commit();
 
-			while (MGV(check) == 1) {
+			do {
 
 				//prepare_task_find_sibling();
 				task_find_sibling();
-				//commit();
+				commit();
 				//writes_task_find_sibling();
-				//task_commit();
+				task_commit();
 
-			}
+			} while (GV(check) == 1);
 
-			if (MGV(check) != 0)
+			if (GV(check) != 0)
 				break;
 		}
 
-		if (MGV(check) == 3) {
+		if (GV(check) == 3) {
 			do{
 
 				//prepare_task_add_node();
 				task_add_node();
-				//commit();
+				commit();
 				//writes_task_add_node();
-				//task_commit();
+				task_commit();
 
-			} while (MGV(check) == 0);
+			} while (GV(check) == 0);
 		}
 
 		//prepare_task_add_insert();
 		task_add_insert();
-		//commit();
+		commit();
 		//writes_task_add_insert();
-		//task_commit();
+		task_commit();
 
 		//prepare_task_append_compressed();
 		task_append_compressed();
-		//commit();
+		commit();
 		//writes_task_append_compressed();
-		//task_commit();
+		task_commit();
 
 	}
 

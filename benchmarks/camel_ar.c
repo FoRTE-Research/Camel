@@ -508,9 +508,9 @@ void task_featurize()
 	switch (GV(mode)) {
 		case MODE_TRAIN_STATIONARY:
 		case MODE_TRAIN_MOVING:
-			//GV(features) = features;
+			GV(features) = features;
 			//TRANSITION_TO(task_train);
-			//break;
+			break;
 		case MODE_RECOGNIZE:
 			GV(features) = features;
 			//TRANSITION_TO(task_classify);
@@ -704,12 +704,12 @@ void task_train()
 
 	++GV(trainingSetSize);
 
-	if (GV(trainingSetSize) < MODEL_SIZE) {
-		//TRANSITION_TO(task_sample);
-	} else {
+	// if (GV(trainingSetSize) < MODEL_SIZE) {
+	// 	//TRANSITION_TO(task_sample);
+	// } else {
 
-		//TRANSITION_TO(task_idle);
-	}
+	// 	//TRANSITION_TO(task_idle);
+	// }
 }
 
 void task_done() {
@@ -811,7 +811,7 @@ int main() {
 			}
 		}
 
-		//task_idle(); //this is where task idle is called
+		//task_idle(); //this is where task_idle is called
 	}
 
 	task_done();

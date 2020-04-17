@@ -5,6 +5,7 @@
 
 #include "../checkpoint/camel_ckpt_defines.h"
 
+#define SIZE             8
 #define KEY_SIZE_BITS    32
 #define DIGIT_BITS       8 // arithmetic ops take 8-bit args produce 16-bit result
 #define DIGIT_MASK       0x00ff
@@ -134,13 +135,13 @@ uint16_t tmp_stack_buf_crc;
 // Globals
 typedef struct camel_global_t
 {
-	digit_t product[32];
+	digit_t product[SIZE];
 	digit_t exponent;
 	digit_t exponent_next;
 	unsigned block_offset;
 	unsigned message_length;
 	unsigned cyphertext_len;
-	digit_t base[32];
+	digit_t base[SIZE];
 	digit_t modulus[NUM_DIGITS];
 	digit_t digit;
 	digit_t carry;
@@ -148,8 +149,8 @@ typedef struct camel_global_t
 	digit_t cyphertext[CYPHERTEXT_SIZE];
 	unsigned offset;
 	digit_t n_div;
-	digit_t product2[32];
-	digit_t block[32];
+	digit_t product2[SIZE];
+	digit_t block[SIZE];
 	unsigned quotient;
 
 	// conditional global
@@ -277,7 +278,7 @@ void task_init()
 #elif READS
     #define prepare_task_pad() cps(block_offset); cps(message_length)
 #elif WRITES
-	#define prepare_task_pad() cpa(base, sizeof(digit_t)*32); cps(exponent); cps(block_offset); cps(check)
+	#define prepare_task_pad() cpa(base, sizeof(digit_t)*SIZE); cps(exponent); cps(block_offset); cps(check)
 #elif IDEM
     #define prepare_task_pad() cps(block_offset)
 #elif NONE
@@ -285,7 +286,7 @@ void task_init()
 #else
     #error type of system not defined
 #endif
-#define writes_task_pad() cpa(base, size0f(digit_t)*32); cps(exponent); cps(block_offset); cps(check)
+#define writes_task_pad() cpa(base, size0f(digit_t)*SIZE); cps(exponent); cps(block_offset); cps(check)
 void task_pad()
 {
 	int i;
@@ -353,12 +354,14 @@ void task_mult_block()
 	//TRANSITION_TO(task_mult_mod);
 }
 
+
+//EDIT
 #if ALL
     #define prepare_task_mult_block_get_result() memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t))
 #elif READS
-    #define prepare_task_mult_block_get_result() cpa(product, sizeof(digit_t) * 32); cps(exponent); cps(cyphertext_len)
+    #define prepare_task_mult_block_get_result() cpa(product, sizeof(digit_t) * SIZE); cps(exponent); cps(cyphertext_len)
 #elif WRITES
-	#define prepare_task_mult_block_get_result() cpa(block, sizeof(digit_t) * 32); cps(check); cps(check_final); cpa(cyphertext, sizeof(digit_t) *CYPHERTEXT_SIZE); cps(cyphertext_len)
+	#define prepare_task_mult_block_get_result() cpa(block, sizeof(digit_t) * SIZE); cps(check); cps(check_final); cpa(cyphertext, sizeof(digit_t) *CYPHERTEXT_SIZE); cps(cyphertext_len)
 #elif IDEM
     #define prepare_task_mult_block_get_result() cps(cyphertext_len)
 #elif NONE
@@ -366,7 +369,7 @@ void task_mult_block()
 #else
     #error type of system not defined
 #endif
-#define writes_task_mult_block_get_result() cpa(block, sizeof(digit_t) * 32); cps(check); cps(check_final); cpa(cyphertext, sizeof(digit_t) *CYPHERTEXT_SIZE); cps(cyphertext_len)
+#define writes_task_mult_block_get_result() cpa(block, sizeof(digit_t) * SIZE); cps(check); cps(check_final); cpa(cyphertext, sizeof(digit_t) *CYPHERTEXT_SIZE); cps(cyphertext_len)
 void task_mult_block_get_result()
 {
 	int i;
@@ -380,6 +383,7 @@ void task_mult_block_get_result()
 
 		GV(check) = 100;
 		GV(check_final) = 1;
+		return;
 		//TRANSITION_TO(task_square_base);
 
 	} else { // block is finished, save it
@@ -388,8 +392,10 @@ void task_mult_block_get_result()
 
 			for (i = 0; i < NUM_DIGITS; ++i) { // reverse for printing
 
-				GV(cyphertext)[GV(cyphertext_len)] = GV(product)[i];
+				int op = GV(cyphertext_len); 
+				GV(cyphertext)[op] = GV(product)[i];
 				++GV(cyphertext_len);
+
 			}
 
 		} 
@@ -411,9 +417,9 @@ void task_square_base()
 #if ALL
     #define prepare_task_square_base_get_result() memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t))
 #elif READS
-    #define prepare_task_square_base_get_result() cpa(product, sizeof(digit_t) * 32)
+    #define prepare_task_square_base_get_result() cpa(product, sizeof(digit_t) * SIZE)
 #elif WRITES
-	#define prepare_task_square_base_get_result() cpa(base, sizeof(digit_t) * 32); cps(check)
+	#define prepare_task_square_base_get_result() cpa(base, sizeof(digit_t) * SIZE); cps(check)
 #elif IDEM
     #define prepare_task_square_base_get_result() 
 #elif NONE
@@ -421,7 +427,7 @@ void task_square_base()
 #else
     #error type of system not defined
 #endif
-#define writes_task_square_base_get_result() cpa(base, sizeof(digit_t) * 32); cps(check)
+#define writes_task_square_base_get_result() cpa(base, sizeof(digit_t) * SIZE); cps(check)
 void task_square_base_get_result()
 {
 	int i;
@@ -461,7 +467,7 @@ void task_mult_mod()
 #if ALL
     #define prepare_task_mult() memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t))
 #elif READS
-    #define prepare_task_mult() cps(carry); cps(digit); cpa(base, sizeof(digit_t)*32);  cpa(block, sizeof(digit_t)*32); 
+    #define prepare_task_mult() cps(carry); cps(digit); cpa(base, sizeof(digit_t)*SIZE);  cpa(block, sizeof(digit_t)*SIZE); 
 #elif WRITES
 	#define prepare_task_mult() cpas(product, digit); cps(digit); cps(carry); cps(check)
 #elif IDEM
@@ -513,7 +519,7 @@ void task_mult()
 #if ALL
     #define prepare_task_reduce_digits() memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t))
 #elif READS
-    #define prepare_task_reduce_digits() cpa(product, sizeof(digit_t)*32)
+    #define prepare_task_reduce_digits() cpa(product, sizeof(digit_t)*SIZE)
 #elif WRITES
 	#define prepare_task_reduce_digits() cps(check); cps(reduce)
 #elif IDEM
@@ -548,7 +554,7 @@ void task_reduce_digits()
 #if ALL
     #define prepare_task_reduce_normalizable() memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t))
 #elif READS
-    #define prepare_task_reduce_normalizable() cps(reduce); cpa(product, sizeof(digit_t)*32); cps(offset); cpa(modulus, sizeof(digit_t)*NUM_DIGITS)
+    #define prepare_task_reduce_normalizable() cps(reduce); cpa(product, sizeof(digit_t)*SIZE); cps(offset); cpa(modulus, sizeof(digit_t)*NUM_DIGITS)
 #elif WRITES
 	#define prepare_task_reduce_normalizable() cps(offset); cps(check)
 #elif IDEM
@@ -582,6 +588,7 @@ void task_reduce_normalizable()
 	if (!normalizable && GV(reduce) == NUM_DIGITS - 1) {
 
 		GV(check) = 2;
+		return;
 		//transition_to(GV(next_task));
 	}
 
@@ -594,20 +601,21 @@ void task_reduce_normalizable()
 	}
 }
 
+//EDIT
 #if ALL
     #define prepare_task_reduce_normalize() memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t))
 #elif READS
-    #define prepare_task_reduce_normalize() cpa(product, sizeof(digit_t)*32); cps(offset); cpa(modulus, sizeof(digit_t)*NUM_DIGITS)
+    #define prepare_task_reduce_normalize() cpa(product, sizeof(digit_t)*SIZE); cps(offset); cpa(modulus, sizeof(digit_t)*NUM_DIGITS)
 #elif WRITES
-	#define prepare_task_reduce_normalize() cpa(product, sizeof(digit_t)*32); cps(check)
+	#define prepare_task_reduce_normalize() cpa(product, sizeof(digit_t)*SIZE); cps(check)
 #elif IDEM
-    #define prepare_task_reduce_normalize() cpa(product, sizeof(digit_t)*32
+    #define prepare_task_reduce_normalize() cpa(product, sizeof(digit_t)*SIZE)
 #elif NONE
     #define prepare_task_reduce_normalize() 
 #else
     #error type of system not defined
 #endif
-#define writes_task_reduce_normalize() cpa(product, sizeof(digit_t)*32); cps(check)
+#define writes_task_reduce_normalize() cpa(product, sizeof(digit_t)*SIZE); cps(check)
 void task_reduce_normalize()
 {
 	digit_t m, n, d, s;
@@ -658,7 +666,7 @@ void task_reduce_normalize()
 #else
     #error type of system not defined
 #endif
-#define writes_task_reduce_normalize() cps(n_div)
+#define writes_task_reduce_n_divisor() cps(n_div)
 void task_reduce_n_divisor()
 {
 
@@ -672,11 +680,11 @@ void task_reduce_n_divisor()
 #if ALL
     #define prepare_task_reduce_quotient() memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t))
 #elif READS
-    #define prepare_task_reduce_quotient() cpa(product, sizeof(digit_t)*32); cpa(modulus, sizeof(digit_t)*NUM_DIGITS); cps(reduce); cps(n_div); cps(quotient)
+    #define prepare_task_reduce_quotient() cpa(product, sizeof(digit_t)*SIZE); cpa(modulus, sizeof(digit_t)*NUM_DIGITS); cps(reduce); cps(n_div); cps(quotient)
 #elif WRITES
 	#define prepare_task_reduce_quotient() cps(quotient); cps(reduce)
 #elif IDEM
-    #define prepare_task_reduce_quotient() cps(quotient); cps(reduce)
+    #define prepare_task_reduce_quotient() cps(reduce)
 #elif NONE
     #define prepare_task_reduce_quotient() 
 #else
@@ -718,7 +726,7 @@ void task_reduce_quotient()
 #elif READS
     #define prepare_task_reduce_multiply() cps(reduce); cpa(modulus, sizeof(digit_t)*NUM_DIGITS); cps(offset); cps(quotient)
 #elif WRITES
-	#define prepare_task_reduce_multiply() cpa(product2, sizeof(digit_t)*32)
+	#define prepare_task_reduce_multiply() cpa(product2, sizeof(digit_t)*SIZE)
 #elif IDEM
     #define prepare_task_reduce_multiply() 
 #elif NONE
@@ -726,7 +734,7 @@ void task_reduce_quotient()
 #else
     #error type of system not defined
 #endif
-#define writes_task_reduce_multiply() cpa(product2, sizeof(digit_t)*32)
+#define writes_task_reduce_multiply() cpa(product2, sizeof(digit_t)*SIZE)
 void task_reduce_multiply()
 {
 	int i;
@@ -767,7 +775,7 @@ void task_reduce_multiply()
 #if ALL
     #define prepare_task_reduce_compare() memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t))
 #elif READS
-    #define prepare_task_reduce_compare() cpa(product, sizeof(digit_t)*32); cpa(product2, sizeof(digit_t)*32)
+    #define prepare_task_reduce_compare() cpa(product, sizeof(digit_t)*SIZE); cpa(product2, sizeof(digit_t)*SIZE)
 #elif WRITES
 	#define prepare_task_reduce_compare() cps(check)
 #elif IDEM
@@ -806,17 +814,17 @@ void task_reduce_compare()
 #if ALL
     #define prepare_task_reduce_add() memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t))
 #elif READS
-    #define prepare_task_reduce_add() cps(reduce); cpa(product, sizeof(digit_t)*32); cpa(modulus, sizeof(digit_t)*NUM_DIGITS)
+    #define prepare_task_reduce_add() cps(reduce); cpa(product, sizeof(digit_t)*SIZE); cpa(modulus, sizeof(digit_t)*NUM_DIGITS)
 #elif WRITES
-	#define prepare_task_reduce_add() cpa(product, sizeof(digit_t)*32)
+	#define prepare_task_reduce_add() cpa(product, sizeof(digit_t)*SIZE)
 #elif IDEM
-    #define prepare_task_reduce_add() cpa(product, sizeof(digit_t)*32)
+    #define prepare_task_reduce_add() cpa(product, sizeof(digit_t)*SIZE)
 #elif NONE
     #define prepare_task_reduce_add() 
 #else
     #error type of system not defined
 #endif
-#define writes_task_reduce_add() cpa(product, sizeof(digit_t)*32)
+#define writes_task_reduce_add() cpa(product, sizeof(digit_t)*SIZE)
 void task_reduce_add()
 {
 	int i, j;
@@ -849,17 +857,17 @@ void task_reduce_add()
 #if ALL
     #define prepare_task_reduce_subtract() memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t))
 #elif READS
-    #define prepare_task_reduce_subtract() cps(reduce); cpa(product, sizeof(digit_t)*32); cpa(product2, sizeof(digit_t)*32) 
+    #define prepare_task_reduce_subtract() cps(reduce); cpa(product, sizeof(digit_t)*SIZE); cpa(product2, sizeof(digit_t)*SIZE) 
 #elif WRITES
-	#define prepare_task_reduce_subtract() cpa(product, sizeof(digit_t)*32)
+	#define prepare_task_reduce_subtract() cpa(product, sizeof(digit_t)*SIZE)
 #elif IDEM
-    #define prepare_task_reduce_subtract() cpa(product, sizeof(digit_t)*32)
+    #define prepare_task_reduce_subtract() cpa(product, sizeof(digit_t)*SIZE)
 #elif NONE
     #define prepare_task_reduce_subtract() 
 #else
     #error type of system not defined
 #endif
-#define writes_task_reduce_subtract() cpa(product, sizeof(digit_t)*32)
+#define writes_task_reduce_subtract() cpa(product, sizeof(digit_t)*SIZE)
 void task_reduce_subtract()
 {
 	int i;
@@ -914,164 +922,155 @@ int main() {
     while (1) { 
 
 	    task_init();
-	    commit();
+	    //commit();
 	 	//memcpy(&(safe->globals), &(unsafe->globals), sizeof(camel_global_t)); // concise version of writes_task_init()
-	    task_commit();
+	    //task_commit();
 
 	    while(1) {
 
-	    	if (MGV(check_final) == 0 && GV(check) != 100) {
+	    	if (GV(check_final) == 0 && GV(check) != 100) {
 			    //prepare_task_pad();
 			    task_pad();
-			    commit();
+			    //commit();
 			    //writes_task_pad();
-			    task_commit();
+			    //task_commit();
 			}
 
 			if (GV(check) != 100) {
 
 				//prepare_task_exp();
 				task_exp();
-				commit();
+				//commit();
 				//writes_task_exp();
-				task_commit();
+				//task_commit();
 			
 			}
 
-			// removed completely from the flow of the program
-		    // if (MGV(check) == 0){
-
-		    // 	//prepare_task_mult_block();
-		    // 	task_mult_block();
-		    // 	commit();
-		    // 	//writes_task_mult_block();
-		    // 	task_commit();
-
-		    // } else {
-
-		    // 	//prepare_task_square_base();
-		    // 	task_square_base();
-		    // 	commit();
-		    // 	//writes_task_square_base();
-		    // 	task_commit();
-
-		    // }
-
 		    //prepare_task_mult_mod();
 		    task_mult_mod();
-		    commit();
+		    //commit();
 		    //writes_task_mult_mod();
-		    task_commit();
+		    //task_commit();
 
 			do {
 
 				//prepare_task_mult();
 				task_mult();
-				commit();
+				//commit();
 				//writes_task_mult();
-				task_commit();
+				//task_commit();
 				
-			} while (MGV(check) == 0);
+			} while (GV(check) == 0);
 
 			//prepare_task_reduce_digits();
 			task_reduce_digits();
-			commit();
+			//commit();
 			//writes_task_reduce_digits();
-			task_commit();
+			//task_commit();
 
-			if (MGV(check) == 0){
+			if (GV(check) == 0){
 
 				break;
 			}
 
 			//prepare_task_reduce_normalizable();
 			task_reduce_normalizable();
-			commit();
+			//commit();
 			//writes_task_reduce_normalizable();
-			task_commit();
+			//task_commit();
 
-			if (MGV(check) == 0) {
+			if (GV(check) == 0) {
 
 				//prepare_task_reduce_normalize();
 				task_reduce_normalize();
-				commit();
+				//commit();
 				//writes_task_reduce_normalize();
-				task_commit();
+				//task_commit();
 
 				if (GV(offset) > 0) {
 
 					//prepare_task_reduce_n_divisor();
 					task_reduce_n_divisor();
-					commit();
+					//commit();
 					//writes_task_reduce_n_divisor();
-					task_commit();
+					//task_commit();
 				}
 
-			} else if (MGV(check) == 1) {
+			} else if (GV(check) == 1) {
 
 				//prepare_task_reduce_n_divisor();
 				task_reduce_n_divisor();
-				commit();
+				//commit();
 				//writes_task_reduce_n_divisor();
-				task_commit();
+				//task_commit();
 			}
 
 			if (GV(check) != 2) {
 				do {
 					//prepare_task_reduce_quotient();
 					task_reduce_quotient();
-					commit();
+					//commit();
 					//writes_task_reduce_quotient();
-					task_commit();
+					//task_commit();
 
 					//prepare_task_reduce_multiply();
 					task_reduce_multiply();
-					commit();
+					//commit();
 					//writes_task_reduce_multiply();
-					task_commit();
+					//task_commit();
 
 					//prepare_task_reduce_compare();
 					task_reduce_compare();
-					commit();
+					//commit();
 					//writes_task_reduce_compare();
-					task_commit();
+					//task_commit();
 
-					if (MGV(check) == 0) {
+					if (GV(check) == 0) {
 
 						//prepare_task_reduce_add();
 						task_reduce_add();
-						commit();
+						//commit();
 						//writes_task_reduce_add();
-						task_commit();
+						//task_commit();
 
 					} 
 
 					//prepare_task_reduce_subtract();
 					task_reduce_subtract();
-					commit();
+					//commit();
 					//writes_task_reduce_subtract();
-					task_commit();
+					//task_commit();
 			 	
-			 	} while (MGV(reduce) + 1 > NUM_DIGITS);
+			 	} while (GV(reduce) + 1 > NUM_DIGITS);
 
 			 }
 
-		 	if (MGV(check_final) == 0) {
+		 	if (GV(check_final) == 0) {
 
 				//prepare_task_mult_block_get_result();
 				task_mult_block_get_result();
-				commit();
+				//commit();
 				//writes_task_mult_block_get_result();
-				task_commit();
+				//task_commit();
 
-			} else if (MGV(check_final) == 1) {
+			} else if (GV(check_final) == 1) {
 
 				//prepare_task_square_base_get_result();
 				task_square_base_get_result();
-				commit();
+				//commit();
 				//writes_task_square_base_get_result();
-				task_commit();
+				//task_commit();
 			}
 		}
 	}
 }
+
+#ifdef __MSP430FR6989__
+__attribute__((section("__interrupt_vector_56"), used))
+static void (*reset_vector)(void) = camel_recover;
+#elif __MSP430F5529__
+__attribute__((section("__interrupt_vector_64"), used))
+static void (*reset_vector)(void) = camel_recover;
+#else
+#error Board not supported
+#endif

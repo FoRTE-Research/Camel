@@ -1,5 +1,9 @@
 #include "TaskAnalysis.h"
 
+//key
+//added for AR
+//added for CEM
+
 void TaskAnalysis::AnalyzeModule(Module &M){
 
     errs() << "\nSTARTING ANALYSIS\n"; 
@@ -110,13 +114,18 @@ void TaskAnalysis::traverseMemcpy(CallInst *call){
                 inst.push_back(dyn_cast<Instruction>(gep));
             }
 
-            if (checkStore.find(gep->getOperand(2)) == checkStore.end()){
-                writes[getParentTask(gep)].push_back(inst);
-                checkStore.insert(gep->getOperand(2));
-                if (checkLoad.find(gep->getOperand(2)) == checkLoad.end()){
-                    writeFirst[getParentTask(gep)].push_back(inst);
-                }
-            }
+            //added for cem
+            insertStore(inst, gep);
+
+            // writes[getParentTask(gep)].push_back(inst);
+
+            // if (checkStore.find(gep->getOperand(2)) == checkStore.end()){
+            //     writes[getParentTask(gep)].push_back(inst);
+            //     checkStore.insert(gep->getOperand(2));
+            //     if (checkLoad.find(gep->getOperand(2)) == checkLoad.end()){
+            //         writeFirst[getParentTask(gep)].push_back(inst);
+            //     }
+            // }
         }
         
         if (GEPOperator *gep = dyn_cast<GEPOperator>(from)) {
@@ -129,14 +138,17 @@ void TaskAnalysis::traverseMemcpy(CallInst *call){
             } else {
                 inst.push_back(dyn_cast<Instruction>(gep));
             }
+
+            //added for cem
+            insertLoad(inst, gep);
                 
-            if (checkLoad.find(gep->getOperand(2)) == checkLoad.end()){
-                reads[getParentTask(gep)].push_back(inst);
-                checkLoad.insert(gep->getOperand(2));
-                if (checkStore.find(gep->getOperand(2)) == checkStore.end()){
-                    readFirst[getParentTask(gep)].push_back(inst);
-                }
-            }
+            // if (checkLoad.find(gep->getOperand(2)) == checkLoad.end()){
+            //     reads[getParentTask(gep)].push_back(inst);
+            //     checkLoad.insert(gep->getOperand(2));
+            //     if (checkStore.find(gep->getOperand(2)) == checkStore.end()){
+            //         readFirst[getParentTask(gep)].push_back(inst);
+            //     }
+            // }
         }
 
     }   
@@ -272,10 +284,12 @@ void TaskAnalysis::insertLoad(vector<Instruction*> inst, GEPOperator *gep) {
 
         }
 
-        if (auto a = dyn_cast<AllocaInst>(inst[1]))
-            checkStoreIndex[var].insert(inst[1]);
-        else 
-            checkStoreIndex[var].insert(inst[1]->getOperand(2));
+        if (inst[1]) {
+            if (auto a = dyn_cast<AllocaInst>(inst[1]))
+                checkStoreIndex[var].insert(inst[1]);
+            else 
+                checkStoreIndex[var].insert(inst[1]->getOperand(2));
+        }
     }
 
     checkLoad.insert(comp->getOperand(2));
@@ -413,6 +427,9 @@ bool TaskAnalysis::isPartOfLoop(Instruction *I, Instruction *a) {
                 if (loopVar->getOperand(0) == a){
 
                     return true;
+                } else if (a->getName().contains("op")){
+
+                    return true;
                 }
             }
         }
@@ -486,7 +503,7 @@ void TaskAnalysis::generateTaskIdem(Function &taskFunc) {
                 }
                 else if (writes[task][i].size() == 2 && readFirst[task][j].size() == 2) {
 
-                    if (writes[task][i][1] == NULL && readFirst[task][i][1] == NULL){
+                    if (writes[task][i][1] == NULL && readFirst[task][j][1] == NULL){
                         idem[task].push_back(writes[task][i]);
                         break;
                     }

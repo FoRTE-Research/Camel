@@ -13,7 +13,7 @@ bool CamelPass::runOnModule(Module &M){
     errs() << "\nVERSIONING \n";
 
     //copy everything after task_init
-    //modifyTasks.copyBuffers(analysisInfo.taskCallList[1], "unsafe", "safe");
+    modifyTasks.copyBuffers(analysisInfo.taskCallList[1], "unsafe", "safe");
 
     //MODE ALL
     //The Mode "ALL" adds code to copy the safe buffer to the unsafe before every task call
@@ -25,19 +25,19 @@ bool CamelPass::runOnModule(Module &M){
 
     //MODE "LIST"
     // LIST can equal reads 1, writes 2, idem 3
-    // for( int i=2; i<analysisInfo.taskCallList.size(); i = i+2){
+    for( int i=2; i<analysisInfo.taskCallList.size(); i = i+2){
 
-    //     CallInst *taskCall = dyn_cast<CallInst>(analysisInfo.taskCallList[i]);
-    //     StringRef taskName = taskCall->getCalledFunction()->getName();
-    //     errs () << taskName + "\n";
+        CallInst *taskCall = dyn_cast<CallInst>(analysisInfo.taskCallList[i]);
+        StringRef taskName = taskCall->getCalledFunction()->getName();
+        errs () << taskName + "\n";
 
-    //     errs () << "Before Task\n";
-    //     modifyTasks.copyVariables(taskName, analysisInfo.taskCallList[i], analysisInfo.idem);
+        errs () << "Before Task\n";
+        modifyTasks.copyVariables(taskName, analysisInfo.taskCallList[i], analysisInfo.idem);
 
-    //     errs () << "After Task\n";
-    //     modifyTasks.copyVariables(taskName, analysisInfo.taskCallList[i+1], analysisInfo.writes);
+        errs () << "After Task\n";
+        modifyTasks.copyVariables(taskName, analysisInfo.taskCallList[i+1], analysisInfo.writes);
         
-    // }
+    }
 
     // testing
     // for(int i=0; i<analysisInfo.taskCallList.size(); i++){
