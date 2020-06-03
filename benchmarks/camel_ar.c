@@ -5,8 +5,8 @@
 #include <math.h>
 #include <string.h>
 
-#include "../checkpoint/macros.h"
-#include "../checkpoint/camel_ckpt_defines.h"
+#include "macros.h"
+#include "camel_ckpt_defines.h"
 
 // Number of samples to discard before recording training set
 #define NUM_WARMUP_SAMPLES 3
@@ -67,24 +67,6 @@ typedef uint16_t camel_reg_t;
 // Temporary CRC results
 uint16_t tmp_stack_crc;
 uint16_t tmp_stack_buf_crc;
-
-// Macros and macro redefinitions!
-#define GV(x) unsafe->globals.x
-#define MGV(x) safe->globals.x //to be used only in main with conditionals
-
-// Macros that define how prepare statements copy variables and arrays
-
-// Single variable
-#define cps(x) unsafe->globals.x = safe->globals.x
-
-// Array
-#define cpas(x,y) unsafe->globals.x[unsafe->globals.y] = safe->globals.x[unsafe->globals.y]
-#define cpaso(x, y) unsafe->globals.x[y] = safe->globals.x[y]
-#define cpa(x,y) memcpy(unsafe->globals.x,safe->globals.x,y)
-
-// Struct
-#define cps_s(x) unsafe->globals.x = safe->globals.x
-#define cpas_s(x,y) unsafe->globals.x[unsafe->globals.y] = safe->globals.x[safe->globals.y]
 
 #if (CRC_ON && CRC_OFF) || !(CRC_ON || CRC_OFF)
 #error You must define exactly one of CRC_ON and CRC_OFF
@@ -258,23 +240,7 @@ void task_init()
 	GV(pinState) = MODE_IDLE;
 	GV(count) = 0;
 	GV(seed) = 1;
-	//TRANSITION_TO(task_selectMode);
 }
-
-#if ALL
-    #define prepare_task_selectMode() memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t))
-#elif READS
-    #define prepare_task_selectMode() cps(count); cps(pinState);
-#elif WRITES
-	#define prepare_task_selectMode() cps(count); cps(pinState); cps(discardedSamplesCount); cps(mode); cps(class); cps(samplesInWindow)
-#elif IDEM
-    #define prepare_task_selectMode() cps(count); cps(pinState)
-#elif NONE
-    #define prepare_task_selectMode() 
-#else
-    #error type of system not defined
-#endif
-#define writes_task_selectMode() cps(count); cps(pinState); cps(discardedSamplesCount); cps(mode); cps(class); cps(samplesInWindow)
 
 void task_selectMode()
 {
@@ -286,15 +252,10 @@ void task_selectMode()
 	if (GV(count) >= 7) {
 
 		task_done();
-		//while(1);
-		//TRANSITION_TO(task_init);
 	}
 	run_mode_t mode;
 	class_t class;
 
-	// uint16_t pin_state = GPIO(PORT_AUX, IN) & (BIT(PIN_AUX_1) | BIT(PIN_AUX_2));
-
-	// Don't re-launch training after finishing training
 	if ((pin_state == MODE_TRAIN_STATIONARY ||
 				pin_state == MODE_TRAIN_MOVING) &&
 			pin_state == GV(pinState)) {
@@ -310,7 +271,6 @@ void task_selectMode()
 			GV(class) = CLASS_STATIONARY;
 			GV(samplesInWindow) = 0;
 
-			//TRANSITION_TO(task_warmup);
 			break;
 
 		case MODE_TRAIN_MOVING:
@@ -319,64 +279,29 @@ void task_selectMode()
 			GV(class) = CLASS_MOVING;
 			GV(samplesInWindow) = 0;
 
-			//TRANSITION_TO(task_warmup);
 			break;
 
 		case MODE_RECOGNIZE:
 			GV(mode) = MODE_RECOGNIZE;
 
-			//TRANSITION_TO(task_resetStats);
 			break;
 
 		default:
 			GV(mode) = MODE_IDLE;
 			break;
-			//TRANSITION_TO(task_idle);
 	}
 }
 
-#if ALL
-    #define prepare_task_resetStats() memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t))
-#elif READS
-    #define prepare_task_resetStats() 
-#elif WRITES
-	#define prepare_task_resetStats() cps(movingCount); cps(stationaryCount); cps(totalCount); cps(samplesInWindow)
-#elif IDEM
-    #define prepare_task_resetStats() 
-#elif NONE
-    #define prepare_task_resetStats() 
-#else
-    #error type of system not defined
-#endif
-#define writes_task_resetStats() cps(movingCount); cps(stationaryCount); cps(totalCount); cps(samplesInWindow)
-
 void task_resetStats()
 {
-	// NOTE: could roll this into selectMode task, but no compelling reason
-	// NOTE: not combined into one struct because not all code paths use both
+
 	GV(movingCount) = 0;
 	GV(stationaryCount) = 0;
 	GV(totalCount) = 0;
 
 	GV(samplesInWindow) = 0;
 
-	//TRANSITION_TO(task_sample);
 }
-
-#if ALL
-    #define prepare_task_sample() memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t))
-#elif READS
-    #define prepare_task_sample() cps(samplesInWindow); cps(seed)
-#elif WRITES
-	#define prepare_task_sample() cps(seed); cpa(window, sizeof(accelReading)*ACCEL_WINDOW_SIZE); cps(samplesInWindow)
-#elif IDEM
-    #define prepare_task_sample() cps(seed); cps(samplesInWindow)
-#elif NONE
-    #define prepare_task_sample() 
-#else
-    #error type of system not defined
-#endif
-#define writes_task_sample() cps(seed); cpa(window, sizeof(accelReading)*ACCEL_WINDOW_SIZE); cps(samplesInWindow)
 
 void task_sample()
 {
@@ -388,27 +313,9 @@ void task_sample()
 	
 }
 
-#if ALL
-    #define prepare_task_transform() memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t))
-#elif READS
-    #define prepare_task_transform() cpa(window, sizeof(accelReading) * ACCEL_WINDOW_SIZE)
-#elif WRITES
-	#define prepare_task_transform() cpa(window, sizeof(accelReading) * ACCEL_WINDOW_SIZE)
-#elif IDEM
-    #define prepare_task_transform() cpa(window, sizeof(accelReading) * ACCEL_WINDOW_SIZE)
-#elif NONE
-    #define prepare_task_transform() 
-#else
-    #error type of system not defined
-#endif
-#define writes_task_transform() cpa(window, sizeof(accelReading) * ACCEL_WINDOW_SIZE)
-
-
-//edit this task to meet our system's requirements
 void task_transform()
 {
     GV(samplesInWindow) = 0;
-	//unsigned i;
 
 	accelReading *sample;
 	accelReading transformedSample;
@@ -426,23 +333,7 @@ void task_transform()
 				? GV(window)[i].z : 0;
 		}
 	}
-	//TRANSITION_TO(task_featurize);
 }
-
-#if ALL
-    #define prepare_task_featurize() memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t))
-#elif READS
-    #define prepare_task_featurize() cpa(window, sizeof(accelReading) * ACCEL_WINDOW_SIZE); cps(mode)
-#elif WRITES
-	#define prepare_task_featurize() cps_s(features)
-#elif IDEM
-    #define prepare_task_featurize() 
-#elif NONE
-    #define prepare_task_featurize() 
-#else
-    #error type of system not defined
-#endif
-#define writes_task_featurize() cps_s(features)
 
 void task_featurize()
 {
@@ -483,32 +374,14 @@ void task_featurize()
 		case MODE_TRAIN_STATIONARY:
 		case MODE_TRAIN_MOVING:
 			GV(features) = features;
-			//TRANSITION_TO(task_train);
 			break;
 		case MODE_RECOGNIZE:
 			GV(features) = features;
-			//TRANSITION_TO(task_classify);
 			break;
 		default:
-			// TODO: abort
 			break;
 	}
 }
-
-#if ALL
-    #define prepare_task_classify() memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t))
-#elif READS
-    #define prepare_task_classify() cps_s(features); cpa(model_stationary, sizeof(features_t) * MODEL_SIZE); cpa(model_moving, sizeof(features_t) * MODEL_SIZE)
-#elif WRITES
-	#define prepare_task_classify() cps(class)
-#elif IDEM
-    #define prepare_task_classify() 
-#elif NONE
-    #define prepare_task_classify() 
-#else
-    #error type of system not defined
-#endif
-#define writes_task_classify() cps(class)
 
 void task_classify() {
 	int move_less_error = 0;
@@ -553,24 +426,7 @@ void task_classify() {
 
 	GV(class) = (move_less_error > stat_less_error) ? CLASS_MOVING : CLASS_STATIONARY;
 
-
-	//TRANSITION_TO(task_stats);
 }
-
-#if ALL
-    #define prepare_task_stats() memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t))
-#elif READS
-    #define prepare_task_stats() cps(totalCount); cps(class); cps(movingCount); cps(stationaryCount)
-#elif WRITES
-	#define prepare_task_stats() cps(totalCount); cps(movingCount); cps(stationaryCount); 
-#elif IDEM
-    #define prepare_task_stats() cps(totalCount); cps(movingCount); cps(stationaryCount);
-#elif NONE
-    #define prepare_task_stats() 
-#else
-    #error type of system not defined
-#endif
-#define writes_task_stats() cps(totalCount); cps(movingCount); cps(stationaryCount);
 
 void task_stats()
 {
@@ -596,27 +452,8 @@ void task_stats()
 
 		unsigned sum = GV(stationaryCount) + GV(movingCount);
 
-		//TRANSITION_TO(task_idle);
-	} 
-	// else {
-	// 	//TRANSITION_TO(task_sample);
-	// }
-}
-
-#if ALL
-    #define prepare_task_warmup() memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t))
-#elif READS
-    #define prepare_task_warmup() cps(discardedSamplesCount); cps(seed)
-#elif WRITES
-	#define prepare_task_warmup() cps(seed); cps(discardedSamplesCount); cps(trainingSetSize)
-#elif IDEM
-    #define prepare_task_warmup() cps(seed); cps(discardedSamplesCount)
-#elif NONE
-    #define prepare_task_warmup() 
-#else
-    #error type of system not defined
-#endif
-#define writes_task_warmup() cps(seed); cps(discardedSamplesCount); cps(trainingSetSize)
+	}
+} 
 
 void task_warmup()
 {
@@ -629,49 +466,7 @@ void task_warmup()
     if (GV(discardedSamplesCount) == NUM_WARMUP_SAMPLES){
         GV(trainingSetSize) = 0;
     }
-
-	// to remove transition to
-
-	// while (GV(discardedSamplesCount) < NUM_WARMUP_SAMPLES) {
-
-	// 	threeAxis_t_8 sample;
-	// 	GV(seed) = ACCEL_singleSample_(&sample, GV(seed));
-	// 	++GV(discardedSamplesCount);
-
-	// }
-
-	// GV(trainingSetSize) = 0;
-
-	//TRANSITION_TO(task_sample);
-
-	// threeAxis_t_8 sample;
-
-	// if (GV(discardedSamplesCount) < NUM_WARMUP_SAMPLES) {
-
-	// 	ACCEL_singleSample_(&sample);
-	// 	++GV(discardedSamplesCount);
-
-	// 	TRANSITION_TO(task_warmup);
-	// } else {
-	// 	GV(trainingSetSize) = 0;
-	// 	TRANSITION_TO(task_sample);
-	// }
 }
-
-#if ALL
-    #define prepare_task_train() memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t))
-#elif READS
-    #define prepare_task_train() cps(class); cps(trainingSetSize); cps_s(features);
-#elif WRITES
-	#define prepare_task_train() cpas_s(model_stationary, trainingSetSize); cpas_s(model_moving, trainingSetSize); cps(trainingSetSize)
-#elif IDEM
-    #define prepare_task_train() cps(trainingSetSize)
-#elif NONE
-    #define prepare_task_train() 
-#else
-    #error type of system not defined
-#endif
-#define writes_task_train() cpas_s(model_stationary, trainingSetSize); cpas_s(model_moving, trainingSetSize); cps(trainingSetSize)
 
 void task_train()
 {
@@ -689,18 +484,11 @@ void task_train()
 
 	++GV(trainingSetSize);
 
-	// if (GV(trainingSetSize) < MODEL_SIZE) {
-	// 	//TRANSITION_TO(task_sample);
-	// } else {
-
-	// 	//TRANSITION_TO(task_idle);
-	// }
 }
 
 void task_done() {
 
 	exit(0);
-	//TRANSITION_TO(task_selectMode);
 }
 
 void task_commit() {
@@ -714,41 +502,26 @@ int main() {
     unsafe = &(camel.buf2);
 	camel_init();
 
-	task_init();
-	commit();
-	//memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t));
-	task_commit();
+	TASK(task_init);
 
 	while (1) {
 
-		//prepare_task_selectMode();
-		task_selectMode();
-		commit();
-		//writes_task_selectMode();
-		task_commit();
+		TASK(task_selectMode);
 
-		if (GV(mode) == MODE_TRAIN_STATIONARY || GV(mode) == MODE_TRAIN_MOVING){
+		if (MGV(mode) == MODE_TRAIN_STATIONARY || MGV(mode) == MODE_TRAIN_MOVING){
 
 
-            while (GV(discardedSamplesCount) < NUM_WARMUP_SAMPLES) {
+            while (MGV(discardedSamplesCount) < NUM_WARMUP_SAMPLES) {
 
-                //prepare_task_warmup();
-                task_warmup();
-                commit();
-                //writes_task_warmup();
-                task_commit();
+				TASK(task_warmup);
 
             }
 
-		} else if (GV(mode) ==  MODE_RECOGNIZE) {
+		} else if (MGV(mode) ==  MODE_RECOGNIZE) {
 
-			//prepare_task_resetStats();
-			task_resetStats();
-			commit();
-			//writes_task_resetStats();
-			task_commit();
+			TASK(task_resetStats);
 
-		} else if (GV(mode) == MODE_IDLE) {
+		} else if (MGV(mode) == MODE_IDLE) {
 
 			continue;
 		}
@@ -756,55 +529,30 @@ int main() {
 		while (1) {
 
 
-            while (GV(samplesInWindow) < ACCEL_WINDOW_SIZE){
+            while (MGV(samplesInWindow) < ACCEL_WINDOW_SIZE){
 
-                //prepare_task_sample();
-                task_sample();
-               	commit();
-                //writes_task_sample();
-                task_commit();
-
+				TASK(task_sample);
 
             }
 
-			//prepare_task_transform();
-			task_transform();
-			commit();
-			//writes_task_transform();
-			task_commit();
+			TASK(task_transform);
 
-			//prepare_task_featurize();
-			task_featurize();
-			commit();
-			//writes_task_featurize();
-			task_commit();
+			TASK(task_featurize);
 
-			if (GV(mode) == MODE_TRAIN_STATIONARY || GV(mode) == MODE_TRAIN_MOVING){
+			if (MGV(mode) == MODE_TRAIN_STATIONARY || MGV(mode) == MODE_TRAIN_MOVING){
 
-				//prepare_task_train();
-				task_train();
-				commit();
-				//writes_task_train();
-				task_commit();
+				TASK(task_train);
 
-				if (GV(trainingSetSize) >= MODEL_SIZE)
+				if (MGV(trainingSetSize) >= MODEL_SIZE)
 					break;
 
-			} else if (GV(mode) ==  MODE_RECOGNIZE) {
+			} else if (MGV(mode) ==  MODE_RECOGNIZE) {
 
-				//prepare_task_classify();
-				task_classify();
-				commit();
-				//writes_task_classify();
-				task_commit();
+				TASK(task_classify);
 
-				//prepare_task_stats();
-				task_stats();
-				commit();
-				//writes_task_stats();
-				task_commit();
+				TASK(task_stats);
 
-				if (GV(totalCount) == SAMPLES_TO_COLLECT)
+				if (MGV(totalCount) == SAMPLES_TO_COLLECT)
 					break;
 
 			}

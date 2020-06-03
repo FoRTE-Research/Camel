@@ -6,7 +6,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "../checkpoint/camel_ckpt_defines.h"
+#include "macros.h"
+#include "camel_ckpt_defines.h"
 
 //Original size of buffer 3492
 //////////////////////////////////////////////////////////////////
@@ -76,24 +77,6 @@ typedef uint16_t camel_reg_t;
 // Temporary CRC results
 uint16_t tmp_stack_crc;
 uint16_t tmp_stack_buf_crc;
-
-// Macros and macro redefinitions!
-#define GV(x) unsafe->globals.x
-#define MGV(x) safe->globals.x //to be used only in main with conditionals
-
-// Macros that define how prepare statements copy variables and arrays
-
-// Single variable
-#define cps(x) unsafe->globals.x = safe->globals.x
-
-// Array
-#define cpas(x,y) unsafe->globals.x[unsafe->globals.y] = safe->globals.x[unsafe->globals.y]
-#define cpaso(x, y) unsafe->globals.x[y] = safe->globals.x[y]
-#define cpa(x,y) memcpy(unsafe->globals.x,safe->globals.x,y)
-
-// Struct
-#define cps_s(x) unsafe->globals.x = safe->globals.x
-#define cpas_s(x,y) unsafe->globals.x[unsafe->globals.y] = safe->globals.x[safe->globals.y]
 
 #if (CRC_ON && CRC_OFF) || !(CRC_ON || CRC_OFF)
 #error You must define exactly one of CRC_ON and CRC_OFF
@@ -289,21 +272,6 @@ void task_init()
 	GV(node_count) = NUM_LETTERS;
 }
 
-#if ALL
-    #define prepare_task_sample() memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t))
-#elif READS
-    #define prepare_task_sample() cps(letter_idx)
-#elif WRITES
-	#define prepare_task_sample() cps(letter_idx); cps(check)
-#elif IDEM
-    #define prepare_task_sample() cps(letter_idx)
-#elif NONE
-    #define prepare_task_sample() 
-#else
-    #error type of system not defined
-#endif
-#define writes_task_sample() cps(letter_idx); cps(check)
-
 void task_sample()
 {
 	unsigned next_letter_idx = GV(letter_idx) + 1;
@@ -314,29 +282,12 @@ void task_sample()
 		GV(letter_idx) = next_letter_idx;
 		GV(check) = 0;
 
-		//TRANSITION_TO(task_measure_temp);
 	} else {
 		GV(letter_idx) = next_letter_idx;
 		GV(check) = 1;
 
-		//TRANSITION_TO(task_letterize);
 	}
 }
-
-#if ALL
-    #define prepare_task_measure_temp() memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t))
-#elif READS
-    #define prepare_task_measure_temp() cps(prev_sample)
-#elif WRITES
-	#define  prepare_task_measure_temp() cps(prev_sample); cps(sample)
-#elif IDEM
-    #define prepare_task_measure_temp() cps(prev_sample)
-#elif NONE
-    #define prepare_task_measure_temp()
-#else
-    #error type of system not defined
-#endif
-#define writes_task_measure_temp() cps(prev_sample); cps(sample)
 
 void task_measure_temp()
 {
@@ -347,23 +298,8 @@ void task_measure_temp()
 	prev_sample = sample;
 	GV(prev_sample) = prev_sample;
 	GV(sample) = sample;
-	//TRANSITION_TO(task_letterize);
-}
 
-#if ALL
-    #define prepare_task_letterize() memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t))
-#elif READS
-    #define prepare_task_letterize() cps(letter_idx); cps(sample)
-#elif WRITES
-	#define  prepare_task_letterize() cps(letter);
-#elif IDEM
-    #define prepare_task_letterize() 
-#elif NONE
-    #define prepare_task_letterize()
-#else
-    #error type of system not defined
-#endif
-#define writes_task_letterize() cps(letter)
+}
 
 void task_letterize()
 {
@@ -376,23 +312,8 @@ void task_letterize()
 	letter_t letter = (GV(sample) & (LETTER_MASK << letter_shift)) >> letter_shift;
 
 	GV(letter) = letter;
-	//TRANSITION_TO(task_compress);
-}
 
-#if ALL
-    #define prepare_task_compress() memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t))
-#elif READS
-    #define prepare_task_compress() cps(parent_next); cpa(dict, sizeof(node_t)*DICT_SIZE); cps(sample_count)
-#elif WRITES
-	#define  prepare_task_compress() cps(sibling); cps_s(parent_node); cps(parent); cps(child); cps(sample_count)
-#elif IDEM
-    #define prepare_task_compress() cps(sample_count)
-#elif NONE
-    #define prepare_task_compress()
-#else
-    #error type of system not defined
-#endif
-#define writes_task_compress() cps(sibling); cps_s(parent_node); cps(parent); cps(child); cps(sample_count)
+}
 
 void task_compress()
 {
@@ -406,23 +327,7 @@ void task_compress()
 	GV(child) = parent_node.child;
 	GV(sample_count)++;
 
-	//TRANSITION_TO(task_find_sibling);
 }
-
-#if ALL
-    #define prepare_task_find_sibling() memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t))
-#elif READS
-    #define prepare_task_find_sibling() cps(sibling); cps(letter); cps(child)
-#elif WRITES
-	#define  prepare_task_find_sibling() cps(parent_next); cps(check); cps(sibling)
-#elif IDEM
-    #define prepare_task_find_sibling() cps(sibling)
-#elif NONE
-    #define prepare_task_find_sibling()
-#else
-    #error type of system not defined
-#endif
-#define writes_task_find_sibling() cps(parent_next); cps(check); cps(sibling)
 
 void task_find_sibling()
 {
@@ -437,13 +342,11 @@ void task_find_sibling()
 			GV(parent_next) = GV(sibling);
 
 			GV(check) = 0;
-			//TRANSITION_TO(task_letterize);
 			return;
 		} else { // continue traversing the siblings
 			if(sibling_node->sibling != 0){
 				GV(sibling) = sibling_node->sibling;
 				GV(check) = 1;	
-				//TRANSITION_TO(task_find_sibling);
 				return;
 			}
 		}
@@ -455,27 +358,11 @@ void task_find_sibling()
 
 	if (GV(child) == NIL) {
 		GV(check) = 2;
-		//TRANSITION_TO(task_add_insert);
 	} else {
 		GV(check) = 3;
-		//TRANSITION_TO(task_add_node); 
 	}
 }
 
-#if ALL
-    #define prepare_task_add_node() memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t))
-#elif READS
-    #define prepare_task_add_node() cps(sibling)
-#elif WRITES
-	#define  prepare_task_add_node() cps(sibling); cps(check); cps_s(sibling_node)
-#elif IDEM
-    #define prepare_task_add_node() cps(sibling)
-#elif NONE
-    #define prepare_task_add_node()
-#else
-    #error type of system not defined
-#endif
-#define writes_task_add_node() cps(sibling); cps(check); cps_s(sibling_node)
 
 void task_add_node()
 {
@@ -488,7 +375,6 @@ void task_add_node()
 		index_t next_sibling = sibling_node->sibling;
 		GV(sibling) = next_sibling;
 
-		//TRANSITION_TO(task_add_node);
 		GV(check) = 0;
 
 	} else { // found last sibling in the list
@@ -496,25 +382,9 @@ void task_add_node()
 		node_t sibling_node_obj = *sibling_node;
 		GV(sibling_node) = sibling_node_obj;
 
-		//TRANSITION_TO(task_add_insert);
 		GV(check) = 1;
 	}
 }
-
-#if ALL
-    #define prepare_task_add_insert() memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t))
-#elif READS
-    #define prepare_task_add_insert() cps(node_count); cps(letter); cps_s(parent_node); cps(parent); cps(sibling); cps_s(sibling_node); cps(child)
-#elif WRITES
-	#define  prepare_task_add_insert() cpas_s(dict, parent); cpas_s(dict, sibling); cpas_s(dict, child); cps(symbol); cps(node_count)
-#elif IDEM
-    #define prepare_task_add_insert() cps(node_count)
-#elif NONE
-    #define prepare_task_add_insert()
-#else
-    #error type of system not defined
-#endif
-#define writes_task_add_insert() cps(write1); cps(write2); cpas_s(dict, write1); cpas_s(dict, write2); cpas_s(dict, child); cps(symbol); cps(node_count)
 
 void task_add_insert()
 {
@@ -538,72 +408,27 @@ void task_add_insert()
 
 		node_t parent_node_obj = GV(parent_node);
 		parent_node_obj.child = child;
-		//int i = GV(parent);
-		//opt
-		//GV(write1) = GV(parent);
+
 		GV(dict)[GV(parent)] = parent_node_obj;
 
 	} else { // a sibling
 
-		//index_t last_sibling = GV(sibling);
-		//GV(write2) = GV(sibling);
 		node_t last_sibling_node = GV(sibling_node);                   
 
 		last_sibling_node.sibling = child;
-		//GV(dict)[last_sibling] = last_sibling_node;
 		GV(dict)[GV(sibling)] = last_sibling_node;
 	}
 	GV(dict)[GV(child)] = child_node;
 	GV(symbol) = GV(parent);
 	GV(node_count)++;
 
-	//TRANSITION_TO(task_append_compressed);
 }
-
-#if ALL
-    #define prepare_task_append_compressed() memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t))
-#elif READS
-    #define prepare_task_append_compressed() cps(out_len); cps(symbol)
-#elif WRITES
-	#define  prepare_task_append_compressed() cps(write1); cpas_s(compressed_data, write1); cps(out_len)
-#elif IDEM
-    #define prepare_task_append_compressed() cps(out_len)
-#elif NONE
-    #define prepare_task_append_compressed()
-#else
-    #error type of system not defined
-#endif
-#define writes_task_append_compressed() cpas_s(compressed_data, write1); cps(out_len)
 
 void task_append_compressed()
 {
-	//int i = GV(out_len);
-	//opt
-	//GV(write1) = GV(out_len);
-
-	//can change here
-	//GV(compressed_data)[i].letter = GV(symbol);
-
-	//opt
-	// node_t copy = {
-	// 	.letter = GV(symbol),
-	// 	.sibling = GV(compressed_data)[GV(write1)].sibling,
-	// 	.child = GV(compressed_data)[GV(write1)].child,
-	// };
-
-	// node_t copy;
-	// copy = GV(compressed_data)[GV(out_len)];
-	// copy.letter = GV(symbol);
-
 	GV(compressed_data)[GV(out_len)].letter = GV(symbol);
 
 	++GV(out_len);
-
-	// if (++GV(out_len) == BLOCK_SIZE) {
-	// 	//TRANSITION_TO(task_done);
-	// } else {
-	// 	//TRANSITION_TO(task_sample);
-	// }
 }
 
 void task_done()
@@ -622,80 +447,46 @@ int main(){
     unsafe = &(camel.buf2);
     camel_init();
 
-	task_init();
-	commit();
-	//memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t));
-	task_commit();
+	TASK(task_init);
 
-	while(GV(out_len) < BLOCK_SIZE) {
+	while(MGV(out_len) < BLOCK_SIZE) {
 
-		//prepare_task_sample();
-		task_sample();
-		commit();
-		//writes_task_sample();
-		task_commit();
+		TASK(task_sample);
 
-		if (GV(check) == 0){
+		if (MGV(check) == 0){
 
-			//prepare_task_measure_temp();
-			task_measure_temp();
-			commit();
-			//writes_task_measure_temp();
-			task_commit();
+			TASK(task_measure_temp);
 
 		}
 
 		while (1) {
 
-			//prepare_task_letterize();
-			task_letterize();
-			commit();
-			//writes_task_letterize();
-			task_commit();
+			TASK(task_letterize);
 
-			//prepare_task_compress();
-			task_compress();
-			commit();
-			//writes_task_compress();
-			task_commit();
+			TASK(task_compress);
 
 			do {
 
-				//prepare_task_find_sibling();
-				task_find_sibling();
-				commit();
-				//writes_task_find_sibling();
-				task_commit();
+				TASK(task_find_sibling);
 
-			} while (GV(check) == 1);
+			} while (MGV(check) == 1);
 
-			if (GV(check) != 0)
+			if (MGV(check) != 0)
 				break;
 		}
 
-		if (GV(check) == 3) {
+		if (MGV(check) == 3) {
 			do{
 
-				//prepare_task_add_node();
-				task_add_node();
-				commit();
-				//writes_task_add_node();
-				task_commit();
+				TASK(task_add_node);
 
-			} while (GV(check) == 0);
+
+			} while (MGV(check) == 0);
 		}
 
-		//prepare_task_add_insert();
-		task_add_insert();
-		commit();
-		//writes_task_add_insert();
-		task_commit();
+		TASK(task_add_insert);
 
-		//prepare_task_append_compressed();
-		task_append_compressed();
-		commit();
-		//writes_task_append_compressed();
-		task_commit();
+		TASK(task_append_compressed);
 
 	}
 

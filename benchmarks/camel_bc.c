@@ -5,7 +5,9 @@
 #include <math.h>
 #include <string.h>
 
-#include "../checkpoint/camel_ckpt_defines.h"
+//Camel includes
+#include "macros.h"
+#include "camel_ckpt_defines.h"
 
 #define SEED 4L
 #define ITER 100
@@ -20,26 +22,6 @@ typedef uint16_t camel_reg_t;
 // Temporary CRC results
 uint16_t tmp_stack_crc;
 uint16_t tmp_stack_buf_crc;
-
-#define TASK(func) func()														  //For uninstrumented
-// #define TASK(func) func(); commit(); task_commit()                                //For Compiler
-// #define TASK(func) func(); task_commit()                                          //For Awien
-
-// Macros for calling task_init
-
-#define TASK_INIT(func) func()														//For uninstrumented
-// #define TASK_INIT(func) func(); commit(); task_commit() 							//For Compiler
-// #define TASK_INIT(func) func(); task_commit()										//for Awien
-
-// Macros and macro redefinitions!
-#define GV(x) unsafe->globals.x
-#define MGV(x) safe->globals.x //to be used only in main with conditionals
-
-// Macros that define how prepare statements copy variables and arrays
-#define cps(x) unsafe->globals.x = safe->globals.x
-#define cpas(x,y) unsafe->globals.x[unsafe->globals.y] = safe->globals.x[unsafe->globals.y]
-#define cpaso(x, y) unsafe->globals.x[y] = safe->globals.x[y]
-#define cpa(x,y) memcpy(unsafe->globals.x,safe->globals.x,y)
 
 #if (CRC_ON && CRC_OFF) || !(CRC_ON || CRC_OFF)
 #error You must define exactly one of CRC_ON and CRC_OFF
@@ -240,7 +222,6 @@ void task_init() {
 	GV(n_5) = 0;
 	GV(n_6) = 0;
 
-	//TRANSITION_TO(task_select_func);
 }
 
 void task_select_func() {
@@ -248,41 +229,9 @@ void task_select_func() {
 	GV(seed) = (uint32_t)SEED; // for test, seed is always the same
 	GV(iter) = 0;
 	GV(func)++; 
-
-	// if(GV(func) == 0){
-	// 	GV(func)++;
-	// 	TRANSITION_TO(task_bit_count);
-	// }
-	// else if(GV(func) == 1){
-	// 	GV(func)++;
-	// 	TRANSITION_TO(task_bitcount);
-	// }
-	// else if(GV(func) == 2){
-	// 	GV(func)++;
-	// 	TRANSITION_TO(task_ntbl_bitcnt);
-	// }
-	// else if(GV(func) == 3){
-	// 	GV(func)++;
-	// 	TRANSITION_TO(task_ntbl_bitcount);
-	// }
-	// else if(GV(func) == 4){
-	// 	GV(func)++;
-	// 	TRANSITION_TO(task_BW_btbl_bitcount);
-	// }
-	// else if(GV(func) == 5){
-	// 	GV(func)++;
-	// 	TRANSITION_TO(task_AR_btbl_bitcount);
-	// }
-	// else if(GV(func) == 6){
-	// 	GV(func)++;
-	// 	TRANSITION_TO(task_bit_shifter);
-	// }
-	// else{
-	// 	TRANSITION_TO(task_end);
-
-	// }
 }
 void task_bit_count() {
+
 	uint32_t tmp_seed = GV(seed);
 	GV(seed) = GV(seed) + 13;
 	unsigned temp = 0;
@@ -292,14 +241,9 @@ void task_bit_count() {
 	GV(n_0) += temp;
 	GV(iter)++;
 
-	// if(GV(iter) < ITER){
-	// 	TRANSITION_TO(task_bit_count);
-	// }
-	// else{
-	// 	TRANSITION_TO(task_select_func);
-	// }
 }
 void task_bitcount() {
+
 	uint32_t tmp_seed = GV(seed);
 	GV(seed) = GV(seed) + 13;
 	tmp_seed = ((tmp_seed & 0xAAAAAAAAL) >>  1) + (tmp_seed & 0x55555555L);
@@ -310,12 +254,6 @@ void task_bitcount() {
 	GV(n_1) += (int)tmp_seed;
 	GV(iter)++;
 
-	// if(GV(iter) < ITER){
-	// 	TRANSITION_TO(task_bitcount);
-	// }
-	// else{
-	// 	TRANSITION_TO(task_select_func);
-	// }
 }
 int recursive_cnt(uint32_t x){
 	int cnt = bits[(int)(x & 0x0000000FL)];
@@ -326,18 +264,14 @@ int recursive_cnt(uint32_t x){
 	return cnt;
 }
 void task_ntbl_bitcnt() {
+
 	GV(n_2) += recursive_cnt(GV(seed));	
 	GV(seed) = GV(seed) + 13;
 	GV(iter)++;
 
-	// if(GV(iter) < ITER){
-	// 	TRANSITION_TO(task_ntbl_bitcnt);
-	// }
-	// else{
-	// 	TRANSITION_TO(task_select_func);
-	// }
 }
 void task_ntbl_bitcount() {
+
 	GV(n_3) += bits[ (int) (GV(seed) & 0x0000000FUL)       ] +
 		bits[ (int)((GV(seed) & 0x000000F0UL) >> 4) ] +
 		bits[ (int)((GV(seed) & 0x00000F00UL) >> 8) ] +
@@ -349,14 +283,9 @@ void task_ntbl_bitcount() {
 	GV(seed) = GV(seed) + 13;
 	GV(iter)++;
 
-	// if(GV(iter) < ITER){
-	// 	TRANSITION_TO(task_ntbl_bitcount);
-	// }
-	// else{
-	// 	TRANSITION_TO(task_select_func);
-	// }
 }
 void task_BW_btbl_bitcount() {
+
 	union 
 	{ 
 		unsigned char ch[4]; 
@@ -370,14 +299,9 @@ void task_BW_btbl_bitcount() {
 	GV(seed) = GV(seed) + 13;
 	GV(iter)++;
 
-	// if(GV(iter) < ITER){
-	// 	TRANSITION_TO(task_BW_btbl_bitcount);
-	// }
-	// else{
-	// 	TRANSITION_TO(task_select_func);
-	// }
 }
 void task_AR_btbl_bitcount() {
+
 	unsigned char * Ptr = (unsigned char *) &GV(seed) ;
 	int Accu ;
 
@@ -389,14 +313,9 @@ void task_AR_btbl_bitcount() {
 	GV(seed) = GV(seed) + 13;
 	GV(iter)++;
 
-	// if(GV(iter) < ITER){
-	// 	TRANSITION_TO(task_AR_btbl_bitcount);
-	// }
-	// else{
-	// 	TRANSITION_TO(task_select_func);
-	// }
 }
 void task_bit_shifter() {
+
 	int i, nn;
 	uint32_t tmp_seed = GV(seed);
 	for (i = nn = 0; tmp_seed && (i < (sizeof(long) * CHAR_BIT)); ++i, tmp_seed >>= 1)
@@ -405,13 +324,7 @@ void task_bit_shifter() {
 	GV(seed) = GV(seed) + 13;
 
 	GV(iter)++;
-
-	// if(GV(iter) < ITER){
-	// 	TRANSITION_TO(task_bit_shifter);
-	// }
-	// else{
-	// 	TRANSITION_TO(task_select_func);
-	// }
+	
 }
 
 void task_done() {
@@ -430,86 +343,69 @@ int main() {
     unsafe = &(camel.buf2);
     camel_init();
 
-	task_init();
-	commit();
-	task_commit();
+	TASK(task_init);
 
 	while (1){
 
-		task_select_func();
-		commit();
-		task_commit();
+		TASK(task_select_func);
 
-		if (GV(func) == 1){
+		if (MGV(func) == 1){
 
-			while (GV(iter) < ITER) {
+			while (MGV(iter) < ITER) {
 				
-				task_bit_count();
-				commit();
-				task_commit();
+				TASK(task_bit_count);
 
 			}
 
-		} else if (GV(func) == 2) {
+		} else if (MGV(func) == 2) {
 
-			while (GV(iter) < ITER) {
+			while (MGV(iter) < ITER) {
 				
-				task_bitcount();
-				commit();
-				task_commit();
+				TASK(task_bitcount);
 
 			}
 
-		} else if (GV(func) == 3) {
+		} else if (MGV(func) == 3) {
 			
-			while (GV(iter) < ITER) {
+			while (MGV(iter) < ITER) {
 				
-				task_ntbl_bitcnt();
-				commit();
-				task_commit();
+				TASK(task_ntbl_bitcnt);
 
 			}
 
-		} else if (GV(func) == 4) {
+		} else if (MGV(func) == 4) {
 
-			while (GV(iter) < ITER) {
+			while (MGV(iter) < ITER) {
 				
-				task_ntbl_bitcount();
-				commit();
-				task_commit();
+				TASK(task_ntbl_bitcount);
 
 			}
 			
-		} else if (GV(func) == 5) {
+		} else if (MGV(func) == 5) {
 
-			while (GV(iter) < ITER) {
+			while (MGV(iter) < ITER) {
 				
-				task_BW_btbl_bitcount();
-				commit();
-				task_commit();
+				TASK(task_BW_btbl_bitcount);
 
 			}
 			
-		} else if (GV(func) == 6) {
+		} else if (MGV(func) == 6) {
 
-			while (GV(iter) < ITER) {
-				task_AR_btbl_bitcount();
-				commit();
-				task_commit();
-
-			}
-			
-		} else if (GV(func) == 7) {
-			
-			while (GV(iter) < ITER) {
+			while (MGV(iter) < ITER) {
 				
-				task_bit_shifter();
-				commit();
-				task_commit();
+				TASK(task_AR_btbl_bitcount);
+
+			}
+			
+		} else if (MGV(func) == 7) {
+			
+			while (MGV(iter) < ITER) {
+				
+				TASK(task_bit_shifter);
 
 			}
 
-		} else if (GV(func) == 8) {
+		} else if (MGV(func) == 8) {
 
 			task_done();
 

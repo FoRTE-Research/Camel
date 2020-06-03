@@ -124,43 +124,79 @@ void task_init()
     GV(count) = 0;
 }
 
+#if ALL
+    #define prepare_task_generate_key() memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t)) // copy everything
+#elif IDEM
+    #define prepare_task_generate_key() cps(key) // copy everything that is present in both read first and writes lists
+#elif NONE
+    #define prepare_task_generate_key() ;
+#else
+    #error type of system not defined
+#endif
+#define writes_task_generate_key() cps(key) // everything written needs to go here
 void task_generate_key()
 {
 
     GV(key) = (GV(key) + 1) * 17;
 }
 
-
+#if ALL
+    #define prepare_task_calc_indexes() memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t)) // copy everything
+#elif IDEM
+    #define prepare_task_calc_indexes() ; // copy everything that is present in both read first and writes lists
+#elif NONE
+    #define prepare_task_calc_indexes() ;
+#else
+    #error type of system not defined
+#endif
+#define writes_task_calc_indexes() cps(fingerprint) // everything written needs to go here
 void task_calc_indexes()
 {
     GV(fingerprint) = hash_to_fingerprint(GV(key));
 }
 
-// Reads: key
-// Reads first: key
-// Writes: index1
-
+#if ALL
+    #define prepare_task_calc_indexes_index_1() memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t)) // copy everything
+#elif IDEM
+    #define prepare_task_calc_indexes_index_1() ; // copy everything that is present in both read first and writes lists
+#elif NONE
+    #define prepare_task_calc_indexes_index_1() ;
+#else
+    #error type of system not defined
+#endif
+#define writes_task_calc_indexes_index_1() cps(index1) // everything written needs to go here
 void task_calc_indexes_index_1()
 {
     GV(index1) = hash_to_index(GV(key));
 }
 
-// Reads: fingerprint, index1
-// Reads first: fingerprint, index1
-// Writes: index2
-// Writes first: index2
 
+#if ALL
+    #define prepare_task_calc_indexes_index_2() memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t)) // copy everything
+#elif IDEM
+    #define prepare_task_calc_indexes_index_2() ; // copy everything that is present in both read first and writes lists
+#elif NONE
+    #define prepare_task_calc_indexes_index_2() ;
+#else
+    #error type of system not defined
+#endif
+#define writes_task_calc_indexes_index_2() cps(index2) // everything written needs to go here
 void __attribute__((noinline)) task_calc_indexes_index_2()
 {
     index_t fp_hash = hash_to_index(GV(fingerprint));
     GV(index2) = GV(index1) ^ fp_hash;
 }
 
-// Reads: filter[index1], fingerprint, filter[index2]
-// Reads first: filter[index1], fingerprint, filter[index2]
-// Writes: success, filter[index1], filter[index2], index1, relocation_count
-// Writes first: success, relocation_count
-
+#if ALL
+    #define prepare_task_add() memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t)) // copy everything
+#elif IDEM
+    #define prepare_task_add() cpas(filter,index1); cpas(filter,index2); cps(index1) // copy everything that is present in both read first and writes lists
+#elif NONE
+    #define prepare_task_add() ;
+#else
+    #error type of system not defined
+#endif
+#define writes_task_add() cps(success); cpas(filter, index1); cpas(filter, index2); cps(index1); cps(relocation_count) // everything written needs to go here
 void task_add()
 {
     if (!GV(filter)[GV(index1)]) {
@@ -190,11 +226,16 @@ void task_add()
     }
 }
 
-// Reads: fingerprint, index1, filter, relocation_count
-// Reads first: fingerprint, index1, filter, relocation_count
-// Writes: filter, success, relocation_count, index1, fingerprint
-// Writes first: success
-
+#if ALL
+    #define prepare_task_relocate() memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t)) // copy everything
+#elif IDEM
+    #define prepare_task_relocate() cps(fingerprint); cps(index1); cps(relocation_count) // cpa(filter, sizeof(fingerprint_t)*NUM_BUCKETS); opt below; copy everything that is present in both read first and writes lists
+#elif NONE
+    #define prepare_task_relocate() ;
+#else
+    #error type of system not defined
+#endif
+#define writes_task_relocate() cps(success); cps(relocation_count); cps(index1); cps(fingerprint);
 void task_relocate()
 {
     fingerprint_t fp_victim = GV(fingerprint);
@@ -221,11 +262,16 @@ void task_relocate()
         GV(filter)[index2_victim] = fp_victim;
 }
 
-// Reads: insert_count, success, inserted_count
-// Reads first: insert_count, success, inserted_count
-// Writes: insert_count, inserted_count, key
-// Writes first: key
-
+#if ALL
+    #define prepare_task_insert_done() memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t)) // copy everything
+#elif IDEM
+    #define prepare_task_insert_done() cps(insert_count); cps(inserted_count) // copy everything that is present in both read first and writes lists
+#elif NONE
+    #define prepare_task_insert_done() ;
+#else
+    #error type of system not defined
+#endif
+#define writes_task_insert_done() cps(insert_count); cps(inserted_count); cps(key)  // everything written needs to go here
 void task_insert_done()
 {
     ++GV(insert_count);
@@ -243,11 +289,16 @@ void task_insert_done()
     } 
 }
 
-// Reads: filter[index1], filter[index2], fingerprint
-// Reads first: filter[index1], filter[index2], fingerprint
-// Writes: member
-// Writes first: member
-
+#if ALL
+    #define prepare_task_lookup_search() memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t)) // copy everything
+#elif IDEM
+    #define prepare_task_lookup_search() ; // copy everything that is present in both read first and writes lists
+#elif NONE
+    #define prepare_task_lookup_search() ;
+#else
+    #error type of system not defined
+#endif
+#define writes_task_lookup_search() cps(member)  // everything written needs to go here
 void task_lookup_search()
 {
     if (GV(filter)[GV(index1)] == GV(fingerprint)) {
@@ -265,11 +316,16 @@ void task_lookup_search()
     // }
 }
 
-// Reads: lookup_count, member, member_count
-// Reads first: lookup_count, member, member_count
-// Writes: lookup_count, member_count
-// Writes first:
-
+#if ALL
+    #define prepare_task_lookup_done() memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t)) // copy everything
+#elif IDEM
+    #define prepare_task_lookup_done() cps(lookup_count); cps(member_count) // copy everything that is present in both read first and writes lists
+#elif NONE
+    #define prepare_task_lookup_done() ;
+#else
+    #error type of system not defined
+#endif
+#define writes_task_lookup_done() cps(lookup_count); cps(member_count)  // everything written needs to go here
 void task_lookup_done()
 {
     ++GV(lookup_count);

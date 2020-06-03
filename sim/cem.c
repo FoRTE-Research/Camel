@@ -122,6 +122,17 @@ void task_init()
 	GV(node_count) = NUM_LETTERS;
 }
 
+#if ALL
+    #define prepare_task_sample() memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t))
+#elif IDEM
+    #define prepare_task_sample() cps(letter_idx)
+#elif NONE
+    #define prepare_task_sample() 
+#else
+    #error type of system not defined
+#endif
+#define writes_task_sample() cps(letter_idx); cps(check)
+
 void task_sample()
 {
 	unsigned next_letter_idx = GV(letter_idx) + 1;
@@ -141,6 +152,17 @@ void task_sample()
 	}
 }
 
+#if ALL
+    #define prepare_task_measure_temp() memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t))
+#elif IDEM
+    #define prepare_task_measure_temp() cps(prev_sample)
+#elif NONE
+    #define prepare_task_measure_temp()
+#else
+    #error type of system not defined
+#endif
+#define writes_task_measure_temp() cps(prev_sample); cps(sample)
+
 void task_measure_temp()
 {
 	sample_t prev_sample;
@@ -152,6 +174,17 @@ void task_measure_temp()
 	GV(sample) = sample;
 	//TRANSITION_TO(task_letterize);
 }
+
+#if ALL
+    #define prepare_task_letterize() memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t))
+#elif IDEM
+    #define prepare_task_letterize() 
+#elif NONE
+    #define prepare_task_letterize()
+#else
+    #error type of system not defined
+#endif
+#define writes_task_letterize() cps(letter)
 
 void task_letterize()
 {
@@ -167,6 +200,16 @@ void task_letterize()
 	//TRANSITION_TO(task_compress);
 }
 
+#if ALL
+    #define prepare_task_compress() memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t))
+#elif IDEM
+    #define prepare_task_compress() cps(sample_count)
+#elif NONE
+    #define prepare_task_compress()
+#else
+    #error type of system not defined
+#endif
+#define writes_task_compress() cps(sibling); cps_s(parent_node); cps(parent); cps(child); cps(sample_count)
 void task_compress()
 {
 	node_t parent_node;
@@ -182,6 +225,16 @@ void task_compress()
 	//TRANSITION_TO(task_find_sibling);
 }
 
+#if ALL
+    #define prepare_task_find_sibling() memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t))
+#elif IDEM
+    #define prepare_task_find_sibling() cps(sibling)
+#elif NONE
+    #define prepare_task_find_sibling()
+#else
+    #error type of system not defined
+#endif
+#define writes_task_find_sibling() cps(parent_next); cps(check); cps(sibling)
 void task_find_sibling()
 {
 	node_t *sibling_node;
@@ -220,6 +273,16 @@ void task_find_sibling()
 	}
 }
 
+#if ALL
+    #define prepare_task_add_node() memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t))
+#elif IDEM
+    #define prepare_task_add_node() cps(sibling)
+#elif NONE
+    #define prepare_task_add_node()
+#else
+    #error type of system not defined
+#endif
+#define writes_task_add_node() cps(sibling); cps(check); cps_s(sibling_node)
 void task_add_node()
 {
 	node_t *sibling_node;
@@ -244,6 +307,16 @@ void task_add_node()
 	}
 }
 
+#if ALL
+    #define prepare_task_add_insert() memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t))
+#elif IDEM
+    #define prepare_task_add_insert() cps(node_count)
+#elif NONE
+    #define prepare_task_add_insert()
+#else
+    #error type of system not defined
+#endif
+#define writes_task_add_insert() cps(write1); cps(write2); cpas_s(dict, write1); cpas_s(dict, write2); cpas_s(dict, child); cps(symbol); cps(node_count)
 void task_add_insert()
 {
 
@@ -288,6 +361,16 @@ void task_add_insert()
 	//TRANSITION_TO(task_append_compressed);
 }
 
+#if ALL
+    #define prepare_task_append_compressed() memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t))
+#elif IDEM
+    #define prepare_task_append_compressed() cps(out_len)
+#elif NONE
+    #define prepare_task_append_compressed()
+#else
+    #error type of system not defined
+#endif
+#define writes_task_append_compressed() cpas_s(compressed_data, write1); cps(out_len)
 void task_append_compressed()
 {
 	//int i = GV(out_len);

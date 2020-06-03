@@ -46,6 +46,7 @@ override BFLAGS += \
 	-std=c99 \
 	-Wall \
 	-MD \
+	-I ../checkpoint \
 	-I $(GCC_BIN) \
 	-I $(GCC_INCLUDE) \
 	-I $(ELF_INCLUDE) \

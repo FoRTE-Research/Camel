@@ -3,16 +3,12 @@
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
-//#include <iostream>
 #include <stdio.h>
 
 //using namespace std;
-
-
 #define SEED 4L
 #define ITER 100
 #define CHAR_BIT 8
-
 
 uint16_t tmp_stack_crc;
 uint16_t tmp_stack_buf_crc;

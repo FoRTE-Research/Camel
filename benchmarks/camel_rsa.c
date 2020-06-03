@@ -5,7 +5,8 @@
 #include <math.h>
 #include <string.h>
 
-#include "../checkpoint/camel_ckpt_defines.h"
+#include "macros.h"
+#include "camel_ckpt_defines.h"
 
 #define KEY_SIZE_BITS    64
 #define DIGIT_BITS       8 // arithmetic ops take 8-bit args produce 16-bit result
@@ -54,16 +55,6 @@ typedef uint16_t camel_reg_t;
 // Temporary CRC results
 uint16_t tmp_stack_crc;
 uint16_t tmp_stack_buf_crc;
-
-// Macros and macro redefinitions!
-#define GV(x) unsafe->globals.x
-#define MGV(x) safe->globals.x //to be used only in main with conditionals
-
-// Macros that define how prepare statements copy variables and arrays
-#define cps(x) unsafe->globals.x = safe->globals.x
-#define cpas(x,y) unsafe->globals.x[unsafe->globals.y] = safe->globals.x[unsafe->globals.y]
-#define cpaso(x, y) unsafe->globals.x[y] = safe->globals.x[y]
-#define cpa(x,y) memcpy(unsafe->globals.x,safe->globals.x,y)
 
 #if (CRC_ON && CRC_OFF) || !(CRC_ON || CRC_OFF)
 #error You must define exactly one of CRC_ON and CRC_OFF
@@ -257,7 +248,6 @@ void task_init()
 	//branch vars
 	GV(check) = 0;
 	GV(check_final) = 0;
-	//TRANSITION_TO(task_pad);
 }
 
 void task_pad()
@@ -266,7 +256,6 @@ void task_pad()
 
 	if (GV(block_offset) >= GV(message_length)) {
 		task_done();
-		//TRANSITION_TO(task_print_cyphertext);
 	}
 
 	digit_t zero = 0;
@@ -280,13 +269,11 @@ void task_pad()
 	for (i = 1; i < NUM_DIGITS; ++i)
 		GV(block)[i] = 0;
 
-	//GV(exponent_next) = GV(exponent);
 	GV(exponent) = pubkey.e;
 
 	GV(block_offset) += NUM_DIGITS - NUM_PAD_DIGITS;
 
 	GV(check) = 2;
-	//TRANSITION_TO(task_exp);
 }
 
 void task_exp()
@@ -295,11 +282,9 @@ void task_exp()
 	if (GV(exponent) & 0x1) {
 		GV(exponent) >>= 1;
         GV(check) = 0;
-		//TRANSITION_TO(task_mult_block);
 	} else {
 		GV(exponent) >>= 1;
         GV(check) = 1;
-		//TRANSITION_TO(task_square_base);
 	}
 }
 
@@ -307,9 +292,7 @@ void task_mult_block()
 {
 
     GV(check_final) = 0;
-	// TODO: pass args to mult: message * base
-	//GV(next_task) = TASK_REF(task_mult_block_get_result);
-	//TRANSITION_TO(task_mult_mod);
+
 }
 
 void task_mult_block_get_result()
@@ -320,11 +303,9 @@ void task_mult_block_get_result()
 		GV(block)[i] = GV(product)[i];
 	}
 
-	// On last iteration we don't need to square base
 	if (GV(exponent) > 0) {
 
 		GV(check) = 1;
-		//TRANSITION_TO(task_square_base);
 
 	} else { // block is finished, save it
 
@@ -338,14 +319,8 @@ void task_mult_block_get_result()
 			}
 
 		} 
-		// else {
-
-		// 	// carry on encoding, though
-		// }
-
-
+		
 		GV(check) = 0;
-		//TRANSITION_TO(task_pad);
 	}
 
 }
@@ -353,8 +328,7 @@ void task_mult_block_get_result()
 void task_square_base()
 {
 	GV(check_final) = 1;
-	//GV(next_task) = TASK_REF(task_square_base_get_result);
-	//TRANSITION_TO(task_mult_mod);
+
 }
 
 void task_square_base_get_result()
@@ -366,7 +340,6 @@ void task_square_base_get_result()
 	}
 
 	GV(check) = 2;
-	//TRANSITION_TO(task_exp);
 }
 
 void task_mult_mod()
@@ -374,7 +347,6 @@ void task_mult_mod()
 	GV(digit) = 0;
 	GV(carry) = 0;
 
-	//TRANSITION_TO(task_mult);
 }
 
 void task_mult()
@@ -404,17 +376,11 @@ void task_mult()
 	p &= DIGIT_MASK;
 
 	GV(product)[GV(digit)] = p;
-	//GV(print_which) = 0;
 	GV(digit)++;
 
 	if (GV(digit) < NUM_DIGITS * 2) {
 		GV(carry) = c;
-		//TRANSITION_TO(task_mult);
 	} 
-	// else {
-	// 	//GV(next_task_print) = TASK_REF(task_reduce_digits);
-	// 	//TRANSITION_TO(task_print_product);
-	// }
 }
 
 void task_reduce_digits()
@@ -428,13 +394,11 @@ void task_reduce_digits()
 
 	if (GV(product)[d] == 0) {
 		GV(check) = 0;
-		//TRANSITION_TO(task_init);
 	}
 
 	GV(reduce) = d;
 
 	GV(check) = 1;
-	//TRANSITION_TO(task_reduce_normalizable);
 }
 
 void task_reduce_normalizable()
@@ -459,17 +423,14 @@ void task_reduce_normalizable()
 	if (!normalizable && GV(reduce) == NUM_DIGITS - 1) {
 
 		GV(check) = 0;
-		//transition_to(GV(next_task));
 	}
 
 	if (normalizable) {
 
 		GV(check) = 1;
-		//TRANSITION_TO(task_reduce_normalize);
 	} else {
 
 		GV(check) = 2;
-		//TRANSITION_TO(task_reduce_n_divisor);
 	}
 }
 void task_reduce_normalize()
@@ -478,8 +439,6 @@ void task_reduce_normalize()
 	unsigned borrow;
 
 	int i;
-	// To call the print task, we need to proxy the values we don't touch
-	//GV(print_which) = 0;
 
 	borrow = 0;
 	for (i = 0; i < NUM_DIGITS; ++i) {
@@ -504,12 +463,9 @@ void task_reduce_normalize()
 
 	if (GV(offset) > 0) { 
 		GV(check) = 2;
-		//GV(next_task_print) = TASK_REF(task_reduce_n_divisor);
 	} else {
 		GV(check) = 0;
-		//GV(next_task_print) = GV(next_task);
 	}
-	//TRANSITION_TO(task_print_product);
 }
 
 void task_reduce_n_divisor()
@@ -519,7 +475,6 @@ void task_reduce_n_divisor()
 
 	GV(n_div) = ( GV(modulus)[op1]<< DIGIT_BITS) + GV(modulus)[op2];
 
-	//TRANSITION_TO(task_reduce_quotient);
 }
 
 void task_reduce_quotient()
@@ -546,7 +501,6 @@ void task_reduce_quotient()
 
 	GV(reduce)--;
 
-	//TRANSITION_TO(task_reduce_multiply);
 }
 
 void task_reduce_multiply()
@@ -582,8 +536,6 @@ void task_reduce_multiply()
 
 	}
 
-	//GV(next_task_print) = TASK_REF(task_reduce_compare);
-	//TRANSITION_TO(task_print_product);
 }
 
 void task_reduce_compare()
@@ -604,14 +556,8 @@ void task_reduce_compare()
 
 	if (relation == '<') {
 		GV(check) = 0;
-		//TRANSITION_TO(task_reduce_add);
 	} 
-	// else {
-	// 	GV(check) = 1;
-	// 	//TRANSITION_TO(task_reduce_subtract);
-	// }
 }
-
 
 void task_reduce_add()
 {
@@ -668,13 +614,6 @@ void task_reduce_subtract()
 
 		}
 	}
-
-	// if (GV(reduce) + 1 > NUM_DIGITS) {
-	// 	GV(next_task_print) = TASK_REF(task_reduce_quotient);
-	// } else { 
-	// 	GV(next_task_print) = GV(next_task);
-	// }
-	// TRANSITION_TO(task_print_product);
 }
 
 void task_commit() {
@@ -691,117 +630,83 @@ int main() {
 
 	while (1) {
 
-		task_init();
-		commit();
-		task_commit();
+		TASK(task_init);
 
 		while (1) {
 
-			if (GV(check) == 0) {
+			if (MGV(check) == 0) {
 
-				task_pad();
-				commit();
-				task_commit();
+				TASK(task_pad);
 
 			}
 
-			if (GV(check) == 2) {
+			if (MGV(check) == 2) {
 
-				task_exp();
-				commit();
-				task_commit();
+				TASK(task_exp);
 
 			}
 
-			if (GV(check) == 0) {
+			if (MGV(check) == 0) {
 
-				task_mult_block();
-				commit();
-				task_commit();
+				TASK(task_mult_block);
 
-			} else if (GV(check) == 1) {
+			} else if (MGV(check) == 1) {
 				
-				task_square_base();
-				commit();
-				task_commit();
+				TASK(task_square_base);
+
 			}
 
-			task_mult_mod();
-			commit();
-			task_commit();
+			TASK(task_mult_mod);
 
 			do {
 
-				task_mult();
-				commit();
-				task_commit();
+				TASK(task_mult);
 
-			} while (GV(digit) < NUM_DIGITS * 2);
+			} while (MGV(digit) < NUM_DIGITS * 2);
 
-			task_reduce_digits();
-			commit();
-			task_commit();
+			TASK(task_reduce_digits);
 
-			if (GV(check) == 0)
+			if (MGV(check) == 0)
 				break;
 
-			task_reduce_normalizable();
-			commit();
-			task_commit();
+			TASK(task_reduce_normalizable);
 
-			if (GV(check) == 1) {
+			if (MGV(check) == 1) {
 
-				task_reduce_normalize();
-				commit();
-				task_commit();
+				TASK(task_reduce_normalize);
+
 			}
 
-			if (GV(check) == 2) {
+			if (MGV(check) == 2) {
 
-				task_reduce_n_divisor();
-				commit();
-				task_commit();
+				TASK(task_reduce_n_divisor);
 
 				do {
 
-					task_reduce_quotient();
-					commit();
-					task_commit();
+					TASK(task_reduce_quotient);
 
-					task_reduce_multiply();
-					commit();
-					task_commit();
+					TASK(task_reduce_multiply);
 
-					task_reduce_compare();
-					commit();
-					task_commit();
+					TASK(task_reduce_compare);
 
-					if (GV(check) == 0) {
+					if (MGV(check) == 0) {
 
-						task_reduce_add();
-						commit();
-						task_commit();
+						TASK(task_reduce_compare);
 
 					}
 
-					task_reduce_subtract();
-					commit();
-					task_commit();
+					TASK(task_reduce_subtract);
 
-				} while(GV(reduce) + 1 > NUM_DIGITS);
+				} while(MGV(reduce) + 1 > NUM_DIGITS);
 			}
 
-			if (GV(check_final) == 0) {
+			if (MGV(check_final) == 0) {
 
-				task_mult_block_get_result();
-				commit();
-				task_commit();
+				TASK(task_mult_block_get_result);
 
-			} else if (GV(check_final) == 1) {
+			} else if (MGV(check_final) == 1) {
 
-				task_square_base_get_result();
-				commit();
-				task_commit();
+				TASK(task_square_base_get_result);
 
 			}
 		}
