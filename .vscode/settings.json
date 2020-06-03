@@ -11,6 +11,9 @@
         "atomic": "cpp",
         "algorithm": "cpp",
         "*.tcc": "cpp",
-        "unordered_map": "cpp"
+        "unordered_map": "cpp",
+        "*.txt": "c",
+        "stdint.h": "c",
+        "camel_ckpt_defines.h": "c"
     }
 }

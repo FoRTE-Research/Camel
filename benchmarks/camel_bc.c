@@ -1,15 +1,16 @@
 #include <msp430.h>
 #include <stdlib.h>
-
 #include <stdint.h>
 #include <stdbool.h>
 #include <math.h>
+#include <string.h>
 
 #include "../checkpoint/camel_ckpt_defines.h"
 
 #define SEED 4L
 #define ITER 100
 #define CHAR_BIT 8
+
 
 // Camel stuff
 
@@ -20,19 +21,14 @@ typedef uint16_t camel_reg_t;
 uint16_t tmp_stack_crc;
 uint16_t tmp_stack_buf_crc;
 
-// Macros for calling tasks
-
-// #define TASK(func) func()														  //For uninstrumented
-// #define TASK(func) prepare_func(); func(); commit(); writes_func(); task_commit() //For modes READS, WRITES, IDEM
-// #define TASK(func) prepare_func(); func(); commit(); task_commit()                //For mode ALL
-#define TASK(func) func(); commit(); task_commit()                                //For Compiler
+#define TASK(func) func()														  //For uninstrumented
+// #define TASK(func) func(); commit(); task_commit()                                //For Compiler
 // #define TASK(func) func(); task_commit()                                          //For Awien
 
 // Macros for calling task_init
 
-// #define TASK_INIT(func) func()														//For uninstrumented
-// #define TASK_INIT(func) func(); memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t)); commit(); task_commit() //For Modes ALL, READS, WRITES and IDEM
-#define TASK_INIT(func) func(); commit(); task_commit() 							//For Compiler
+#define TASK_INIT(func) func()														//For uninstrumented
+// #define TASK_INIT(func) func(); commit(); task_commit() 							//For Compiler
 // #define TASK_INIT(func) func(); task_commit()										//for Awien
 
 // Macros and macro redefinitions!
@@ -91,7 +87,6 @@ uint16_t tmp_stack_buf_crc;
 
 #endif
 
-
 void task_init();
 void task_select_func();
 void task_bit_count();
@@ -106,6 +101,7 @@ void task_done();
 // Globals
 typedef struct camel_global_t
 {
+
 	unsigned n_0;
 	unsigned n_1;
 	unsigned n_2;
@@ -117,7 +113,7 @@ typedef struct camel_global_t
 	uint32_t seed;
 	unsigned iter;
 
-    } camel_global_t;
+} camel_global_t;
 // End globals
 
 typedef struct camel_buffer_t
@@ -251,7 +247,8 @@ void task_select_func() {
 
 	GV(seed) = (uint32_t)SEED; // for test, seed is always the same
 	GV(iter) = 0;
-	GV(func)++;
+	GV(func)++; 
+
 	// if(GV(func) == 0){
 	// 	GV(func)++;
 	// 	TRANSITION_TO(task_bit_count);
@@ -281,7 +278,7 @@ void task_select_func() {
 	// 	TRANSITION_TO(task_bit_shifter);
 	// }
 	// else{
-	// 	TRANSITION_TO(task_done);
+	// 	TRANSITION_TO(task_end);
 
 	// }
 }
@@ -420,80 +417,104 @@ void task_bit_shifter() {
 void task_done() {
 
 	exit(0);	
-//	TRANSITION_TO(task_end);
 }
 
-void task_commit() {
+void task_commit(){
 
 }
 
 int main() {
 
-	//Camel Initialization
     camel.flag = CKPT_1_FLG;
     safe = &(camel.buf1);
     unsafe = &(camel.buf2);
     camel_init();
 
-	//Benchmark Initialization
-	TASK_INIT(task_init);
+	task_init();
+	commit();
+	task_commit();
 
-	//Tasks
-	while (1) {
+	while (1){
 
-		TASK(task_select_func);
+		task_select_func();
+		commit();
+		task_commit();
 
-		if (GV(func) == 1) {
+		if (GV(func) == 1){
 
 			while (GV(iter) < ITER) {
-				TASK(task_bitcount);
+				
+				task_bit_count();
+				commit();
+				task_commit();
+
 			}
 
 		} else if (GV(func) == 2) {
 
 			while (GV(iter) < ITER) {
-				TASK(task_bit_count);
+				
+				task_bitcount();
+				commit();
+				task_commit();
+
 			}
 
 		} else if (GV(func) == 3) {
-
+			
 			while (GV(iter) < ITER) {
-				TASK(task_ntbl_bitcnt);
+				
+				task_ntbl_bitcnt();
+				commit();
+				task_commit();
+
 			}
 
 		} else if (GV(func) == 4) {
 
 			while (GV(iter) < ITER) {
-				TASK(task_ntbl_bitcount);
+				
+				task_ntbl_bitcount();
+				commit();
+				task_commit();
+
 			}
 			
 		} else if (GV(func) == 5) {
-			
-			while (GV(iter) < ITER) {
-				TASK(task_BW_btbl_bitcount);
-			}
 
+			while (GV(iter) < ITER) {
+				
+				task_BW_btbl_bitcount();
+				commit();
+				task_commit();
+
+			}
+			
 		} else if (GV(func) == 6) {
 
 			while (GV(iter) < ITER) {
-				TASK(task_AR_btbl_bitcount);
+				task_AR_btbl_bitcount();
+				commit();
+				task_commit();
+
 			}
 			
 		} else if (GV(func) == 7) {
 			
 			while (GV(iter) < ITER) {
-				TASK(task_bit_shifter);
+				
+				task_bit_shifter();
+				commit();
+				task_commit();
+
 			}
 
-		} else {
+		} else if (GV(func) == 8) {
 
-			break;
+			task_done();
 
-		}
+		} 
 	}
-
-	//Benchmark end
-	task_done();
 }
 
 #ifdef __MSP430FR6989__

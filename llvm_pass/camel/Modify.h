@@ -30,4 +30,5 @@ class Modify {
 
         // variables
         Module *myModule;
+        int bytes;
 };

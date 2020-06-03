@@ -1,12 +1,16 @@
-#override outputs += camel_cem.bc camel_cem.ll camel_cem_mod.bc camel_cem_mod.ll camel_cem_mod.s camel_cem.s camel_cem.out
-#outputs += camel_cuckoo.bc camel_cuckoo.ll camel_cuckoo_mod.bc camel_cuckoo_mod.ll camel_cuckoo_mod.s camel_cuckoo.s camel_cuckoo.out
-#override outputs += camel_rsa.bc camel_rsa.ll camel_rsa_mod.bc camel_rsa_mod.ll camel_rsa_mod.s camel_rsa.s #camel_cuckoo.out
-#override outputs += camel_ar.bc camel_ar.ll camel_ar_mod.bc camel_ar_mod.ll camel_ar_mod.s camel_ar.s camel_ar.out
-override outputs += camel_bc.bc camel_bc.ll camel_bc_mod.bc camel_bc_mod.ll camel_bc_mod.s camel_bc.s camel_bc.out
-#override outputs += basic_math.bc basic_math.ll basic_math_mod.bc basic_math_mod.ll basic_math_mod.s basic_math.s basic_math.out
+#Usage: make crc= mode= board=
 
+# Benchmarks
+override outputs += camel_ar.bc camel_ar.ll camel_ar_mod.bc camel_ar_mod.ll camel_ar_mod.s camel_ar.s camel_ar.out
+override outputs += camel_bc.bc camel_bc.ll camel_bc_mod.bc camel_bc_mod.ll camel_bc_mod.s camel_bc.s camel_bc.out
+override outputs += camel_cem.bc camel_cem.ll camel_cem_mod.bc camel_cem_mod.ll camel_cem_mod.s camel_cem.s camel_cem.out
+override outputs += camel_cuckoo.bc camel_cuckoo.ll camel_cuckoo_mod.bc camel_cuckoo_mod.ll camel_cuckoo_mod.s camel_cuckoo.s camel_cuckoo.out
+override outputs += camel_rsa.bc camel_rsa.ll camel_rsa_mod.bc camel_rsa_mod.ll camel_rsa_mod.s camel_rsa.s camel_rsa.out
+
+#Path to benchmarks source code
 VPATH = ../benchmarks
 
+#Include files and aliases
 GCC_DIR =  /home/saim/ti/msp430-gcc
 LLVM_DIR = /home/saim/Desktop/llvm-project/build
 CAMEL = ../llvm_pass/camel/camel.so
@@ -22,11 +26,16 @@ OPT = $(LLVM_DIR)/bin/opt
 LLC = $(LLVM_DIR)/bin/llc
 GCC = $(GCC_BIN)/msp430-elf-gcc
 
-DEVICE  = __MSP430FR6989__
-CRC = CRC_ON
-MODE = NONE
+#Can take values: __MSP430FR6989__, __MSP430F5529__
+DEVICE  = $(board)
 
-override CFLAGS += \
+#Can take values: CRC_ON, CRC_OFF
+CRC = $(crc)
+
+#Can take value: NONE, ALL, IDEM
+MODE = $(mode)
+
+override BFLAGS += \
 	--target=msp430 \
 	-D$(DEVICE) \
 	-nobuiltininc \
@@ -42,18 +51,31 @@ override CFLAGS += \
 	-I $(ELF_INCLUDE) \
 	-I $(LIB_INCLUDE) \
 
+override CFLAGS += \
+	-D$(DEVICE) \
+	-nostdinc++ \
+	-isysroot /none \
+	-O0	 \
+	-g \
+	-std=c99 \
+	-Wall \
+	-MD \
+	-L $(GCC_INCLUDE) \
+	-T ../ld/msp430fr6989.ld \
+	../checkpoint/camel_helpers.S
+
 override LLCFLAGS += \
 	-march=msp430 \
 	-mcpu=msp430x \
 
 all: $(outputs)
 
-#our pipeline: C code (CLANG)-> LLVM IR (OPT)-> LLVM IR Mod (LLC)-> Assembly code (MSP430-GCC) -> executable
+#pipeline: C code (CLANG)-> LLVM IR (OPT)-> LLVM IR Mod (LLC)-> Assembly code (MSP430-GCC) -> executable
 #some auxilary steps: LLVM IR .bc (LLVM-DIS)-> LLVM readable code .ll
 #some auxilary steps: LLVM IR .bc (LLC)-> Assembly .s 
 
-%.bc : %.c ../checkpoint/camel_helpers.S
-	$(CLANG) -emit-llvm -c -fheinous-gnu-extensions $(CFLAGS) -D$(CRC) -D$(MODE) $< -o $@
+%.bc : %.c
+	$(CLANG) -emit-llvm -c -fheinous-gnu-extensions $(BFLAGS) -D$(CRC) -D$(MODE) $< -o $@
 	
 %.ll : %.bc
 	$(DIS) $< -o $@
@@ -63,7 +85,7 @@ all: $(outputs)
 
 %_mod.bc: %.bc
 	cd ../llvm_pass && cmake . && make && cd ../llvm_bytecode
-	$(OPT) -load $(CAMEL) --CamelPass $< > $@
+	$(OPT)  -load $(CAMEL) --CamelPass -$(MODE) $< > $@
 
 %_mod.ll : %_mod.bc
 	$(DIS) $< -o $@
@@ -72,7 +94,7 @@ all: $(outputs)
 	$(LLC) $(LLCFLAGS) $< -o $@
 
 %.out : %_mod.s
-	$(GCC_BIN)/msp430-elf-gcc -I $(GCC_INCLUDE) -mmcu=msp430fr6989 -Wall -g -fdata-sections -ffunction-sections -T ../ld/msp430fr6989.ld ../checkpoint/camel_helpers.S -L $(GCC_INCLUDE) $< -o $@ -lm
+	$(GCC_BIN)/msp430-elf-gcc  $(CFLAGS) $< -o $@ -lm
 
 clean:
 	$(RM) *.bc *.ll *.s *.out *.d

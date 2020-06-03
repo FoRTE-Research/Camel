@@ -1,4 +1,19 @@
 #include "CamelPass.h"
+#include "llvm/Support/CommandLine.h"
+
+// Optimization modes
+enum OptLevel {
+  NONE, 
+  ALL, 
+  IDEM
+};
+
+// Commandline arguments for optimization level
+cl::opt<OptLevel> OptimizationLevel(cl::desc("Choose optimization level:"),
+cl::values(
+    clEnumVal(NONE , "No optimizations, enable debugging"),
+    clEnumVal(ALL, "Enable trivial optimizations"),
+    clEnumVal(IDEM, "Enable default optimizations")));
 
 bool CamelPass::runOnModule(Module &M){
 
@@ -6,55 +21,56 @@ bool CamelPass::runOnModule(Module &M){
     myModule = &M;
     getGlobals(&M);
     modifyTasks.myModule = myModule;
+    modifyTasks.bytes = 0;
     
-    // analyze all tasks
-    analysisInfo.AnalyzeModule(M);
+    //  Only runs for ALL and IDEM
+    if (OptimizationLevel != NONE){
 
-    errs() << "\nVERSIONING \n";
+        // analyze all tasks
+        analysisInfo.AnalyzeModule(M);
 
-    //copy everything after task_init
-    modifyTasks.copyBuffers(analysisInfo.taskCallList[1], "unsafe", "safe");
+        errs() << "\nVERSIONING \n";
 
-    //MODE ALL
-    //The Mode "ALL" adds code to copy the safe buffer to the unsafe before every task call
-    //i++ for levels greater than o0 otherwise i=i+2
-    // for (int i=2; i<analysisInfo.taskCallList.size(); i = i+2){
-    //     analysisInfo.taskCallList[i]->dump();
-    //     modifyTasks.copyBuffers(analysisInfo.taskCallList[i], "unsafe", "safe");
-    // }
-
-    //MODE "LIST"
-    // LIST can equal reads 1, writes 2, idem 3
-    for( int i=2; i<analysisInfo.taskCallList.size(); i = i+2){
-
-        CallInst *taskCall = dyn_cast<CallInst>(analysisInfo.taskCallList[i]);
+        //copy everything after task_init
+        CallInst *taskCall = dyn_cast<CallInst>(analysisInfo.taskCallList[0]);
         StringRef taskName = taskCall->getCalledFunction()->getName();
         errs () << taskName + "\n";
+        modifyTasks.copyBuffers(analysisInfo.taskCallList[1], "unsafe", "safe");
 
-        errs () << "Before Task\n";
-        modifyTasks.copyVariables(taskName, analysisInfo.taskCallList[i], analysisInfo.idem);
+    }
+    
+    if (OptimizationLevel == ALL) {
 
-        errs () << "After Task\n";
-        modifyTasks.copyVariables(taskName, analysisInfo.taskCallList[i+1], analysisInfo.writes);
-        
+        //MODE ALL
+        for (int i=2; i<analysisInfo.taskCallList.size(); i = i+2){
+
+            CallInst *taskCall = dyn_cast<CallInst>(analysisInfo.taskCallList[i]);
+            StringRef taskName = taskCall->getCalledFunction()->getName();
+            errs () << taskName + "\n";
+            modifyTasks.copyBuffers(analysisInfo.taskCallList[i], "unsafe", "safe");
+
+        }
+
+    } else if (OptimizationLevel == IDEM) { 
+
+        //MODE IDEM
+        for( int i=2; i<analysisInfo.taskCallList.size(); i = i+2){
+
+            CallInst *taskCall = dyn_cast<CallInst>(analysisInfo.taskCallList[i]);
+            StringRef taskName = taskCall->getCalledFunction()->getName();
+            errs () << taskName + "\n";
+
+            //errs () << "Before Task\n";
+            // modifyTasks.copyVariables(taskName, analysisInfo.taskCallList[i], analysisInfo.idem);
+
+            //errs () << "After Task\n";
+            modifyTasks.copyVariables(taskName, analysisInfo.taskCallList[i+1], analysisInfo.writes);
+            
+        }
+
     }
 
-    // testing
-    // for(int i=0; i<analysisInfo.taskCallList.size(); i++){
-
-    //     CallInst *taskCall = dyn_cast<CallInst>(analysisInfo.taskCallList[i]);
-    //     StringRef taskName = taskCall->getCalledFunction()->getName();
-    //     errs () << taskName + "\n";
-
-    //     modifyTasks.copyVariables(taskName, analysisInfo.taskCallList[i], analysisInfo.reads);
-
-    // }
-
-    // for(int i=0; i<analysisInfo.taskCallList.size(); i++){
-
-    //     analysisInfo.taskCallList[i]->dump();
-    // }
-
+    //errs () << "Bytes updated: " << modifyTasks.bytes << "\n";
     return true;
 }
 

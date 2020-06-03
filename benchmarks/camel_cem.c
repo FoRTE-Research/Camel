@@ -9,7 +9,7 @@
 #include "../checkpoint/camel_ckpt_defines.h"
 
 //Original size of buffer 3492
-////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////
 // #define NIL 0 // like NULL, but for indexes, not real pointers
 
 // #define DICT_SIZE         512
@@ -19,7 +19,7 @@
 // #define LETTER_MASK             0x00FF
 // #define LETTER_SIZE_BITS             8
 // #define NUM_LETTERS (LETTER_MASK + 1)
-////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////
 
 // v1 size of buffer 1708
 ////////////////////////////////////////////////////////////////////
@@ -66,7 +66,6 @@ void task_find_sibling();
 void task_add_node();
 void task_add_insert();
 void task_append_compressed();
-void task_print();
 void task_done();
 
 // Camel stuff

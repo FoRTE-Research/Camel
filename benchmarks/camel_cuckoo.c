@@ -468,10 +468,16 @@ void task_insert_done()
     ++GV(insert_count);
     GV(inserted_count) += GV(success);
 
-    if (GV(insert_count) < NUM_INSERTS) {
-    } else {
+    // if (GV(insert_count) < NUM_INSERTS) {
+    // } else {
+    //     GV(key) = init_key;
+    // }
+
+    if (GV(insert_count) >= NUM_INSERTS) {
+
         GV(key) = init_key;
-    }
+        
+    } 
 }
 
 // Reads: filter[index1], filter[index2], fingerprint
@@ -503,8 +509,8 @@ void task_lookup_search()
         }
     }
 
-    if (!GV(member)) {
-    }
+    // if (!GV(member)) {
+    // }
 }
 
 // Reads: lookup_count, member, member_count
@@ -529,9 +535,9 @@ void task_lookup_done()
 
     GV(member_count) += GV(member);
 
-    if (GV(lookup_count) < NUM_LOOKUPS) {
-    } else {
-    }
+    // if (GV(lookup_count) < NUM_LOOKUPS) {
+    // } else {
+    // }
 }
 
 void task_done()

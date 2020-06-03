@@ -1,11 +1,13 @@
-#include <msp430.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
+//#include <iostream>
+#include <stdio.h>
 
-#include "../checkpoint/camel_ckpt_defines.h"
+//using namespace std;
+
 
 #define KEY_SIZE_BITS    64
 #define DIGIT_BITS       8 // arithmetic ops take 8-bit args produce 16-bit result
@@ -29,6 +31,8 @@ typedef struct {
 // chosen such that block value is less than the modulus. This is accomplished
 // by any value below 0x80, because the modulus is restricted to be above
 // 0x80 (see comments below).
+
+
 static const uint8_t PAD_DIGITS[] = { 0x01 };
 #define NUM_PAD_DIGITS (sizeof(PAD_DIGITS) / sizeof(PAD_DIGITS[0]))
 
@@ -39,81 +43,16 @@ static const pubkey_t pubkey = {
 #include "key64.txt"
 };
 
-static const unsigned char PLAINTEXT[] =
-#include "plaintext.txt"
-;
+static const unsigned char PLAINTEXT[] = ".RRRSSSAAA.";
 
 #define NUM_PLAINTEXT_BLOCKS (sizeof(PLAINTEXT) / (NUM_DIGITS - NUM_PAD_DIGITS) + 1)
 #define CYPHERTEXT_SIZE (NUM_PLAINTEXT_BLOCKS * NUM_DIGITS)
 
-// Camel stuff
-
-// 16-bit architecture
-typedef uint16_t camel_reg_t;
-
-// Temporary CRC results
 uint16_t tmp_stack_crc;
 uint16_t tmp_stack_buf_crc;
 
-// Macros and macro redefinitions!
-#define GV(x) unsafe->globals.x
-#define MGV(x) safe->globals.x //to be used only in main with conditionals
-
-// Macros that define how prepare statements copy variables and arrays
-#define cps(x) unsafe->globals.x = safe->globals.x
-#define cpas(x,y) unsafe->globals.x[unsafe->globals.y] = safe->globals.x[unsafe->globals.y]
-#define cpaso(x, y) unsafe->globals.x[y] = safe->globals.x[y]
-#define cpa(x,y) memcpy(unsafe->globals.x,safe->globals.x,y)
-
-#if (CRC_ON && CRC_OFF) || !(CRC_ON || CRC_OFF)
-#error You must define exactly one of CRC_ON and CRC_OFF
-#endif
-
-#ifdef CRC_ON
-#define commit() do{                                                                                                      \
-                    _Pragma("GCC diagnostic ignored \"-Wint-conversion\"")                                                \
-										if(camel.flag == CKPT_1_FLG){																																					\
-											safe = &(camel.buf2);																																								\
-											unsafe = &(camel.buf1);																																							\
-											__dump_registers(safe->reg_file);																																		\
-										  tmp_stack_crc 		= __fast_hw_crc(_get_SP_register()+2, SRAM_TOP-(_get_SP_register()+2), CRC_INIT);	\
-										  tmp_stack_buf_crc = __fast_hw_crc(safe, sizeof(camel_buffer_t) - 2, tmp_stack_crc);									\
-										  safe->stack_and_buf_crc = tmp_stack_buf_crc;																												\
-											camel.flag = CKPT_2_FLG;																																						\
-										} else{																																																\
-											safe = &(camel.buf1);																																								\
-											unsafe = &(camel.buf2);																																							\
-											__dump_registers(safe->reg_file);																																		\
-										  tmp_stack_crc 		= __fast_hw_crc(_get_SP_register()+2, SRAM_TOP-(_get_SP_register()+2), CRC_INIT);	\
-										  tmp_stack_buf_crc = __fast_hw_crc(safe, sizeof(camel_buffer_t) - 2, tmp_stack_crc);									\
-										  safe->stack_and_buf_crc = tmp_stack_buf_crc;																												\
-											camel.flag = CKPT_1_FLG;																																						\
-										}																																																			\
-                    _Pragma("GCC diagnostic warning \"-Wint-conversion\"")                                                \
-                  }	while(0)
-
-#elif CRC_OFF
-#define commit() do{                                                                                                      \
-                    _Pragma("GCC diagnostic ignored \"-Wint-conversion\"")                                                \
-										if(camel.flag == CKPT_1_FLG){																																					\
-											safe = &(camel.buf2);																																								\
-											unsafe = &(camel.buf1);																																							\
-											__dump_registers(safe->reg_file);																																		\
-											camel.flag = CKPT_2_FLG;																																						\
-										} else{																																																\
-											safe = &(camel.buf1);																																								\
-											unsafe = &(camel.buf2);																																							\
-											__dump_registers(safe->reg_file);																																		\
-											camel.flag = CKPT_1_FLG;																																						\
-										}																																																			\
-                    _Pragma("GCC diagnostic warning \"-Wint-conversion\"")                                                \
-                  }	while(0)
-
-#endif
-
 // Globals
-typedef struct camel_global_t
-{
+typedef struct camel_global_t{
 
 	digit_t product[NUM_DIGITS*2];
 	digit_t exponent;
@@ -136,13 +75,13 @@ typedef struct camel_global_t
 	// conditional global
 	unsigned check;
 	unsigned check_final;
+	unsigned count;
 
 } camel_global_t;
-// End globals
 
 typedef struct camel_buffer_t
 {
-  camel_reg_t reg_file[NUM_REGISTERS_SAVED];  // 11 16-bit registers: 30 bytes
+  int reg_file[10];  // 11 16-bit registers: 30 bytes
   camel_global_t globals;
   uint16_t stack_and_buf_crc;                         			// CRC of (stack) | (register file) | (globals)
 } camel_buffer_t;
@@ -154,93 +93,31 @@ struct Camel
   camel_buffer_t buf2;
 } camel;
 
-extern void     __crt0_start();
-extern uint16_t __fast_hw_crc(void* ptr, uint16_t len, uint16_t init);
-extern void 		__dump_registers(uint16_t* ptr);
-extern void 		__restore_registers(uint16_t* ptr);	// Warning! This will never return!
+camel_buffer_t *safe = &(camel.buf2);
+camel_buffer_t *unsafe = &(camel.buf1);
 
-camel_buffer_t *safe, *unsafe;
-
-void camel_init(){
-  WDTCTL = WDTPW | WDTHOLD; // Stop WDT
-
-  P1DIR |= BIT0;
-  //Turn both LEDs on
-  P1OUT &= ~BIT0;
-
-#ifdef __MSP430FR6989__
-  // Disable the GPIO power-on default high-impedance mode to activate
-  // previously configured port settings
-  PM5CTL0 &= ~LOCKLPM5;
-
-  //Set clock to 1MHz
-
-  // Clock System Setup
-  CSCTL0_H = CSKEY >> 8;                    // Unlock CS registers
-  CSCTL1 = DCOFSEL_0 | DCORSEL;             // Set DCO to 1MHz
-  CSCTL2 = SELA__VLOCLK | SELS__DCOCLK | SELM__DCOCLK;  // Set SMCLK = MCLK = DCO,
-                                                        // ACLK = VLOCLK
-  CSCTL3 = DIVA__1 | DIVS__1 | DIVM__1;     // Set all dividers
-  CSCTL0_H = 0;                             // Lock CS registers
-
-  // Zero FRAM wait states
-  FRCTL0 = FRCTLPW | NWAITS_0;
-#endif
-}
-
-uint16_t buf[NUM_REGISTERS_SAVED];
-
-void camel_recover(){
-    if(camel.flag == CKPT_1_FLG) {
-        safe = &(camel.buf1);
-        unsafe = &(camel.buf2);
-    } else if(camel.flag == CKPT_2_FLG) {
-        safe = &(camel.buf2);
-        unsafe = &(camel.buf1);
-    } else {
-        __crt0_start();
-    }
-
-    // If the CRC is off, just assume data integrity
-    #if CRC_OFF
-    // memcpy(unsafe, safe, sizeof(camel_buffer_t));
-    _set_SP_register(safe->reg_file[R1_POS / 2]);
-    camel_init();
-    __restore_registers(safe->reg_file);
-    #elif CRC_ON
-		// Need to set stack pointer before we call things
-    // Calling it before we verify, but if it's incorrect the CRC will fail anyway
-    // TODO: Could potentially cause an error if the saved SP is so
-    // corrupted that it points to outside of SRAM
-
-    // Solution: Haven't stopped WDT so it will save us, but need to see if I
-    // can point WDT reset to __crt0_start instead of here
-		_set_SP_register(safe->reg_file[R1_POS / 2]);
-    _Pragma("GCC diagnostic ignored \"-Wint-conversion\"")
-		tmp_stack_crc = __fast_hw_crc(_get_SP_register()+2, SRAM_TOP-(_get_SP_register()+2), CRC_INIT);
-		tmp_stack_buf_crc = __fast_hw_crc(safe, sizeof(camel_buffer_t) - 2, tmp_stack_crc);	// Don't CRC the CRC result!
-    _Pragma("GCC diagnostic warning \"-Wint-conversion\"")
-
-		if(tmp_stack_buf_crc == safe->stack_and_buf_crc){
-			memcpy(unsafe, safe, sizeof(camel_buffer_t));	// Prevent SDC
-			camel_init();
-			__restore_registers(safe->reg_file);
-		} else{
-			__crt0_start();
-		}
-    #endif
-}
-
-// End Camel stuff
+#define GV(x) unsafe->globals.x
+#define MGV(x) safe->globals.x
+int global_count = 0;
 
 void task_done() {
 	 
+	//cout << "end" << endl;
+	//cout << GV(count) << endl;
+	//printf("The count is: %d\n", GV(count));
+	printf("The count is: %d\n", global_count);
+
+
 	exit(0);
 }
 
 
 void task_init()
 {
+
+	printf("task: %s\n", "task_init");
+	//cout << "task_init" << endl;
+	
 	int i;
 	unsigned message_length = sizeof(PLAINTEXT) - 1; // skip the terminating null byte
 
@@ -257,11 +134,16 @@ void task_init()
 	//branch vars
 	GV(check) = 0;
 	GV(check_final) = 0;
+	GV(count) = 0;
 	//TRANSITION_TO(task_pad);
 }
 
 void task_pad()
 {
+
+	printf("task: %s\n", "task_pad");
+
+	//cout << "task_pad" << endl;
 	int i;
 
 	if (GV(block_offset) >= GV(message_length)) {
@@ -292,12 +174,17 @@ void task_pad()
 void task_exp()
 {
 
+	printf("task: %s\n", "task_exp");
+	//cout << "task_exp" << endl;
+
 	if (GV(exponent) & 0x1) {
 		GV(exponent) >>= 1;
+		GV(check_final) = 0;
         GV(check) = 0;
 		//TRANSITION_TO(task_mult_block);
 	} else {
 		GV(exponent) >>= 1;
+		GV(check_final) = 1;
         GV(check) = 1;
 		//TRANSITION_TO(task_square_base);
 	}
@@ -306,6 +193,7 @@ void task_exp()
 void task_mult_block()
 {
 
+	//cout << "task_mult_block" << endl;
     GV(check_final) = 0;
 	// TODO: pass args to mult: message * base
 	//GV(next_task) = TASK_REF(task_mult_block_get_result);
@@ -314,6 +202,10 @@ void task_mult_block()
 
 void task_mult_block_get_result()
 {
+
+	//cout << "task_mult_block_get_result" << endl;
+	printf("task: %s\n", "task_mult_block_Get_result");
+
 	int i;
 
 	for (i = NUM_DIGITS - 1; i >= 0; --i) { // reverse for printing
@@ -324,6 +216,7 @@ void task_mult_block_get_result()
 	if (GV(exponent) > 0) {
 
 		GV(check) = 1;
+		GV(check_final) = 1;
 		//TRANSITION_TO(task_square_base);
 
 	} else { // block is finished, save it
@@ -352,6 +245,9 @@ void task_mult_block_get_result()
 
 void task_square_base()
 {
+
+	//cout << "task_square_base" << endl;
+
 	GV(check_final) = 1;
 	//GV(next_task) = TASK_REF(task_square_base_get_result);
 	//TRANSITION_TO(task_mult_mod);
@@ -359,6 +255,9 @@ void task_square_base()
 
 void task_square_base_get_result()
 {
+	//cout << "task_square_base_get_result" << endl;
+	printf("task: %s\n", "task_square_base_get_Result");
+
 	int i;
 
 	for (i = 0; i < NUM_DIGITS; ++i) {
@@ -371,6 +270,11 @@ void task_square_base_get_result()
 
 void task_mult_mod()
 {
+
+	//cout << "task_mult_mod" << endl;
+	printf("task: %s\n", "task_mult_mod");
+
+
 	GV(digit) = 0;
 	GV(carry) = 0;
 
@@ -379,6 +283,9 @@ void task_mult_mod()
 
 void task_mult()
 {
+	//cout << "task_mult" << endl;
+
+	printf("task: %s\n", "task_mult");
 	int i;
 	digit_t a, b, c;
 	digit_t dp, p;
@@ -407,6 +314,8 @@ void task_mult()
 	//GV(print_which) = 0;
 	GV(digit)++;
 
+	printf("num:%d\n ", GV(digit));
+
 	if (GV(digit) < NUM_DIGITS * 2) {
 		GV(carry) = c;
 		//TRANSITION_TO(task_mult);
@@ -419,6 +328,10 @@ void task_mult()
 
 void task_reduce_digits()
 {
+	//cout << "task_reduce_digits" << endl;
+
+	printf("task: %s\n", "task_reduce_digits");
+
 	int d;
 
 	d = 2 * NUM_DIGITS;
@@ -439,6 +352,10 @@ void task_reduce_digits()
 
 void task_reduce_normalizable()
 {
+
+	//cout << "task_reduce_normalizable" << endl;
+	printf("task: %s\n", "task_reduce_normailzable");
+
 	int i;
 	bool normalizable = true;
 
@@ -474,6 +391,9 @@ void task_reduce_normalizable()
 }
 void task_reduce_normalize()
 {
+	printf("task: %s\n", "task_reduce_normalize");
+	//cout << "task_reduce_normalize" << endl;
+
 	digit_t m, n, d, s;
 	unsigned borrow;
 
@@ -514,6 +434,9 @@ void task_reduce_normalize()
 
 void task_reduce_n_divisor()
 {
+
+	//cout << "task_reduce_n_divisor" << endl;
+
 	unsigned op1 = NUM_DIGITS - 1;
 	unsigned op2 = NUM_DIGITS -2;
 
@@ -524,6 +447,9 @@ void task_reduce_n_divisor()
 
 void task_reduce_quotient()
 {
+
+	//cout << "task_reudce_quotient" << endl;
+
 	uint32_t qn, n_q; 
 
 	unsigned op1 = NUM_DIGITS - 1;
@@ -551,29 +477,33 @@ void task_reduce_quotient()
 
 void task_reduce_multiply()
 {
+	//cout << "task_reduce_multiply" << endl;
 	int i;
-	digit_t m, n;
-	unsigned c, offset;
-
-	offset = GV(reduce) + 1 - NUM_DIGITS;
+	digit_t m = 0;
+	digit_t n= 0;
+	unsigned c = 0; 
+	//int offset = 0;
+	int offset = GV(reduce) + 1 - NUM_DIGITS;
+	//cout << offset << endl;
 
 	for (i = 0; i < offset; ++i) {
 		GV(product2)[i] = 0;
 	}
-
 	c = 0;
 	for (i = offset; i < 2 * NUM_DIGITS; ++i) {
 
 		m = c;
 		if (i < offset + NUM_DIGITS) {
 
-			unsigned op = i - offset;
-
+			int op = i - offset;
 			n = GV(modulus)[op];
+
 			m += GV(quotient) * n;
 		} else {
 			n = 0;
+
 		}
+
 
 		c = m >> DIGIT_BITS;
 		m &= DIGIT_MASK;
@@ -581,13 +511,15 @@ void task_reduce_multiply()
 		GV(product2)[i] = m;
 
 	}
-
 	//GV(next_task_print) = TASK_REF(task_reduce_compare);
 	//TRANSITION_TO(task_print_product);
 }
 
 void task_reduce_compare()
 {
+	
+	//cout << "task_reduce_compare" << endl;
+
 	int i;
 	char relation = '=';
 
@@ -615,6 +547,8 @@ void task_reduce_compare()
 
 void task_reduce_add()
 {
+
+	//cout << "task_reduce_add" << endl;
 	int i, j;
 	digit_t m, n, c;
 	unsigned offset;
@@ -644,6 +578,9 @@ void task_reduce_add()
 
 void task_reduce_subtract()
 {
+
+	//cout << "task_reduce_subtract" << endl;
+
 	int i;
 	digit_t m, s, qn;
 	unsigned borrow, offset;
@@ -679,113 +616,160 @@ void task_reduce_subtract()
 
 void task_commit() {
 
+	//cout << "task_commit" << endl;
+	//MGV(count)++;
+	global_count++;
+}
+
+void commit() {
+
+	if (global_count%2 == 1) {
+
+		safe = &(camel.buf2);																																								\
+		unsafe = &(camel.buf1);
+
+	} else {
+
+		safe = &(camel.buf1);																																								\
+		unsafe = &(camel.buf2);
+
+	}
 }
 
 
 int main() {
 
-    camel.flag = CKPT_1_FLG;
-    safe = &(camel.buf1);
-    unsafe = &(camel.buf2);
-    camel_init();
-
 	while (1) {
 
 		task_init();
 		commit();
+		memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t));
 		task_commit();
+
 
 		while (1) {
 
+
 			if (GV(check) == 0) {
 
+				//memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t));
 				task_pad();
 				commit();
+				memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t));
 				task_commit();
 
 			}
 
 			if (GV(check) == 2) {
 
+				//memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t));
 				task_exp();
 				commit();
+				memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t));
 				task_commit();
 
 			}
 
-			if (GV(check) == 0) {
+			// if (MGV(check) == 0) {
 
-				task_mult_block();
-				commit();
-				task_commit();
+			// 	memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t));
+			// 	task_mult_block();
+			// 	commit();
+			// 	task_commit();
 
-			} else if (GV(check) == 1) {
+			// } else if (MGV(check) == 1) {
 				
-				task_square_base();
-				commit();
-				task_commit();
-			}
+			// 	memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t));
+			// 	task_square_base();
+			// 	commit();
+			// 	task_commit();
+			// }
 
+			//memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t));
 			task_mult_mod();
 			commit();
+			memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t));
 			task_commit();
+			//printf("num111%d\n:", MGV(digit));
+
 
 			do {
 
+				// memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t));
 				task_mult();
 				commit();
+				memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t));
 				task_commit();
 
 			} while (GV(digit) < NUM_DIGITS * 2);
 
+			//memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t));
 			task_reduce_digits();
 			commit();
+			memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t));
 			task_commit();
 
 			if (GV(check) == 0)
 				break;
 
+			//memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t));
 			task_reduce_normalizable();
 			commit();
+			memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t));
 			task_commit();
 
 			if (GV(check) == 1) {
 
+				//memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t));
 				task_reduce_normalize();
 				commit();
+				memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t));
 				task_commit();
 			}
 
 			if (GV(check) == 2) {
 
+				//memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t));
 				task_reduce_n_divisor();
 				commit();
+				memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t));
 				task_commit();
 
 				do {
 
+					//memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t));
 					task_reduce_quotient();
 					commit();
+					memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t));
 					task_commit();
 
+					//memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t));
 					task_reduce_multiply();
 					commit();
+					memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t));
 					task_commit();
 
+
+					//memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t));
 					task_reduce_compare();
 					commit();
+					memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t));
 					task_commit();
 
-					if (GV(check) == 0) {
+					if (MGV(check) == 0) {
 
+						//memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t));
 						task_reduce_add();
 						commit();
+						memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t));
 						task_commit();
 
 					}
 
+					//memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t));
 					task_reduce_subtract();
 					commit();
+					memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t));
 					task_commit();
 
 				} while(GV(reduce) + 1 > NUM_DIGITS);
@@ -793,14 +777,18 @@ int main() {
 
 			if (GV(check_final) == 0) {
 
+				//memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t));
 				task_mult_block_get_result();
 				commit();
+				memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t));
 				task_commit();
 
 			} else if (GV(check_final) == 1) {
 
+				//memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t));
 				task_square_base_get_result();
 				commit();
+				memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t));
 				task_commit();
 
 			}
@@ -809,12 +797,4 @@ int main() {
 
 }
 
-#ifdef __MSP430FR6989__
-__attribute__((section("__interrupt_vector_56"), used))
-static void (*reset_vector)(void) = camel_recover;
-#elif __MSP430F5529__
-__attribute__((section("__interrupt_vector_64"), used))
-static void (*reset_vector)(void) = camel_recover;
-#else
-#error Board not supported
-#endif
+ 

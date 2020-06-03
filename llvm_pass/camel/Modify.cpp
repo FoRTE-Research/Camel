@@ -69,6 +69,11 @@ void Modify::copyBuffers(Instruction *before, string to, string from) {
     LoadInst *loadUnsafe = new LoadInst(Ty, unsafePtr, "unsafe", before);
     loadUnsafe->setAlignment(MaybeAlign(2));
     auto GEP1 = GetElementPtrInst::CreateInBounds(Ty->getContainedType(0), loadUnsafe, index, "globals", before);
+
+    auto dl_temp = myModule->getDataLayout();
+    auto size_temp = dl_temp.getTypeAllocSize(GEP1->getType()->getContainedType(0));
+    bytes += size_temp;
+
     auto bCast1 = new BitCastInst(GEP1, pi8, "BCast", before);
 
     // loading the SAFE pointer
@@ -148,6 +153,7 @@ GetElementPtrInst* Modify::accessStructVar(Instruction *before, GetElementPtrIns
 
     GetElementPtrInst *GEP = GetElementPtrInst::CreateInBounds(Struct->getType()->getContainedType(0), Struct, index, "global", before);
 
+   // errs() << "size: " << size << "\n";
     // debugging
     //GEP->dump();
 
@@ -167,6 +173,7 @@ GetElementPtrInst* Modify::accessIndex(Instruction *before, Instruction* index, 
     indices.push_back(load);
 
     GetElementPtrInst *GEP = GetElementPtrInst::CreateInBounds(ar->getType()->getContainedType(0), ar, indices, "access", before);
+
 
     // debugging
     // load->dump();
@@ -192,13 +199,18 @@ GlobalVariable* Modify::createGlob(StringRef name, AllocaInst* var) {
 
 void Modify::cps(Instruction* before, vector<Instruction*> varList) {
 
-    errs() << "CPS\n";
+    //errs() << "CPS\n";
     //change getOperand(2) to getOperand(3)
 
     GEPOperator *first = dyn_cast<GEPOperator>(varList[0]);
 
     GetElementPtrInst *Struct = accessStruct(before, "safe");
     GetElementPtrInst *structVar = accessStructVar(before, Struct,  first->getOperand(1),  first->getOperand(2));
+
+    auto dl_temp = myModule->getDataLayout();
+    auto size_temp = dl_temp.getTypeAllocSize(structVar->getType()->getContainedType(0));
+    bytes += size_temp;
+
     LoadInst *loadVar = new LoadInst(structVar->getType()->getContainedType(0), structVar, "tmp", before);
     loadVar->setAlignment(MaybeAlign(2));
 
@@ -246,13 +258,18 @@ void Modify::cpas(Instruction *before, vector<Instruction*> varList) {
         return;
     }
 
-    errs() << "CPAS\n";
+    //errs() << "CPAS\n";
 
     GetElementPtrInst *Struct = accessStruct(before, "safe");
     GetElementPtrInst *structVar = accessStructVar(before, Struct,  first->getOperand(1),  first->getOperand(2));
     GetElementPtrInst *Struct1 = accessStruct(before, "unsafe");
     GetElementPtrInst *structVar1 = accessStructVar(before, Struct1,  second->getOperand(1),  second->getOperand(2));
     GetElementPtrInst* arrayidx = accessIndex(before, structVar1, structVar);
+
+    auto dl_temp = myModule->getDataLayout();
+    auto size_temp = dl_temp.getTypeAllocSize(arrayidx->getType()->getContainedType(0));
+    bytes += size_temp;
+
     LoadInst *load = new LoadInst(arrayidx->getType()->getContainedType(0), arrayidx, "tmp", before);
     load->setAlignment(MaybeAlign(2));
 
@@ -274,7 +291,7 @@ void Modify::cpas(Instruction *before, vector<Instruction*> varList) {
 
 void Modify::cpa(Instruction* before, vector<Instruction*> varList) {
 
-    errs () << "CPA\n";
+    //errs() << "CPA\n";
     //change getOperand(2) to getOperand(3)
 
 
@@ -290,6 +307,11 @@ void Modify::cpa(Instruction* before, vector<Instruction*> varList) {
 
     GetElementPtrInst *Struct = accessStruct(before, "unsafe");
     GetElementPtrInst *structVar = accessStructVar(before, Struct,  first->getOperand(1),  first->getOperand(2));
+
+    auto dl_temp = myModule->getDataLayout();
+    auto size_temp = dl_temp.getTypeAllocSize(structVar->getType()->getContainedType(0));
+    bytes += size_temp;
+
     GetElementPtrInst *arraydecay = GetElementPtrInst::CreateInBounds(structVar->getType()->getContainedType(0), structVar, index, "array", before);
     auto bCast1 = new BitCastInst(arraydecay, pi8, "cast", before);
 
@@ -332,7 +354,7 @@ void Modify::cpa(Instruction* before, vector<Instruction*> varList) {
 
 void Modify::cpaso(Instruction* before, Instruction* ar, GlobalVariable *g){
 
-    errs() << "CPASO\n";
+    //errs() << "CPASO\n";
 
     GEPOperator *first = dyn_cast<GEPOperator>(ar);
     GlobalVariable *second = dyn_cast<GlobalVariable>(g);
@@ -354,6 +376,11 @@ void Modify::cpaso(Instruction* before, Instruction* ar, GlobalVariable *g){
     indices.push_back(load);
 
     GetElementPtrInst *GEP = GetElementPtrInst::CreateInBounds(structVar->getType()->getContainedType(0), structVar, indices, "access", before);
+
+    auto dl_temp = myModule->getDataLayout();
+    auto size_temp = dl_temp.getTypeAllocSize(GEP->getType()->getContainedType(0));
+    bytes += size_temp;
+
     LoadInst *loadArray = new LoadInst(GEP->getType()->getContainedType(0), GEP, "tmp", before);
     loadArray->setAlignment(MaybeAlign(2));
 
@@ -376,7 +403,7 @@ void Modify::cpaso(Instruction* before, Instruction* ar, GlobalVariable *g){
 
 void Modify::cps_s(Instruction *before, vector<Instruction*> varList){
 
-    errs() << "CPS_S\n";
+    //errs() << "CPS_S\n";
     Type *pi8 = Type::getInt8PtrTy(myModule->getContext());
 
     GEPOperator *first = dyn_cast<GEPOperator>(varList[0]);
@@ -384,6 +411,10 @@ void Modify::cps_s(Instruction *before, vector<Instruction*> varList){
 
     GetElementPtrInst *Struct = accessStruct(before, "unsafe");
     GetElementPtrInst *structVar = accessStructVar(before, Struct,  first->getOperand(1),  first->getOperand(2));
+
+    auto dl_temp = myModule->getDataLayout();
+    auto size_temp = dl_temp.getTypeAllocSize(structVar->getType()->getContainedType(0));
+    bytes += size_temp;
 
     GetElementPtrInst *Struct2 = accessStruct(before, "safe");
     GetElementPtrInst *structVar2 = accessStructVar(before, Struct2,  first->getOperand(1),  first->getOperand(2));
@@ -408,7 +439,7 @@ void Modify::cpas_s(Instruction *before, vector<Instruction*> varList) {
         return;
     }
 
-    errs() << "CPAS_S\n";
+    //errs() << "CPAS_S\n";
 
     GEPOperator *first = dyn_cast<GEPOperator>(varList[0]);
     GEPOperator *second = dyn_cast<GEPOperator>(varList[1]);
@@ -421,6 +452,10 @@ void Modify::cpas_s(Instruction *before, vector<Instruction*> varList) {
     // load->setAlignment(MaybeAlign(2));
 
     GetElementPtrInst* arrayidx = accessIndex(before, structVar1, structVar);
+
+    auto dl_temp = myModule->getDataLayout();
+    auto size_temp = dl_temp.getTypeAllocSize(arrayidx->getType()->getContainedType(0));
+    bytes += size_temp;
 
     GetElementPtrInst *Struct2 = accessStruct(before, "safe");
     GetElementPtrInst *structVar2 = accessStructVar(before, Struct2,  first->getOperand(1),  first->getOperand(2));

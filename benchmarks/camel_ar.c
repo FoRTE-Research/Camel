@@ -3,7 +3,9 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <math.h>
+#include <string.h>
 
+#include "../checkpoint/macros.h"
 #include "../checkpoint/camel_ckpt_defines.h"
 
 // Number of samples to discard before recording training set
@@ -327,6 +329,7 @@ void task_selectMode()
 			break;
 
 		default:
+			GV(mode) = MODE_IDLE;
 			break;
 			//TRANSITION_TO(task_idle);
 	}
@@ -378,41 +381,11 @@ void task_resetStats()
 void task_sample()
 {
 
-	for(int i = GV(samplesInWindow); i< ACCEL_WINDOW_SIZE; i++) {
-
-		accelReading sample;
-		GV(seed) = ACCEL_singleSample_(&sample, GV(seed));
-		GV(window)[i] = sample;
-		++GV(samplesInWindow);
-
-	}
-
-	GV(samplesInWindow) = 0;
-
-
-	// while (GV(samplesInWindow) < ACCEL_WINDOW_SIZE){
-
-	// 	accelReading sample;
-	// 	GV(seed) = ACCEL_singleSample_(&sample, GV(seed));
-	// 	GV(window)[GV(samplesInWindow)] = sample;
-	// 	++GV(samplesInWindow);
-
-	// }
-
-	// GV(samplesInWindow) = 0;
-	//TRANSITION_TO(task_transform);
-
-	// accelReading sample;
-	// ACCEL_singleSample_(&sample);
-	// GV(window, _global_samplesInWindow) = sample;
-	// ++GV(samplesInWindow);
-
-	// if (GV(samplesInWindow) < ACCEL_WINDOW_SIZE) {
-	// 	TRANSITION_TO(task_sample);
-	// } else {
-	// 	GV(samplesInWindow) = 0;
-	// 	TRANSITION_TO(task_transform);
-	// }
+	accelReading sample;
+	ACCEL_singleSample_(&sample, GV(seed));
+	GV(window)[GV(samplesInWindow)] = sample;
+	++GV(samplesInWindow);
+	
 }
 
 #if ALL
@@ -434,6 +407,7 @@ void task_sample()
 //edit this task to meet our system's requirements
 void task_transform()
 {
+    GV(samplesInWindow) = 0;
 	//unsigned i;
 
 	accelReading *sample;
@@ -623,9 +597,10 @@ void task_stats()
 		unsigned sum = GV(stationaryCount) + GV(movingCount);
 
 		//TRANSITION_TO(task_idle);
-	} else {
-		//TRANSITION_TO(task_sample);
-	}
+	} 
+	// else {
+	// 	//TRANSITION_TO(task_sample);
+	// }
 }
 
 #if ALL
@@ -646,17 +621,27 @@ void task_stats()
 void task_warmup()
 {
 
+    threeAxis_t_8 sample; 
+
+    GV(seed) = ACCEL_singleSample_(&sample, GV(seed));
+    ++GV(discardedSamplesCount);
+
+    if (GV(discardedSamplesCount) == NUM_WARMUP_SAMPLES){
+        GV(trainingSetSize) = 0;
+    }
+
 	// to remove transition to
 
-	while (GV(discardedSamplesCount) < NUM_WARMUP_SAMPLES) {
+	// while (GV(discardedSamplesCount) < NUM_WARMUP_SAMPLES) {
 
-		threeAxis_t_8 sample;
-		GV(seed) = ACCEL_singleSample_(&sample, GV(seed));
-		++GV(discardedSamplesCount);
+	// 	threeAxis_t_8 sample;
+	// 	GV(seed) = ACCEL_singleSample_(&sample, GV(seed));
+	// 	++GV(discardedSamplesCount);
 
-	}
+	// }
 
-	GV(trainingSetSize) = 0;
+	// GV(trainingSetSize) = 0;
+
 	//TRANSITION_TO(task_sample);
 
 	// threeAxis_t_8 sample;
@@ -730,80 +715,94 @@ int main() {
 	camel_init();
 
 	task_init();
-	//commit();
+	commit();
 	//memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t));
-	//task_commit();
+	task_commit();
 
 	while (1) {
 
 		//prepare_task_selectMode();
 		task_selectMode();
-		//commit();
+		commit();
 		//writes_task_selectMode();
-		//task_commit();
+		task_commit();
 
-		if (GV(mode) == 2 || GV(mode) == 1){
+		if (GV(mode) == MODE_TRAIN_STATIONARY || GV(mode) == MODE_TRAIN_MOVING){
 
-			//prepare_task_warmup();
-			task_warmup();
-			//commit();
-			//writes_task_warmup();
-			//task_commit();
 
-		} else if (GV(mode) == 0) {
+            while (GV(discardedSamplesCount) < NUM_WARMUP_SAMPLES) {
+
+                //prepare_task_warmup();
+                task_warmup();
+                commit();
+                //writes_task_warmup();
+                task_commit();
+
+            }
+
+		} else if (GV(mode) ==  MODE_RECOGNIZE) {
 
 			//prepare_task_resetStats();
 			task_resetStats();
-			//commit();
+			commit();
 			//writes_task_resetStats();
-			//task_commit();
+			task_commit();
 
-		} 
+		} else if (GV(mode) == MODE_IDLE) {
+
+			continue;
+		}
 
 		while (1) {
 
-			//prepare_task_sample();
-			task_sample();
-			//commit();
-			//writes_task_sample();
-			//task_commit();
+
+            while (GV(samplesInWindow) < ACCEL_WINDOW_SIZE){
+
+                //prepare_task_sample();
+                task_sample();
+               	commit();
+                //writes_task_sample();
+                task_commit();
+
+
+            }
 
 			//prepare_task_transform();
 			task_transform();
-			//commit();
+			commit();
 			//writes_task_transform();
-			//task_commit();
+			task_commit();
 
 			//prepare_task_featurize();
 			task_featurize();
-			//commit();
+			commit();
 			//writes_task_featurize();
-			//task_commit();
+			task_commit();
 
-			if (GV(mode) == 2 || GV(mode) == 1){
+			if (GV(mode) == MODE_TRAIN_STATIONARY || GV(mode) == MODE_TRAIN_MOVING){
 
 				//prepare_task_train();
 				task_train();
-				//commit();
+				commit();
 				//writes_task_train();
-				//task_commit();
+				task_commit();
 
 				if (GV(trainingSetSize) >= MODEL_SIZE)
 					break;
 
-			} else if (GV(mode) == 0) {
+			} else if (GV(mode) ==  MODE_RECOGNIZE) {
 
 				//prepare_task_classify();
 				task_classify();
-				//commit();
+				commit();
 				//writes_task_classify();
-				//task_commit();
+				task_commit();
 
 				//prepare_task_stats();
 				task_stats();
-				//commit();
+				commit();
 				//writes_task_stats();
-				//task_commit();
+				task_commit();
 
 				if (GV(totalCount) == SAMPLES_TO_COLLECT)
 					break;
@@ -813,8 +812,6 @@ int main() {
 
 		//task_idle(); //this is where task_idle is called
 	}
-
-	task_done();
 }
 
 #ifdef __MSP430FR6989__
