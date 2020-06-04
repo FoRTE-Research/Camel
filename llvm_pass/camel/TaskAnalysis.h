@@ -17,7 +17,7 @@ class TaskAnalysis {
         void insertStore(vector<Instruction*> inst, GEPOperator *gep);
         void insertLoad(vector<Instruction*> inst, GEPOperator *gep);
 
-        //general helpers and condition checkers
+        //general helpers and checkers
         bool isGlobalStructAccess(GEPOperator *gep, StringRef name);
         void initializeTaskLists(Function &F);
         void getTaskCalls(Function &F);
