@@ -32,7 +32,6 @@ camel_init:                             ; @camel_init
 camel_recover:                          ; @camel_recover
 .Lfunc_begin1:
 ; %bb.0:                                ; %entry
-	sub	#8, r1
 	mov	&camel, r12
 	cmp	#1, r12
 	jne	.LBB1_2
@@ -61,51 +60,9 @@ camel_recover:                          ; @camel_recover
 	;APP
 	mov	r12, r1
 	;NO_APP
-	;APP
-	mov	r1, r12
-	;NO_APP
-	mov	r12, 6(r1)
-	mov	6(r1), r12
-	mov	r12, 4(r1)
-	mov	4(r1), r12
-	incd	r12
-	;APP
-	mov	r1, r13
-	;NO_APP
-	mov	r13, 2(r1)
-	mov	2(r1), r13
-	mov	r13, 0(r1)
-	mov	0(r1), r14
-	mov	#9214, r13
-	sub	r14, r13
-	mov	#-1, r14
-	call	#__fast_hw_crc
-	mov	r12, &tmp_stack_crc
-	mov	&safe, r12
-	mov	&tmp_stack_crc, r14
-	mov	#44, r13
-	call	#__fast_hw_crc
-	mov	r12, &tmp_stack_buf_crc
-	mov	&tmp_stack_buf_crc, r12
-	mov	&safe, r13
-	mov	44(r13), r13
-	cmp	r13, r12
-	jne	.LBB1_8
-	jmp	.LBB1_7
-.LBB1_7:                                ; %if.then10
-	mov	&unsafe, r12
-	mov	&safe, r13
-	mov	#46, r14
-	call	#memcpy
 	call	#camel_init
 	mov	&safe, r12
 	call	#__restore_registers
-	jmp	.LBB1_9
-.LBB1_8:                                ; %if.else12
-	call	#__crt0_start
-	jmp	.LBB1_9
-.LBB1_9:                                ; %if.end13
-	add	#8, r1
 	ret
 .Lfunc_end1:
 	.size	camel_recover, .Lfunc_end1-camel_recover
@@ -797,224 +754,540 @@ main:                                   ; @main
 	call	#camel_init
 	call	#task_init
 	jmp	.LBB14_1
-.LBB14_1:                               ; %while.body
-                                        ; =>This Loop Header: Depth=1
-                                        ;     Child Loop BB14_33 Depth 2
-                                        ;     Child Loop BB14_28 Depth 2
-                                        ;     Child Loop BB14_23 Depth 2
-                                        ;     Child Loop BB14_18 Depth 2
-                                        ;     Child Loop BB14_13 Depth 2
-                                        ;     Child Loop BB14_8 Depth 2
-                                        ;     Child Loop BB14_3 Depth 2
-	call	#task_select_func
-	mov	&unsafe, r12
-	mov	36(r12), r12
+.LBB14_1:                               ; %do.body
+	mov	&camel, r12
 	cmp	#1, r12
-	jne	.LBB14_6
+	jne	.LBB14_3
 	jmp	.LBB14_2
 .LBB14_2:                               ; %if.then
-                                        ;   in Loop: Header=BB14_1 Depth=1
-	jmp	.LBB14_3
-.LBB14_3:                               ; %while.cond1
-                                        ;   Parent Loop BB14_1 Depth=1
-                                        ; =>  This Inner Loop Header: Depth=2
-	mov	&unsafe, r12
-	mov	42(r12), r12
-	cmp	#100, r12
-	jhs	.LBB14_5
+	mov	#camel+48, &safe
+	mov	#camel+2, &unsafe
+	mov	&safe, r12
+	call	#__dump_registers
+	mov	#2, &camel
 	jmp	.LBB14_4
-.LBB14_4:                               ; %while.body4
-                                        ;   in Loop: Header=BB14_3 Depth=2
-	call	#task_bit_count
-	jmp	.LBB14_3
-.LBB14_5:                               ; %while.end
-                                        ;   in Loop: Header=BB14_1 Depth=1
-	jmp	.LBB14_45
-.LBB14_6:                               ; %if.else
-                                        ;   in Loop: Header=BB14_1 Depth=1
+.LBB14_3:                               ; %if.else
+	mov	#camel+2, &safe
+	mov	#camel+48, &unsafe
+	mov	&safe, r12
+	call	#__dump_registers
+	mov	#1, &camel
+	jmp	.LBB14_4
+.LBB14_4:                               ; %if.end
+	jmp	.LBB14_5
+.LBB14_5:                               ; %do.end
 	mov	&unsafe, r12
-	mov	36(r12), r12
-	cmp	#2, r12
-	jne	.LBB14_11
+	add	#22, r12
+	mov	&safe, r13
+	add	#22, r13
+	mov	#22, r14
+	call	#memcpy
+	call	#task_commit
+	jmp	.LBB14_6
+.LBB14_6:                               ; %while.body
+                                        ; =>This Loop Header: Depth=1
+                                        ;     Child Loop BB14_73 Depth 2
+                                        ;     Child Loop BB14_63 Depth 2
+                                        ;     Child Loop BB14_53 Depth 2
+                                        ;     Child Loop BB14_43 Depth 2
+                                        ;     Child Loop BB14_33 Depth 2
+                                        ;     Child Loop BB14_23 Depth 2
+                                        ;     Child Loop BB14_13 Depth 2
+	mov	&unsafe, r12
+	add	#22, r12
+	mov	&safe, r13
+	add	#22, r13
+	mov	#22, r14
+	call	#memcpy
+	call	#task_select_func
 	jmp	.LBB14_7
-.LBB14_7:                               ; %if.then8
-                                        ;   in Loop: Header=BB14_1 Depth=1
+.LBB14_7:                               ; %do.body3
+                                        ;   in Loop: Header=BB14_6 Depth=1
+	mov	&camel, r12
+	cmp	#1, r12
+	jne	.LBB14_9
 	jmp	.LBB14_8
-.LBB14_8:                               ; %while.cond9
-                                        ;   Parent Loop BB14_1 Depth=1
-                                        ; =>  This Inner Loop Header: Depth=2
-	mov	&unsafe, r12
-	mov	42(r12), r12
-	cmp	#100, r12
-	jhs	.LBB14_10
-	jmp	.LBB14_9
-.LBB14_9:                               ; %while.body13
-                                        ;   in Loop: Header=BB14_8 Depth=2
-	call	#task_bitcount
-	jmp	.LBB14_8
-.LBB14_10:                              ; %while.end14
-                                        ;   in Loop: Header=BB14_1 Depth=1
-	jmp	.LBB14_44
-.LBB14_11:                              ; %if.else15
-                                        ;   in Loop: Header=BB14_1 Depth=1
-	mov	&unsafe, r12
+.LBB14_8:                               ; %if.then5
+                                        ;   in Loop: Header=BB14_6 Depth=1
+	mov	#camel+48, &safe
+	mov	#camel+2, &unsafe
+	mov	&safe, r12
+	call	#__dump_registers
+	mov	#2, &camel
+	jmp	.LBB14_10
+.LBB14_9:                               ; %if.else8
+                                        ;   in Loop: Header=BB14_6 Depth=1
+	mov	#camel+2, &safe
+	mov	#camel+48, &unsafe
+	mov	&safe, r12
+	call	#__dump_registers
+	mov	#1, &camel
+	jmp	.LBB14_10
+.LBB14_10:                              ; %if.end11
+                                        ;   in Loop: Header=BB14_6 Depth=1
+	jmp	.LBB14_11
+.LBB14_11:                              ; %do.end12
+                                        ;   in Loop: Header=BB14_6 Depth=1
+	call	#task_commit
+	mov	&safe, r12
 	mov	36(r12), r12
-	cmp	#3, r12
-	jne	.LBB14_16
-	jmp	.LBB14_12
-.LBB14_12:                              ; %if.then19
-                                        ;   in Loop: Header=BB14_1 Depth=1
-	jmp	.LBB14_13
-.LBB14_13:                              ; %while.cond20
-                                        ;   Parent Loop BB14_1 Depth=1
-                                        ; =>  This Inner Loop Header: Depth=2
-	mov	&unsafe, r12
-	mov	42(r12), r12
-	cmp	#100, r12
-	jhs	.LBB14_15
-	jmp	.LBB14_14
-.LBB14_14:                              ; %while.body24
-                                        ;   in Loop: Header=BB14_13 Depth=2
-	call	#task_ntbl_bitcnt
-	jmp	.LBB14_13
-.LBB14_15:                              ; %while.end25
-                                        ;   in Loop: Header=BB14_1 Depth=1
-	jmp	.LBB14_43
-.LBB14_16:                              ; %if.else26
-                                        ;   in Loop: Header=BB14_1 Depth=1
-	mov	&unsafe, r12
-	mov	36(r12), r12
-	cmp	#4, r12
+	cmp	#1, r12
 	jne	.LBB14_21
-	jmp	.LBB14_17
-.LBB14_17:                              ; %if.then30
-                                        ;   in Loop: Header=BB14_1 Depth=1
-	jmp	.LBB14_18
-.LBB14_18:                              ; %while.cond31
-                                        ;   Parent Loop BB14_1 Depth=1
+	jmp	.LBB14_12
+.LBB14_12:                              ; %if.then14
+                                        ;   in Loop: Header=BB14_6 Depth=1
+	jmp	.LBB14_13
+.LBB14_13:                              ; %while.cond15
+                                        ;   Parent Loop BB14_6 Depth=1
                                         ; =>  This Inner Loop Header: Depth=2
-	mov	&unsafe, r12
+	mov	&safe, r12
 	mov	42(r12), r12
 	cmp	#100, r12
 	jhs	.LBB14_20
-	jmp	.LBB14_19
-.LBB14_19:                              ; %while.body35
-                                        ;   in Loop: Header=BB14_18 Depth=2
-	call	#task_ntbl_bitcount
+	jmp	.LBB14_14
+.LBB14_14:                              ; %while.body18
+                                        ;   in Loop: Header=BB14_13 Depth=2
+	mov	&unsafe, r12
+	add	#22, r12
+	mov	&safe, r13
+	add	#22, r13
+	mov	#22, r14
+	call	#memcpy
+	call	#task_bit_count
+	jmp	.LBB14_15
+.LBB14_15:                              ; %do.body19
+                                        ;   in Loop: Header=BB14_13 Depth=2
+	mov	&camel, r12
+	cmp	#1, r12
+	jne	.LBB14_17
+	jmp	.LBB14_16
+.LBB14_16:                              ; %if.then21
+                                        ;   in Loop: Header=BB14_13 Depth=2
+	mov	#camel+48, &safe
+	mov	#camel+2, &unsafe
+	mov	&safe, r12
+	call	#__dump_registers
+	mov	#2, &camel
 	jmp	.LBB14_18
-.LBB14_20:                              ; %while.end36
-                                        ;   in Loop: Header=BB14_1 Depth=1
-	jmp	.LBB14_42
-.LBB14_21:                              ; %if.else37
-                                        ;   in Loop: Header=BB14_1 Depth=1
-	mov	&unsafe, r12
+.LBB14_17:                              ; %if.else24
+                                        ;   in Loop: Header=BB14_13 Depth=2
+	mov	#camel+2, &safe
+	mov	#camel+48, &unsafe
+	mov	&safe, r12
+	call	#__dump_registers
+	mov	#1, &camel
+	jmp	.LBB14_18
+.LBB14_18:                              ; %if.end27
+                                        ;   in Loop: Header=BB14_13 Depth=2
+	jmp	.LBB14_19
+.LBB14_19:                              ; %do.end28
+                                        ;   in Loop: Header=BB14_13 Depth=2
+	call	#task_commit
+	jmp	.LBB14_13
+.LBB14_20:                              ; %while.end
+                                        ;   in Loop: Header=BB14_6 Depth=1
+	jmp	.LBB14_90
+.LBB14_21:                              ; %if.else29
+                                        ;   in Loop: Header=BB14_6 Depth=1
+	mov	&safe, r12
 	mov	36(r12), r12
-	cmp	#5, r12
-	jne	.LBB14_26
-	jmp	.LBB14_22
-.LBB14_22:                              ; %if.then41
-                                        ;   in Loop: Header=BB14_1 Depth=1
-	jmp	.LBB14_23
-.LBB14_23:                              ; %while.cond42
-                                        ;   Parent Loop BB14_1 Depth=1
-                                        ; =>  This Inner Loop Header: Depth=2
-	mov	&unsafe, r12
-	mov	42(r12), r12
-	cmp	#100, r12
-	jhs	.LBB14_25
-	jmp	.LBB14_24
-.LBB14_24:                              ; %while.body46
-                                        ;   in Loop: Header=BB14_23 Depth=2
-	call	#task_BW_btbl_bitcount
-	jmp	.LBB14_23
-.LBB14_25:                              ; %while.end47
-                                        ;   in Loop: Header=BB14_1 Depth=1
-	jmp	.LBB14_41
-.LBB14_26:                              ; %if.else48
-                                        ;   in Loop: Header=BB14_1 Depth=1
-	mov	&unsafe, r12
-	mov	36(r12), r12
-	cmp	#6, r12
+	cmp	#2, r12
 	jne	.LBB14_31
-	jmp	.LBB14_27
-.LBB14_27:                              ; %if.then52
-                                        ;   in Loop: Header=BB14_1 Depth=1
-	jmp	.LBB14_28
-.LBB14_28:                              ; %while.cond53
-                                        ;   Parent Loop BB14_1 Depth=1
+	jmp	.LBB14_22
+.LBB14_22:                              ; %if.then33
+                                        ;   in Loop: Header=BB14_6 Depth=1
+	jmp	.LBB14_23
+.LBB14_23:                              ; %while.cond34
+                                        ;   Parent Loop BB14_6 Depth=1
                                         ; =>  This Inner Loop Header: Depth=2
-	mov	&unsafe, r12
+	mov	&safe, r12
 	mov	42(r12), r12
 	cmp	#100, r12
 	jhs	.LBB14_30
-	jmp	.LBB14_29
-.LBB14_29:                              ; %while.body57
-                                        ;   in Loop: Header=BB14_28 Depth=2
-	call	#task_AR_btbl_bitcount
+	jmp	.LBB14_24
+.LBB14_24:                              ; %while.body38
+                                        ;   in Loop: Header=BB14_23 Depth=2
+	mov	&unsafe, r12
+	add	#22, r12
+	mov	&safe, r13
+	add	#22, r13
+	mov	#22, r14
+	call	#memcpy
+	call	#task_bitcount
+	jmp	.LBB14_25
+.LBB14_25:                              ; %do.body39
+                                        ;   in Loop: Header=BB14_23 Depth=2
+	mov	&camel, r12
+	cmp	#1, r12
+	jne	.LBB14_27
+	jmp	.LBB14_26
+.LBB14_26:                              ; %if.then41
+                                        ;   in Loop: Header=BB14_23 Depth=2
+	mov	#camel+48, &safe
+	mov	#camel+2, &unsafe
+	mov	&safe, r12
+	call	#__dump_registers
+	mov	#2, &camel
 	jmp	.LBB14_28
-.LBB14_30:                              ; %while.end58
-                                        ;   in Loop: Header=BB14_1 Depth=1
-	jmp	.LBB14_40
-.LBB14_31:                              ; %if.else59
-                                        ;   in Loop: Header=BB14_1 Depth=1
-	mov	&unsafe, r12
+.LBB14_27:                              ; %if.else44
+                                        ;   in Loop: Header=BB14_23 Depth=2
+	mov	#camel+2, &safe
+	mov	#camel+48, &unsafe
+	mov	&safe, r12
+	call	#__dump_registers
+	mov	#1, &camel
+	jmp	.LBB14_28
+.LBB14_28:                              ; %if.end47
+                                        ;   in Loop: Header=BB14_23 Depth=2
+	jmp	.LBB14_29
+.LBB14_29:                              ; %do.end48
+                                        ;   in Loop: Header=BB14_23 Depth=2
+	call	#task_commit
+	jmp	.LBB14_23
+.LBB14_30:                              ; %while.end49
+                                        ;   in Loop: Header=BB14_6 Depth=1
+	jmp	.LBB14_89
+.LBB14_31:                              ; %if.else50
+                                        ;   in Loop: Header=BB14_6 Depth=1
+	mov	&safe, r12
 	mov	36(r12), r12
-	cmp	#7, r12
-	jne	.LBB14_36
+	cmp	#3, r12
+	jne	.LBB14_41
 	jmp	.LBB14_32
-.LBB14_32:                              ; %if.then63
-                                        ;   in Loop: Header=BB14_1 Depth=1
+.LBB14_32:                              ; %if.then54
+                                        ;   in Loop: Header=BB14_6 Depth=1
 	jmp	.LBB14_33
-.LBB14_33:                              ; %while.cond64
-                                        ;   Parent Loop BB14_1 Depth=1
+.LBB14_33:                              ; %while.cond55
+                                        ;   Parent Loop BB14_6 Depth=1
                                         ; =>  This Inner Loop Header: Depth=2
-	mov	&unsafe, r12
+	mov	&safe, r12
 	mov	42(r12), r12
 	cmp	#100, r12
-	jhs	.LBB14_35
+	jhs	.LBB14_40
 	jmp	.LBB14_34
-.LBB14_34:                              ; %while.body68
+.LBB14_34:                              ; %while.body59
                                         ;   in Loop: Header=BB14_33 Depth=2
-	call	#task_bit_shifter
-	jmp	.LBB14_33
-.LBB14_35:                              ; %while.end69
-                                        ;   in Loop: Header=BB14_1 Depth=1
-	jmp	.LBB14_39
-.LBB14_36:                              ; %if.else70
-                                        ;   in Loop: Header=BB14_1 Depth=1
 	mov	&unsafe, r12
+	add	#22, r12
+	mov	&safe, r13
+	add	#22, r13
+	mov	#22, r14
+	call	#memcpy
+	call	#task_ntbl_bitcnt
+	jmp	.LBB14_35
+.LBB14_35:                              ; %do.body60
+                                        ;   in Loop: Header=BB14_33 Depth=2
+	mov	&camel, r12
+	cmp	#1, r12
+	jne	.LBB14_37
+	jmp	.LBB14_36
+.LBB14_36:                              ; %if.then62
+                                        ;   in Loop: Header=BB14_33 Depth=2
+	mov	#camel+48, &safe
+	mov	#camel+2, &unsafe
+	mov	&safe, r12
+	call	#__dump_registers
+	mov	#2, &camel
+	jmp	.LBB14_38
+.LBB14_37:                              ; %if.else65
+                                        ;   in Loop: Header=BB14_33 Depth=2
+	mov	#camel+2, &safe
+	mov	#camel+48, &unsafe
+	mov	&safe, r12
+	call	#__dump_registers
+	mov	#1, &camel
+	jmp	.LBB14_38
+.LBB14_38:                              ; %if.end68
+                                        ;   in Loop: Header=BB14_33 Depth=2
+	jmp	.LBB14_39
+.LBB14_39:                              ; %do.end69
+                                        ;   in Loop: Header=BB14_33 Depth=2
+	call	#task_commit
+	jmp	.LBB14_33
+.LBB14_40:                              ; %while.end70
+                                        ;   in Loop: Header=BB14_6 Depth=1
+	jmp	.LBB14_88
+.LBB14_41:                              ; %if.else71
+                                        ;   in Loop: Header=BB14_6 Depth=1
+	mov	&safe, r12
+	mov	36(r12), r12
+	cmp	#4, r12
+	jne	.LBB14_51
+	jmp	.LBB14_42
+.LBB14_42:                              ; %if.then75
+                                        ;   in Loop: Header=BB14_6 Depth=1
+	jmp	.LBB14_43
+.LBB14_43:                              ; %while.cond76
+                                        ;   Parent Loop BB14_6 Depth=1
+                                        ; =>  This Inner Loop Header: Depth=2
+	mov	&safe, r12
+	mov	42(r12), r12
+	cmp	#100, r12
+	jhs	.LBB14_50
+	jmp	.LBB14_44
+.LBB14_44:                              ; %while.body80
+                                        ;   in Loop: Header=BB14_43 Depth=2
+	mov	&unsafe, r12
+	add	#22, r12
+	mov	&safe, r13
+	add	#22, r13
+	mov	#22, r14
+	call	#memcpy
+	call	#task_ntbl_bitcount
+	jmp	.LBB14_45
+.LBB14_45:                              ; %do.body81
+                                        ;   in Loop: Header=BB14_43 Depth=2
+	mov	&camel, r12
+	cmp	#1, r12
+	jne	.LBB14_47
+	jmp	.LBB14_46
+.LBB14_46:                              ; %if.then83
+                                        ;   in Loop: Header=BB14_43 Depth=2
+	mov	#camel+48, &safe
+	mov	#camel+2, &unsafe
+	mov	&safe, r12
+	call	#__dump_registers
+	mov	#2, &camel
+	jmp	.LBB14_48
+.LBB14_47:                              ; %if.else86
+                                        ;   in Loop: Header=BB14_43 Depth=2
+	mov	#camel+2, &safe
+	mov	#camel+48, &unsafe
+	mov	&safe, r12
+	call	#__dump_registers
+	mov	#1, &camel
+	jmp	.LBB14_48
+.LBB14_48:                              ; %if.end89
+                                        ;   in Loop: Header=BB14_43 Depth=2
+	jmp	.LBB14_49
+.LBB14_49:                              ; %do.end90
+                                        ;   in Loop: Header=BB14_43 Depth=2
+	call	#task_commit
+	jmp	.LBB14_43
+.LBB14_50:                              ; %while.end91
+                                        ;   in Loop: Header=BB14_6 Depth=1
+	jmp	.LBB14_87
+.LBB14_51:                              ; %if.else92
+                                        ;   in Loop: Header=BB14_6 Depth=1
+	mov	&safe, r12
+	mov	36(r12), r12
+	cmp	#5, r12
+	jne	.LBB14_61
+	jmp	.LBB14_52
+.LBB14_52:                              ; %if.then96
+                                        ;   in Loop: Header=BB14_6 Depth=1
+	jmp	.LBB14_53
+.LBB14_53:                              ; %while.cond97
+                                        ;   Parent Loop BB14_6 Depth=1
+                                        ; =>  This Inner Loop Header: Depth=2
+	mov	&safe, r12
+	mov	42(r12), r12
+	cmp	#100, r12
+	jhs	.LBB14_60
+	jmp	.LBB14_54
+.LBB14_54:                              ; %while.body101
+                                        ;   in Loop: Header=BB14_53 Depth=2
+	mov	&unsafe, r12
+	add	#22, r12
+	mov	&safe, r13
+	add	#22, r13
+	mov	#22, r14
+	call	#memcpy
+	call	#task_BW_btbl_bitcount
+	jmp	.LBB14_55
+.LBB14_55:                              ; %do.body102
+                                        ;   in Loop: Header=BB14_53 Depth=2
+	mov	&camel, r12
+	cmp	#1, r12
+	jne	.LBB14_57
+	jmp	.LBB14_56
+.LBB14_56:                              ; %if.then104
+                                        ;   in Loop: Header=BB14_53 Depth=2
+	mov	#camel+48, &safe
+	mov	#camel+2, &unsafe
+	mov	&safe, r12
+	call	#__dump_registers
+	mov	#2, &camel
+	jmp	.LBB14_58
+.LBB14_57:                              ; %if.else107
+                                        ;   in Loop: Header=BB14_53 Depth=2
+	mov	#camel+2, &safe
+	mov	#camel+48, &unsafe
+	mov	&safe, r12
+	call	#__dump_registers
+	mov	#1, &camel
+	jmp	.LBB14_58
+.LBB14_58:                              ; %if.end110
+                                        ;   in Loop: Header=BB14_53 Depth=2
+	jmp	.LBB14_59
+.LBB14_59:                              ; %do.end111
+                                        ;   in Loop: Header=BB14_53 Depth=2
+	call	#task_commit
+	jmp	.LBB14_53
+.LBB14_60:                              ; %while.end112
+                                        ;   in Loop: Header=BB14_6 Depth=1
+	jmp	.LBB14_86
+.LBB14_61:                              ; %if.else113
+                                        ;   in Loop: Header=BB14_6 Depth=1
+	mov	&safe, r12
+	mov	36(r12), r12
+	cmp	#6, r12
+	jne	.LBB14_71
+	jmp	.LBB14_62
+.LBB14_62:                              ; %if.then117
+                                        ;   in Loop: Header=BB14_6 Depth=1
+	jmp	.LBB14_63
+.LBB14_63:                              ; %while.cond118
+                                        ;   Parent Loop BB14_6 Depth=1
+                                        ; =>  This Inner Loop Header: Depth=2
+	mov	&safe, r12
+	mov	42(r12), r12
+	cmp	#100, r12
+	jhs	.LBB14_70
+	jmp	.LBB14_64
+.LBB14_64:                              ; %while.body122
+                                        ;   in Loop: Header=BB14_63 Depth=2
+	mov	&unsafe, r12
+	add	#22, r12
+	mov	&safe, r13
+	add	#22, r13
+	mov	#22, r14
+	call	#memcpy
+	call	#task_AR_btbl_bitcount
+	jmp	.LBB14_65
+.LBB14_65:                              ; %do.body123
+                                        ;   in Loop: Header=BB14_63 Depth=2
+	mov	&camel, r12
+	cmp	#1, r12
+	jne	.LBB14_67
+	jmp	.LBB14_66
+.LBB14_66:                              ; %if.then125
+                                        ;   in Loop: Header=BB14_63 Depth=2
+	mov	#camel+48, &safe
+	mov	#camel+2, &unsafe
+	mov	&safe, r12
+	call	#__dump_registers
+	mov	#2, &camel
+	jmp	.LBB14_68
+.LBB14_67:                              ; %if.else128
+                                        ;   in Loop: Header=BB14_63 Depth=2
+	mov	#camel+2, &safe
+	mov	#camel+48, &unsafe
+	mov	&safe, r12
+	call	#__dump_registers
+	mov	#1, &camel
+	jmp	.LBB14_68
+.LBB14_68:                              ; %if.end131
+                                        ;   in Loop: Header=BB14_63 Depth=2
+	jmp	.LBB14_69
+.LBB14_69:                              ; %do.end132
+                                        ;   in Loop: Header=BB14_63 Depth=2
+	call	#task_commit
+	jmp	.LBB14_63
+.LBB14_70:                              ; %while.end133
+                                        ;   in Loop: Header=BB14_6 Depth=1
+	jmp	.LBB14_85
+.LBB14_71:                              ; %if.else134
+                                        ;   in Loop: Header=BB14_6 Depth=1
+	mov	&safe, r12
+	mov	36(r12), r12
+	cmp	#7, r12
+	jne	.LBB14_81
+	jmp	.LBB14_72
+.LBB14_72:                              ; %if.then138
+                                        ;   in Loop: Header=BB14_6 Depth=1
+	jmp	.LBB14_73
+.LBB14_73:                              ; %while.cond139
+                                        ;   Parent Loop BB14_6 Depth=1
+                                        ; =>  This Inner Loop Header: Depth=2
+	mov	&safe, r12
+	mov	42(r12), r12
+	cmp	#100, r12
+	jhs	.LBB14_80
+	jmp	.LBB14_74
+.LBB14_74:                              ; %while.body143
+                                        ;   in Loop: Header=BB14_73 Depth=2
+	mov	&unsafe, r12
+	add	#22, r12
+	mov	&safe, r13
+	add	#22, r13
+	mov	#22, r14
+	call	#memcpy
+	call	#task_bit_shifter
+	jmp	.LBB14_75
+.LBB14_75:                              ; %do.body144
+                                        ;   in Loop: Header=BB14_73 Depth=2
+	mov	&camel, r12
+	cmp	#1, r12
+	jne	.LBB14_77
+	jmp	.LBB14_76
+.LBB14_76:                              ; %if.then146
+                                        ;   in Loop: Header=BB14_73 Depth=2
+	mov	#camel+48, &safe
+	mov	#camel+2, &unsafe
+	mov	&safe, r12
+	call	#__dump_registers
+	mov	#2, &camel
+	jmp	.LBB14_78
+.LBB14_77:                              ; %if.else149
+                                        ;   in Loop: Header=BB14_73 Depth=2
+	mov	#camel+2, &safe
+	mov	#camel+48, &unsafe
+	mov	&safe, r12
+	call	#__dump_registers
+	mov	#1, &camel
+	jmp	.LBB14_78
+.LBB14_78:                              ; %if.end152
+                                        ;   in Loop: Header=BB14_73 Depth=2
+	jmp	.LBB14_79
+.LBB14_79:                              ; %do.end153
+                                        ;   in Loop: Header=BB14_73 Depth=2
+	call	#task_commit
+	jmp	.LBB14_73
+.LBB14_80:                              ; %while.end154
+                                        ;   in Loop: Header=BB14_6 Depth=1
+	jmp	.LBB14_84
+.LBB14_81:                              ; %if.else155
+                                        ;   in Loop: Header=BB14_6 Depth=1
+	mov	&safe, r12
 	mov	36(r12), r12
 	cmp	#8, r12
-	jne	.LBB14_38
-	jmp	.LBB14_37
-.LBB14_37:                              ; %if.then74
-                                        ;   in Loop: Header=BB14_1 Depth=1
+	jne	.LBB14_83
+	jmp	.LBB14_82
+.LBB14_82:                              ; %if.then159
+                                        ;   in Loop: Header=BB14_6 Depth=1
+	mov	&unsafe, r12
+	add	#22, r12
+	mov	&safe, r13
+	add	#22, r13
+	mov	#22, r14
+	call	#memcpy
 	call	#task_done
-	jmp	.LBB14_38
-.LBB14_38:                              ; %if.end
-                                        ;   in Loop: Header=BB14_1 Depth=1
-	jmp	.LBB14_39
-.LBB14_39:                              ; %if.end75
-                                        ;   in Loop: Header=BB14_1 Depth=1
-	jmp	.LBB14_40
-.LBB14_40:                              ; %if.end76
-                                        ;   in Loop: Header=BB14_1 Depth=1
-	jmp	.LBB14_41
-.LBB14_41:                              ; %if.end77
-                                        ;   in Loop: Header=BB14_1 Depth=1
-	jmp	.LBB14_42
-.LBB14_42:                              ; %if.end78
-                                        ;   in Loop: Header=BB14_1 Depth=1
-	jmp	.LBB14_43
-.LBB14_43:                              ; %if.end79
-                                        ;   in Loop: Header=BB14_1 Depth=1
-	jmp	.LBB14_44
-.LBB14_44:                              ; %if.end80
-                                        ;   in Loop: Header=BB14_1 Depth=1
-	jmp	.LBB14_45
-.LBB14_45:                              ; %if.end81
-                                        ;   in Loop: Header=BB14_1 Depth=1
-	jmp	.LBB14_1
+	jmp	.LBB14_83
+.LBB14_83:                              ; %if.end160
+                                        ;   in Loop: Header=BB14_6 Depth=1
+	jmp	.LBB14_84
+.LBB14_84:                              ; %if.end161
+                                        ;   in Loop: Header=BB14_6 Depth=1
+	jmp	.LBB14_85
+.LBB14_85:                              ; %if.end162
+                                        ;   in Loop: Header=BB14_6 Depth=1
+	jmp	.LBB14_86
+.LBB14_86:                              ; %if.end163
+                                        ;   in Loop: Header=BB14_6 Depth=1
+	jmp	.LBB14_87
+.LBB14_87:                              ; %if.end164
+                                        ;   in Loop: Header=BB14_6 Depth=1
+	jmp	.LBB14_88
+.LBB14_88:                              ; %if.end165
+                                        ;   in Loop: Header=BB14_6 Depth=1
+	jmp	.LBB14_89
+.LBB14_89:                              ; %if.end166
+                                        ;   in Loop: Header=BB14_6 Depth=1
+	jmp	.LBB14_90
+.LBB14_90:                              ; %if.end167
+                                        ;   in Loop: Header=BB14_6 Depth=1
+	br	#.LBB14_6
 .Lfunc_end14:
 	.size	main, .Lfunc_end14-main
                                         ; -- End function
@@ -1024,10 +1297,6 @@ main:                                   ; @main
 	.comm	safe,2,2
 	.type	unsafe,@object          ; @unsafe
 	.comm	unsafe,2,2
-	.type	tmp_stack_crc,@object   ; @tmp_stack_crc
-	.comm	tmp_stack_crc,2,2
-	.type	tmp_stack_buf_crc,@object ; @tmp_stack_buf_crc
-	.comm	tmp_stack_buf_crc,2,2
 	.type	bits,@object            ; @bits
 	.data
 bits:
@@ -1041,6 +1310,10 @@ reset_vector:
 	.short	camel_recover
 	.size	reset_vector, 2
 
+	.type	tmp_stack_crc,@object   ; @tmp_stack_crc
+	.comm	tmp_stack_crc,2,2
+	.type	tmp_stack_buf_crc,@object ; @tmp_stack_buf_crc
+	.comm	tmp_stack_buf_crc,2,2
 	.type	buf,@object             ; @buf
 	.comm	buf,22,2
 

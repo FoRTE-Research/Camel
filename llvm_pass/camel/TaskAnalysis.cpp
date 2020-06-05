@@ -151,7 +151,7 @@ void TaskAnalysis::traverseLoad(LoadInst *load){
     if (GEPOperator *gep = dyn_cast<GEPOperator>(load->getOperand(0))){
 
         //gep->dump();
-        vector <Instruction*> inst
+        vector <Instruction*> inst;
         //check to see if the element being read is in the global shared buffer
         if (isGlobalStructAccess(gep, "unsafe")) {
 

@@ -20,9 +20,9 @@ target triple = "msp430"
 @camel = common dso_local global %struct.Camel zeroinitializer, align 2, !dbg !0
 @safe = common dso_local global %struct.camel_buffer_t* null, align 2, !dbg !23
 @unsafe = common dso_local global %struct.camel_buffer_t* null, align 2, !dbg !70
+@reset_vector = internal global void ()* @camel_recover, section "__interrupt_vector_56", align 2, !dbg !9
 @tmp_stack_crc = common dso_local global i16 0, align 2, !dbg !14
 @tmp_stack_buf_crc = common dso_local global i16 0, align 2, !dbg !21
-@reset_vector = internal global void ()* @camel_recover, section "__interrupt_vector_56", align 2, !dbg !9
 @buf = common dso_local global [11 x i16] zeroinitializer, align 2, !dbg !72
 @llvm.used = appending global [1 x i8*] [i8* bitcast (void ()** @reset_vector to i8*)], section "llvm.metadata"
 
@@ -55,10 +55,6 @@ entry:
 ; Function Attrs: noinline nounwind optnone
 define dso_local void @camel_recover() #0 !dbg !96 {
 entry:
-  %__x = alloca i16, align 2
-  %tmp = alloca i16, align 2
-  %__x5 = alloca i16, align 2
-  %tmp6 = alloca i16, align 2
   %0 = load i16, i16* getelementptr inbounds (%struct.Camel, %struct.Camel* @camel, i32 0, i32 0), align 2, !dbg !97
   %cmp = icmp eq i16 %0, 1, !dbg !99
   br i1 %cmp, label %if.then, label %if.else, !dbg !100
@@ -91,60 +87,98 @@ if.end4:                                          ; preds = %if.end, %if.then
   %arrayidx = getelementptr inbounds [11 x i16], [11 x i16]* %reg_file, i16 0, i16 9, !dbg !115
   %3 = load i16, i16* %arrayidx, align 2, !dbg !115
   call void asm sideeffect "mov $0, SP", "ri"(i16 %3) #5, !dbg !115, !srcloc !117
-  call void @llvm.dbg.declare(metadata i16* %__x, metadata !118, metadata !DIExpression()), !dbg !120
-  %4 = call i16 asm sideeffect "mov SP, $0", "=r"() #5, !dbg !120, !srcloc !121
-  store i16 %4, i16* %__x, align 2, !dbg !120
-  %5 = load i16, i16* %__x, align 2, !dbg !120
-  store i16 %5, i16* %tmp, align 2, !dbg !120
-  %6 = load i16, i16* %tmp, align 2, !dbg !120
-  %add = add i16 %6, 2, !dbg !122
-  %7 = inttoptr i16 %add to i8*, !dbg !123
-  call void @llvm.dbg.declare(metadata i16* %__x5, metadata !124, metadata !DIExpression()), !dbg !126
-  %8 = call i16 asm sideeffect "mov SP, $0", "=r"() #5, !dbg !126, !srcloc !127
-  store i16 %8, i16* %__x5, align 2, !dbg !126
-  %9 = load i16, i16* %__x5, align 2, !dbg !126
-  store i16 %9, i16* %tmp6, align 2, !dbg !126
-  %10 = load i16, i16* %tmp6, align 2, !dbg !126
-  %add7 = add i16 %10, 2, !dbg !128
-  %sub = sub i16 9216, %add7, !dbg !129
-  %call = call zeroext i16 @__fast_hw_crc(i8* %7, i16 zeroext %sub, i16 zeroext -1), !dbg !130
-  store i16 %call, i16* @tmp_stack_crc, align 2, !dbg !131
-  %11 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2, !dbg !132
-  %12 = bitcast %struct.camel_buffer_t* %11 to i8*, !dbg !132
-  %13 = load i16, i16* @tmp_stack_crc, align 2, !dbg !133
-  %call8 = call zeroext i16 @__fast_hw_crc(i8* %12, i16 zeroext 924, i16 zeroext %13), !dbg !134
-  store i16 %call8, i16* @tmp_stack_buf_crc, align 2, !dbg !135
-  %14 = load i16, i16* @tmp_stack_buf_crc, align 2, !dbg !136
-  %15 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2, !dbg !138
-  %stack_and_buf_crc = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %15, i32 0, i32 2, !dbg !139
-  %16 = load i16, i16* %stack_and_buf_crc, align 2, !dbg !139
-  %cmp9 = icmp eq i16 %14, %16, !dbg !140
-  br i1 %cmp9, label %if.then10, label %if.else12, !dbg !141
-
-if.then10:                                        ; preds = %if.end4
-  %17 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !142
-  %18 = bitcast %struct.camel_buffer_t* %17 to i8*, !dbg !144
-  %19 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2, !dbg !145
-  %20 = bitcast %struct.camel_buffer_t* %19 to i8*, !dbg !144
-  call void @llvm.memcpy.p0i8.p0i8.i16(i8* align 2 %18, i8* align 2 %20, i16 926, i1 false), !dbg !144
-  call void @camel_init(), !dbg !146
-  %21 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2, !dbg !147
-  %reg_file11 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %21, i32 0, i32 0, !dbg !148
-  %arraydecay = getelementptr inbounds [11 x i16], [11 x i16]* %reg_file11, i16 0, i16 0, !dbg !147
-  call void @__restore_registers(i16* %arraydecay), !dbg !149
-  br label %if.end13, !dbg !150
-
-if.else12:                                        ; preds = %if.end4
-  call void bitcast (void (...)* @__crt0_start to void ()*)(), !dbg !151
-  br label %if.end13
-
-if.end13:                                         ; preds = %if.else12, %if.then10
-  ret void, !dbg !153
+  call void @camel_init(), !dbg !118
+  %4 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2, !dbg !119
+  %reg_file5 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %4, i32 0, i32 0, !dbg !120
+  %arraydecay = getelementptr inbounds [11 x i16], [11 x i16]* %reg_file5, i16 0, i16 0, !dbg !119
+  call void @__restore_registers(i16* %arraydecay), !dbg !121
+  ret void, !dbg !122
 }
 
 declare dso_local void @__crt0_start(...) #1
 
-declare dso_local zeroext i16 @__fast_hw_crc(i8*, i16 zeroext, i16 zeroext) #1
+declare dso_local void @__restore_registers(i16*) #1
+
+; Function Attrs: noinline nounwind optnone
+define dso_local void @task_init() #0 !dbg !123 {
+entry:
+  %node = alloca %struct._node_t, align 2
+  %i = alloca i16, align 2
+  %0 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !124
+  %globals = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %0, i32 0, i32 1, !dbg !124
+  %parent_next = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals, i32 0, i32 11, !dbg !124
+  store i16 0, i16* %parent_next, align 2, !dbg !125
+  %1 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !126
+  %globals1 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %1, i32 0, i32 1, !dbg !126
+  %out_len = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals1, i32 0, i32 3, !dbg !126
+  store i16 0, i16* %out_len, align 2, !dbg !127
+  %2 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !128
+  %globals2 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %2, i32 0, i32 1, !dbg !128
+  %letter = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals2, i32 0, i32 0, !dbg !128
+  store i16 0, i16* %letter, align 2, !dbg !129
+  %3 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !130
+  %globals3 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %3, i32 0, i32 1, !dbg !130
+  %prev_sample = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals3, i32 0, i32 2, !dbg !130
+  store i16 0, i16* %prev_sample, align 2, !dbg !131
+  %4 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !132
+  %globals4 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %4, i32 0, i32 1, !dbg !132
+  %letter_idx = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals4, i32 0, i32 1, !dbg !132
+  store i16 0, i16* %letter_idx, align 2, !dbg !133
+  %5 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !134
+  %globals5 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %5, i32 0, i32 1, !dbg !134
+  %sample_count = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals5, i32 0, i32 7, !dbg !134
+  store i16 1, i16* %sample_count, align 2, !dbg !135
+  br label %while.cond, !dbg !136
+
+while.cond:                                       ; preds = %while.body, %entry
+  %6 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !137
+  %globals6 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %6, i32 0, i32 1, !dbg !137
+  %letter7 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals6, i32 0, i32 0, !dbg !137
+  %7 = load i16, i16* %letter7, align 2, !dbg !137
+  %cmp = icmp ult i16 %7, 64, !dbg !138
+  br i1 %cmp, label %while.body, label %while.end, !dbg !136
+
+while.body:                                       ; preds = %while.cond
+  call void @llvm.dbg.declare(metadata %struct._node_t* %node, metadata !139, metadata !DIExpression()), !dbg !141
+  %letter8 = getelementptr inbounds %struct._node_t, %struct._node_t* %node, i32 0, i32 0, !dbg !142
+  %8 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !143
+  %globals9 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %8, i32 0, i32 1, !dbg !143
+  %letter10 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals9, i32 0, i32 0, !dbg !143
+  %9 = load i16, i16* %letter10, align 2, !dbg !143
+  store i16 %9, i16* %letter8, align 2, !dbg !142
+  %sibling = getelementptr inbounds %struct._node_t, %struct._node_t* %node, i32 0, i32 1, !dbg !142
+  store i16 0, i16* %sibling, align 2, !dbg !142
+  %child = getelementptr inbounds %struct._node_t, %struct._node_t* %node, i32 0, i32 2, !dbg !142
+  store i16 0, i16* %child, align 2, !dbg !142
+  call void @llvm.dbg.declare(metadata i16* %i, metadata !144, metadata !DIExpression()), !dbg !146
+  %10 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !147
+  %globals11 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %10, i32 0, i32 1, !dbg !147
+  %letter12 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals11, i32 0, i32 0, !dbg !147
+  %11 = load i16, i16* %letter12, align 2, !dbg !147
+  store i16 %11, i16* %i, align 2, !dbg !146
+  %12 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !148
+  %globals13 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %12, i32 0, i32 1, !dbg !148
+  %dict = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals13, i32 0, i32 5, !dbg !148
+  %13 = load i16, i16* %i, align 2, !dbg !149
+  %arrayidx = getelementptr inbounds [128 x %struct._node_t], [128 x %struct._node_t]* %dict, i16 0, i16 %13, !dbg !148
+  %14 = bitcast %struct._node_t* %arrayidx to i8*, !dbg !150
+  %15 = bitcast %struct._node_t* %node to i8*, !dbg !150
+  call void @llvm.memcpy.p0i8.p0i8.i16(i8* align 2 %14, i8* align 2 %15, i16 6, i1 false), !dbg !150
+  %16 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !151
+  %globals14 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %16, i32 0, i32 1, !dbg !151
+  %letter15 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals14, i32 0, i32 0, !dbg !151
+  %17 = load i16, i16* %letter15, align 2, !dbg !152
+  %inc = add i16 %17, 1, !dbg !152
+  store i16 %inc, i16* %letter15, align 2, !dbg !152
+  br label %while.cond, !dbg !136, !llvm.loop !153
+
+while.end:                                        ; preds = %while.cond
+  %18 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !155
+  %globals16 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %18, i32 0, i32 1, !dbg !155
+  %node_count = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals16, i32 0, i32 4, !dbg !155
+  store i16 64, i16* %node_count, align 2, !dbg !156
+  ret void, !dbg !157
+}
 
 ; Function Attrs: nounwind readnone speculatable willreturn
 declare void @llvm.dbg.declare(metadata, metadata, metadata) #2
@@ -152,747 +186,1024 @@ declare void @llvm.dbg.declare(metadata, metadata, metadata) #2
 ; Function Attrs: argmemonly nounwind willreturn
 declare void @llvm.memcpy.p0i8.p0i8.i16(i8* noalias nocapture writeonly, i8* noalias nocapture readonly, i16, i1 immarg) #3
 
-declare dso_local void @__restore_registers(i16*) #1
-
 ; Function Attrs: noinline nounwind optnone
-define dso_local void @task_init() #0 !dbg !154 {
-entry:
-  %node = alloca %struct._node_t, align 2
-  %i = alloca i16, align 2
-  %0 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !155
-  %globals = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %0, i32 0, i32 1, !dbg !155
-  %parent_next = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals, i32 0, i32 11, !dbg !155
-  store i16 0, i16* %parent_next, align 2, !dbg !156
-  %1 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !157
-  %globals1 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %1, i32 0, i32 1, !dbg !157
-  %out_len = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals1, i32 0, i32 3, !dbg !157
-  store i16 0, i16* %out_len, align 2, !dbg !158
-  %2 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !159
-  %globals2 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %2, i32 0, i32 1, !dbg !159
-  %letter = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals2, i32 0, i32 0, !dbg !159
-  store i16 0, i16* %letter, align 2, !dbg !160
-  %3 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !161
-  %globals3 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %3, i32 0, i32 1, !dbg !161
-  %prev_sample = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals3, i32 0, i32 2, !dbg !161
-  store i16 0, i16* %prev_sample, align 2, !dbg !162
-  %4 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !163
-  %globals4 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %4, i32 0, i32 1, !dbg !163
-  %letter_idx = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals4, i32 0, i32 1, !dbg !163
-  store i16 0, i16* %letter_idx, align 2, !dbg !164
-  %5 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !165
-  %globals5 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %5, i32 0, i32 1, !dbg !165
-  %sample_count = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals5, i32 0, i32 7, !dbg !165
-  store i16 1, i16* %sample_count, align 2, !dbg !166
-  br label %while.cond, !dbg !167
-
-while.cond:                                       ; preds = %while.body, %entry
-  %6 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !168
-  %globals6 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %6, i32 0, i32 1, !dbg !168
-  %letter7 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals6, i32 0, i32 0, !dbg !168
-  %7 = load i16, i16* %letter7, align 2, !dbg !168
-  %cmp = icmp ult i16 %7, 64, !dbg !169
-  br i1 %cmp, label %while.body, label %while.end, !dbg !167
-
-while.body:                                       ; preds = %while.cond
-  call void @llvm.dbg.declare(metadata %struct._node_t* %node, metadata !170, metadata !DIExpression()), !dbg !172
-  %letter8 = getelementptr inbounds %struct._node_t, %struct._node_t* %node, i32 0, i32 0, !dbg !173
-  %8 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !174
-  %globals9 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %8, i32 0, i32 1, !dbg !174
-  %letter10 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals9, i32 0, i32 0, !dbg !174
-  %9 = load i16, i16* %letter10, align 2, !dbg !174
-  store i16 %9, i16* %letter8, align 2, !dbg !173
-  %sibling = getelementptr inbounds %struct._node_t, %struct._node_t* %node, i32 0, i32 1, !dbg !173
-  store i16 0, i16* %sibling, align 2, !dbg !173
-  %child = getelementptr inbounds %struct._node_t, %struct._node_t* %node, i32 0, i32 2, !dbg !173
-  store i16 0, i16* %child, align 2, !dbg !173
-  call void @llvm.dbg.declare(metadata i16* %i, metadata !175, metadata !DIExpression()), !dbg !177
-  %10 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !178
-  %globals11 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %10, i32 0, i32 1, !dbg !178
-  %letter12 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals11, i32 0, i32 0, !dbg !178
-  %11 = load i16, i16* %letter12, align 2, !dbg !178
-  store i16 %11, i16* %i, align 2, !dbg !177
-  %12 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !179
-  %globals13 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %12, i32 0, i32 1, !dbg !179
-  %dict = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals13, i32 0, i32 5, !dbg !179
-  %13 = load i16, i16* %i, align 2, !dbg !180
-  %arrayidx = getelementptr inbounds [128 x %struct._node_t], [128 x %struct._node_t]* %dict, i16 0, i16 %13, !dbg !179
-  %14 = bitcast %struct._node_t* %arrayidx to i8*, !dbg !181
-  %15 = bitcast %struct._node_t* %node to i8*, !dbg !181
-  call void @llvm.memcpy.p0i8.p0i8.i16(i8* align 2 %14, i8* align 2 %15, i16 6, i1 false), !dbg !181
-  %16 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !182
-  %globals14 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %16, i32 0, i32 1, !dbg !182
-  %letter15 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals14, i32 0, i32 0, !dbg !182
-  %17 = load i16, i16* %letter15, align 2, !dbg !183
-  %inc = add i16 %17, 1, !dbg !183
-  store i16 %inc, i16* %letter15, align 2, !dbg !183
-  br label %while.cond, !dbg !167, !llvm.loop !184
-
-while.end:                                        ; preds = %while.cond
-  %18 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !186
-  %globals16 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %18, i32 0, i32 1, !dbg !186
-  %node_count = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals16, i32 0, i32 4, !dbg !186
-  store i16 64, i16* %node_count, align 2, !dbg !187
-  ret void, !dbg !188
-}
-
-; Function Attrs: noinline nounwind optnone
-define dso_local void @task_sample() #0 !dbg !189 {
+define dso_local void @task_sample() #0 !dbg !158 {
 entry:
   %next_letter_idx = alloca i16, align 2
-  call void @llvm.dbg.declare(metadata i16* %next_letter_idx, metadata !190, metadata !DIExpression()), !dbg !191
-  %0 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !192
-  %globals = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %0, i32 0, i32 1, !dbg !192
-  %letter_idx = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals, i32 0, i32 1, !dbg !192
-  %1 = load i16, i16* %letter_idx, align 2, !dbg !192
-  %add = add i16 %1, 1, !dbg !193
-  store i16 %add, i16* %next_letter_idx, align 2, !dbg !191
-  %2 = load i16, i16* %next_letter_idx, align 2, !dbg !194
-  %cmp = icmp eq i16 %2, 2, !dbg !196
-  br i1 %cmp, label %if.then, label %if.end, !dbg !197
+  call void @llvm.dbg.declare(metadata i16* %next_letter_idx, metadata !159, metadata !DIExpression()), !dbg !160
+  %0 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !161
+  %globals = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %0, i32 0, i32 1, !dbg !161
+  %letter_idx = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals, i32 0, i32 1, !dbg !161
+  %1 = load i16, i16* %letter_idx, align 2, !dbg !161
+  %add = add i16 %1, 1, !dbg !162
+  store i16 %add, i16* %next_letter_idx, align 2, !dbg !160
+  %2 = load i16, i16* %next_letter_idx, align 2, !dbg !163
+  %cmp = icmp eq i16 %2, 2, !dbg !165
+  br i1 %cmp, label %if.then, label %if.end, !dbg !166
 
 if.then:                                          ; preds = %entry
-  store i16 0, i16* %next_letter_idx, align 2, !dbg !198
-  br label %if.end, !dbg !199
+  store i16 0, i16* %next_letter_idx, align 2, !dbg !167
+  br label %if.end, !dbg !168
 
 if.end:                                           ; preds = %if.then, %entry
-  %3 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !200
-  %globals1 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %3, i32 0, i32 1, !dbg !200
-  %letter_idx2 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals1, i32 0, i32 1, !dbg !200
-  %4 = load i16, i16* %letter_idx2, align 2, !dbg !200
-  %cmp3 = icmp eq i16 %4, 0, !dbg !202
-  br i1 %cmp3, label %if.then4, label %if.else, !dbg !203
+  %3 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !169
+  %globals1 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %3, i32 0, i32 1, !dbg !169
+  %letter_idx2 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals1, i32 0, i32 1, !dbg !169
+  %4 = load i16, i16* %letter_idx2, align 2, !dbg !169
+  %cmp3 = icmp eq i16 %4, 0, !dbg !171
+  br i1 %cmp3, label %if.then4, label %if.else, !dbg !172
 
 if.then4:                                         ; preds = %if.end
-  %5 = load i16, i16* %next_letter_idx, align 2, !dbg !204
-  %6 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !206
-  %globals5 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %6, i32 0, i32 1, !dbg !206
-  %letter_idx6 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals5, i32 0, i32 1, !dbg !206
-  store i16 %5, i16* %letter_idx6, align 2, !dbg !207
-  %7 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !208
-  %globals7 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %7, i32 0, i32 1, !dbg !208
-  %check = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals7, i32 0, i32 16, !dbg !208
-  store i16 0, i16* %check, align 2, !dbg !209
-  br label %if.end12, !dbg !210
+  %5 = load i16, i16* %next_letter_idx, align 2, !dbg !173
+  %6 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !175
+  %globals5 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %6, i32 0, i32 1, !dbg !175
+  %letter_idx6 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals5, i32 0, i32 1, !dbg !175
+  store i16 %5, i16* %letter_idx6, align 2, !dbg !176
+  %7 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !177
+  %globals7 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %7, i32 0, i32 1, !dbg !177
+  %check = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals7, i32 0, i32 16, !dbg !177
+  store i16 0, i16* %check, align 2, !dbg !178
+  br label %if.end12, !dbg !179
 
 if.else:                                          ; preds = %if.end
-  %8 = load i16, i16* %next_letter_idx, align 2, !dbg !211
-  %9 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !213
-  %globals8 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %9, i32 0, i32 1, !dbg !213
-  %letter_idx9 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals8, i32 0, i32 1, !dbg !213
-  store i16 %8, i16* %letter_idx9, align 2, !dbg !214
-  %10 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !215
-  %globals10 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %10, i32 0, i32 1, !dbg !215
-  %check11 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals10, i32 0, i32 16, !dbg !215
-  store i16 1, i16* %check11, align 2, !dbg !216
+  %8 = load i16, i16* %next_letter_idx, align 2, !dbg !180
+  %9 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !182
+  %globals8 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %9, i32 0, i32 1, !dbg !182
+  %letter_idx9 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals8, i32 0, i32 1, !dbg !182
+  store i16 %8, i16* %letter_idx9, align 2, !dbg !183
+  %10 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !184
+  %globals10 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %10, i32 0, i32 1, !dbg !184
+  %check11 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals10, i32 0, i32 16, !dbg !184
+  store i16 1, i16* %check11, align 2, !dbg !185
   br label %if.end12
 
 if.end12:                                         ; preds = %if.else, %if.then4
-  ret void, !dbg !217
+  ret void, !dbg !186
 }
 
 ; Function Attrs: noinline nounwind optnone
-define dso_local void @task_measure_temp() #0 !dbg !218 {
+define dso_local void @task_measure_temp() #0 !dbg !187 {
 entry:
   %prev_sample = alloca i16, align 2
   %sample = alloca i16, align 2
-  call void @llvm.dbg.declare(metadata i16* %prev_sample, metadata !219, metadata !DIExpression()), !dbg !220
-  %0 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !221
-  %globals = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %0, i32 0, i32 1, !dbg !221
-  %prev_sample1 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals, i32 0, i32 2, !dbg !221
-  %1 = load i16, i16* %prev_sample1, align 2, !dbg !221
-  store i16 %1, i16* %prev_sample, align 2, !dbg !222
-  call void @llvm.dbg.declare(metadata i16* %sample, metadata !223, metadata !DIExpression()), !dbg !224
-  %2 = load i16, i16* %prev_sample, align 2, !dbg !225
-  %call = call i16 @acquire_sample(i16 %2), !dbg !226
-  store i16 %call, i16* %sample, align 2, !dbg !224
-  %3 = load i16, i16* %sample, align 2, !dbg !227
-  store i16 %3, i16* %prev_sample, align 2, !dbg !228
-  %4 = load i16, i16* %prev_sample, align 2, !dbg !229
-  %5 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !230
-  %globals2 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %5, i32 0, i32 1, !dbg !230
-  %prev_sample3 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals2, i32 0, i32 2, !dbg !230
-  store i16 %4, i16* %prev_sample3, align 2, !dbg !231
-  %6 = load i16, i16* %sample, align 2, !dbg !232
-  %7 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !233
-  %globals4 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %7, i32 0, i32 1, !dbg !233
-  %sample5 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals4, i32 0, i32 6, !dbg !233
-  store i16 %6, i16* %sample5, align 2, !dbg !234
-  ret void, !dbg !235
+  call void @llvm.dbg.declare(metadata i16* %prev_sample, metadata !188, metadata !DIExpression()), !dbg !189
+  %0 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !190
+  %globals = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %0, i32 0, i32 1, !dbg !190
+  %prev_sample1 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals, i32 0, i32 2, !dbg !190
+  %1 = load i16, i16* %prev_sample1, align 2, !dbg !190
+  store i16 %1, i16* %prev_sample, align 2, !dbg !191
+  call void @llvm.dbg.declare(metadata i16* %sample, metadata !192, metadata !DIExpression()), !dbg !193
+  %2 = load i16, i16* %prev_sample, align 2, !dbg !194
+  %call = call i16 @acquire_sample(i16 %2), !dbg !195
+  store i16 %call, i16* %sample, align 2, !dbg !193
+  %3 = load i16, i16* %sample, align 2, !dbg !196
+  store i16 %3, i16* %prev_sample, align 2, !dbg !197
+  %4 = load i16, i16* %prev_sample, align 2, !dbg !198
+  %5 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !199
+  %globals2 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %5, i32 0, i32 1, !dbg !199
+  %prev_sample3 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals2, i32 0, i32 2, !dbg !199
+  store i16 %4, i16* %prev_sample3, align 2, !dbg !200
+  %6 = load i16, i16* %sample, align 2, !dbg !201
+  %7 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !202
+  %globals4 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %7, i32 0, i32 1, !dbg !202
+  %sample5 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals4, i32 0, i32 6, !dbg !202
+  store i16 %6, i16* %sample5, align 2, !dbg !203
+  ret void, !dbg !204
 }
 
 ; Function Attrs: noinline nounwind optnone
-define internal i16 @acquire_sample(i16 %prev_sample) #0 !dbg !236 {
+define internal i16 @acquire_sample(i16 %prev_sample) #0 !dbg !205 {
 entry:
   %prev_sample.addr = alloca i16, align 2
   %sample = alloca i16, align 2
   store i16 %prev_sample, i16* %prev_sample.addr, align 2
-  call void @llvm.dbg.declare(metadata i16* %prev_sample.addr, metadata !239, metadata !DIExpression()), !dbg !240
-  call void @llvm.dbg.declare(metadata i16* %sample, metadata !241, metadata !DIExpression()), !dbg !242
-  %0 = load i16, i16* %prev_sample.addr, align 2, !dbg !243
-  %add = add i16 %0, 1, !dbg !244
-  %and = and i16 %add, 3, !dbg !245
-  store i16 %and, i16* %sample, align 2, !dbg !242
-  %1 = load i16, i16* %sample, align 2, !dbg !246
-  ret i16 %1, !dbg !247
+  call void @llvm.dbg.declare(metadata i16* %prev_sample.addr, metadata !208, metadata !DIExpression()), !dbg !209
+  call void @llvm.dbg.declare(metadata i16* %sample, metadata !210, metadata !DIExpression()), !dbg !211
+  %0 = load i16, i16* %prev_sample.addr, align 2, !dbg !212
+  %add = add i16 %0, 1, !dbg !213
+  %and = and i16 %add, 3, !dbg !214
+  store i16 %and, i16* %sample, align 2, !dbg !211
+  %1 = load i16, i16* %sample, align 2, !dbg !215
+  ret i16 %1, !dbg !216
 }
 
 ; Function Attrs: noinline nounwind optnone
-define dso_local void @task_letterize() #0 !dbg !248 {
+define dso_local void @task_letterize() #0 !dbg !217 {
 entry:
   %letter_idx = alloca i16, align 2
   %letter_shift = alloca i16, align 2
   %letter = alloca i16, align 2
-  call void @llvm.dbg.declare(metadata i16* %letter_idx, metadata !249, metadata !DIExpression()), !dbg !250
-  %0 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !251
-  %globals = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %0, i32 0, i32 1, !dbg !251
-  %letter_idx1 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals, i32 0, i32 1, !dbg !251
-  %1 = load i16, i16* %letter_idx1, align 2, !dbg !251
-  store i16 %1, i16* %letter_idx, align 2, !dbg !250
-  %2 = load i16, i16* %letter_idx, align 2, !dbg !252
-  %cmp = icmp eq i16 %2, 0, !dbg !254
-  br i1 %cmp, label %if.then, label %if.else, !dbg !255
+  call void @llvm.dbg.declare(metadata i16* %letter_idx, metadata !218, metadata !DIExpression()), !dbg !219
+  %0 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !220
+  %globals = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %0, i32 0, i32 1, !dbg !220
+  %letter_idx1 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals, i32 0, i32 1, !dbg !220
+  %1 = load i16, i16* %letter_idx1, align 2, !dbg !220
+  store i16 %1, i16* %letter_idx, align 2, !dbg !219
+  %2 = load i16, i16* %letter_idx, align 2, !dbg !221
+  %cmp = icmp eq i16 %2, 0, !dbg !223
+  br i1 %cmp, label %if.then, label %if.else, !dbg !224
 
 if.then:                                          ; preds = %entry
-  store i16 2, i16* %letter_idx, align 2, !dbg !256
-  br label %if.end, !dbg !257
+  store i16 2, i16* %letter_idx, align 2, !dbg !225
+  br label %if.end, !dbg !226
 
 if.else:                                          ; preds = %entry
-  %3 = load i16, i16* %letter_idx, align 2, !dbg !258
-  %dec = add i16 %3, -1, !dbg !258
-  store i16 %dec, i16* %letter_idx, align 2, !dbg !258
+  %3 = load i16, i16* %letter_idx, align 2, !dbg !227
+  %dec = add i16 %3, -1, !dbg !227
+  store i16 %dec, i16* %letter_idx, align 2, !dbg !227
   br label %if.end
 
 if.end:                                           ; preds = %if.else, %if.then
-  call void @llvm.dbg.declare(metadata i16* %letter_shift, metadata !259, metadata !DIExpression()), !dbg !260
-  %4 = load i16, i16* %letter_idx, align 2, !dbg !261
-  %mul = mul i16 8, %4, !dbg !262
-  store i16 %mul, i16* %letter_shift, align 2, !dbg !260
-  call void @llvm.dbg.declare(metadata i16* %letter, metadata !263, metadata !DIExpression()), !dbg !264
-  %5 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !265
-  %globals2 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %5, i32 0, i32 1, !dbg !265
-  %sample = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals2, i32 0, i32 6, !dbg !265
-  %6 = load i16, i16* %sample, align 2, !dbg !265
-  %7 = load i16, i16* %letter_shift, align 2, !dbg !266
-  %shl = shl i16 63, %7, !dbg !267
-  %and = and i16 %6, %shl, !dbg !268
-  %8 = load i16, i16* %letter_shift, align 2, !dbg !269
-  %shr = lshr i16 %and, %8, !dbg !270
-  store i16 %shr, i16* %letter, align 2, !dbg !264
-  %9 = load i16, i16* %letter, align 2, !dbg !271
-  %10 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !272
-  %globals3 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %10, i32 0, i32 1, !dbg !272
-  %letter4 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals3, i32 0, i32 0, !dbg !272
-  store i16 %9, i16* %letter4, align 2, !dbg !273
-  ret void, !dbg !274
+  call void @llvm.dbg.declare(metadata i16* %letter_shift, metadata !228, metadata !DIExpression()), !dbg !229
+  %4 = load i16, i16* %letter_idx, align 2, !dbg !230
+  %mul = mul i16 8, %4, !dbg !231
+  store i16 %mul, i16* %letter_shift, align 2, !dbg !229
+  call void @llvm.dbg.declare(metadata i16* %letter, metadata !232, metadata !DIExpression()), !dbg !233
+  %5 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !234
+  %globals2 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %5, i32 0, i32 1, !dbg !234
+  %sample = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals2, i32 0, i32 6, !dbg !234
+  %6 = load i16, i16* %sample, align 2, !dbg !234
+  %7 = load i16, i16* %letter_shift, align 2, !dbg !235
+  %shl = shl i16 63, %7, !dbg !236
+  %and = and i16 %6, %shl, !dbg !237
+  %8 = load i16, i16* %letter_shift, align 2, !dbg !238
+  %shr = lshr i16 %and, %8, !dbg !239
+  store i16 %shr, i16* %letter, align 2, !dbg !233
+  %9 = load i16, i16* %letter, align 2, !dbg !240
+  %10 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !241
+  %globals3 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %10, i32 0, i32 1, !dbg !241
+  %letter4 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals3, i32 0, i32 0, !dbg !241
+  store i16 %9, i16* %letter4, align 2, !dbg !242
+  ret void, !dbg !243
 }
 
 ; Function Attrs: noinline nounwind optnone
-define dso_local void @task_compress() #0 !dbg !275 {
+define dso_local void @task_compress() #0 !dbg !244 {
 entry:
   %parent_node = alloca %struct._node_t, align 2
   %parent = alloca i16, align 2
-  call void @llvm.dbg.declare(metadata %struct._node_t* %parent_node, metadata !276, metadata !DIExpression()), !dbg !277
-  call void @llvm.dbg.declare(metadata i16* %parent, metadata !278, metadata !DIExpression()), !dbg !279
-  %0 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !280
-  %globals = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %0, i32 0, i32 1, !dbg !280
-  %parent_next = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals, i32 0, i32 11, !dbg !280
-  %1 = load i16, i16* %parent_next, align 2, !dbg !280
-  store i16 %1, i16* %parent, align 2, !dbg !279
-  %2 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !281
-  %globals1 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %2, i32 0, i32 1, !dbg !281
-  %dict = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals1, i32 0, i32 5, !dbg !281
-  %3 = load i16, i16* %parent, align 2, !dbg !282
-  %arrayidx = getelementptr inbounds [128 x %struct._node_t], [128 x %struct._node_t]* %dict, i16 0, i16 %3, !dbg !281
-  %4 = bitcast %struct._node_t* %parent_node to i8*, !dbg !281
-  %5 = bitcast %struct._node_t* %arrayidx to i8*, !dbg !281
-  call void @llvm.memcpy.p0i8.p0i8.i16(i8* align 2 %4, i8* align 2 %5, i16 6, i1 false), !dbg !281
-  %child = getelementptr inbounds %struct._node_t, %struct._node_t* %parent_node, i32 0, i32 2, !dbg !283
-  %6 = load i16, i16* %child, align 2, !dbg !283
-  %7 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !284
-  %globals2 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %7, i32 0, i32 1, !dbg !284
-  %sibling = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals2, i32 0, i32 8, !dbg !284
-  store i16 %6, i16* %sibling, align 2, !dbg !285
-  %8 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !286
-  %globals3 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %8, i32 0, i32 1, !dbg !286
-  %parent_node4 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals3, i32 0, i32 12, !dbg !286
-  %9 = bitcast %struct._node_t* %parent_node4 to i8*, !dbg !287
-  %10 = bitcast %struct._node_t* %parent_node to i8*, !dbg !287
-  call void @llvm.memcpy.p0i8.p0i8.i16(i8* align 2 %9, i8* align 2 %10, i16 6, i1 false), !dbg !287
-  %11 = load i16, i16* %parent, align 2, !dbg !288
-  %12 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !289
-  %globals5 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %12, i32 0, i32 1, !dbg !289
-  %parent6 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals5, i32 0, i32 10, !dbg !289
-  store i16 %11, i16* %parent6, align 2, !dbg !290
-  %child7 = getelementptr inbounds %struct._node_t, %struct._node_t* %parent_node, i32 0, i32 2, !dbg !291
-  %13 = load i16, i16* %child7, align 2, !dbg !291
-  %14 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !292
-  %globals8 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %14, i32 0, i32 1, !dbg !292
-  %child9 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals8, i32 0, i32 9, !dbg !292
-  store i16 %13, i16* %child9, align 2, !dbg !293
-  %15 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !294
-  %globals10 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %15, i32 0, i32 1, !dbg !294
-  %sample_count = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals10, i32 0, i32 7, !dbg !294
-  %16 = load i16, i16* %sample_count, align 2, !dbg !295
-  %inc = add i16 %16, 1, !dbg !295
-  store i16 %inc, i16* %sample_count, align 2, !dbg !295
-  ret void, !dbg !296
+  call void @llvm.dbg.declare(metadata %struct._node_t* %parent_node, metadata !245, metadata !DIExpression()), !dbg !246
+  call void @llvm.dbg.declare(metadata i16* %parent, metadata !247, metadata !DIExpression()), !dbg !248
+  %0 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !249
+  %globals = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %0, i32 0, i32 1, !dbg !249
+  %parent_next = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals, i32 0, i32 11, !dbg !249
+  %1 = load i16, i16* %parent_next, align 2, !dbg !249
+  store i16 %1, i16* %parent, align 2, !dbg !248
+  %2 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !250
+  %globals1 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %2, i32 0, i32 1, !dbg !250
+  %dict = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals1, i32 0, i32 5, !dbg !250
+  %3 = load i16, i16* %parent, align 2, !dbg !251
+  %arrayidx = getelementptr inbounds [128 x %struct._node_t], [128 x %struct._node_t]* %dict, i16 0, i16 %3, !dbg !250
+  %4 = bitcast %struct._node_t* %parent_node to i8*, !dbg !250
+  %5 = bitcast %struct._node_t* %arrayidx to i8*, !dbg !250
+  call void @llvm.memcpy.p0i8.p0i8.i16(i8* align 2 %4, i8* align 2 %5, i16 6, i1 false), !dbg !250
+  %child = getelementptr inbounds %struct._node_t, %struct._node_t* %parent_node, i32 0, i32 2, !dbg !252
+  %6 = load i16, i16* %child, align 2, !dbg !252
+  %7 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !253
+  %globals2 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %7, i32 0, i32 1, !dbg !253
+  %sibling = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals2, i32 0, i32 8, !dbg !253
+  store i16 %6, i16* %sibling, align 2, !dbg !254
+  %8 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !255
+  %globals3 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %8, i32 0, i32 1, !dbg !255
+  %parent_node4 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals3, i32 0, i32 12, !dbg !255
+  %9 = bitcast %struct._node_t* %parent_node4 to i8*, !dbg !256
+  %10 = bitcast %struct._node_t* %parent_node to i8*, !dbg !256
+  call void @llvm.memcpy.p0i8.p0i8.i16(i8* align 2 %9, i8* align 2 %10, i16 6, i1 false), !dbg !256
+  %11 = load i16, i16* %parent, align 2, !dbg !257
+  %12 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !258
+  %globals5 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %12, i32 0, i32 1, !dbg !258
+  %parent6 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals5, i32 0, i32 10, !dbg !258
+  store i16 %11, i16* %parent6, align 2, !dbg !259
+  %child7 = getelementptr inbounds %struct._node_t, %struct._node_t* %parent_node, i32 0, i32 2, !dbg !260
+  %13 = load i16, i16* %child7, align 2, !dbg !260
+  %14 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !261
+  %globals8 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %14, i32 0, i32 1, !dbg !261
+  %child9 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals8, i32 0, i32 9, !dbg !261
+  store i16 %13, i16* %child9, align 2, !dbg !262
+  %15 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !263
+  %globals10 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %15, i32 0, i32 1, !dbg !263
+  %sample_count = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals10, i32 0, i32 7, !dbg !263
+  %16 = load i16, i16* %sample_count, align 2, !dbg !264
+  %inc = add i16 %16, 1, !dbg !264
+  store i16 %inc, i16* %sample_count, align 2, !dbg !264
+  ret void, !dbg !265
 }
 
 ; Function Attrs: noinline nounwind optnone
-define dso_local void @task_find_sibling() #0 !dbg !297 {
+define dso_local void @task_find_sibling() #0 !dbg !266 {
 entry:
   %sibling_node = alloca %struct._node_t*, align 2
   %i = alloca i16, align 2
   %starting_node_idx = alloca i16, align 2
-  call void @llvm.dbg.declare(metadata %struct._node_t** %sibling_node, metadata !298, metadata !DIExpression()), !dbg !300
-  %0 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !301
-  %globals = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %0, i32 0, i32 1, !dbg !301
-  %sibling = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals, i32 0, i32 8, !dbg !301
-  %1 = load i16, i16* %sibling, align 2, !dbg !301
-  %cmp = icmp ne i16 %1, 0, !dbg !303
-  br i1 %cmp, label %if.then, label %if.end21, !dbg !304
+  call void @llvm.dbg.declare(metadata %struct._node_t** %sibling_node, metadata !267, metadata !DIExpression()), !dbg !269
+  %0 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !270
+  %globals = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %0, i32 0, i32 1, !dbg !270
+  %sibling = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals, i32 0, i32 8, !dbg !270
+  %1 = load i16, i16* %sibling, align 2, !dbg !270
+  %cmp = icmp ne i16 %1, 0, !dbg !272
+  br i1 %cmp, label %if.then, label %if.end21, !dbg !273
 
 if.then:                                          ; preds = %entry
-  call void @llvm.dbg.declare(metadata i16* %i, metadata !305, metadata !DIExpression()), !dbg !307
-  %2 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !308
-  %globals1 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %2, i32 0, i32 1, !dbg !308
-  %sibling2 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals1, i32 0, i32 8, !dbg !308
-  %3 = load i16, i16* %sibling2, align 2, !dbg !308
-  store i16 %3, i16* %i, align 2, !dbg !307
-  %4 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !309
-  %globals3 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %4, i32 0, i32 1, !dbg !309
-  %dict = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals3, i32 0, i32 5, !dbg !309
-  %5 = load i16, i16* %i, align 2, !dbg !310
-  %arrayidx = getelementptr inbounds [128 x %struct._node_t], [128 x %struct._node_t]* %dict, i16 0, i16 %5, !dbg !309
-  store %struct._node_t* %arrayidx, %struct._node_t** %sibling_node, align 2, !dbg !311
-  %6 = load %struct._node_t*, %struct._node_t** %sibling_node, align 2, !dbg !312
-  %letter = getelementptr inbounds %struct._node_t, %struct._node_t* %6, i32 0, i32 0, !dbg !314
-  %7 = load i16, i16* %letter, align 2, !dbg !314
-  %8 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !315
-  %globals4 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %8, i32 0, i32 1, !dbg !315
-  %letter5 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals4, i32 0, i32 0, !dbg !315
-  %9 = load i16, i16* %letter5, align 2, !dbg !315
-  %cmp6 = icmp eq i16 %7, %9, !dbg !316
-  br i1 %cmp6, label %if.then7, label %if.else, !dbg !317
+  call void @llvm.dbg.declare(metadata i16* %i, metadata !274, metadata !DIExpression()), !dbg !276
+  %2 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !277
+  %globals1 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %2, i32 0, i32 1, !dbg !277
+  %sibling2 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals1, i32 0, i32 8, !dbg !277
+  %3 = load i16, i16* %sibling2, align 2, !dbg !277
+  store i16 %3, i16* %i, align 2, !dbg !276
+  %4 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !278
+  %globals3 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %4, i32 0, i32 1, !dbg !278
+  %dict = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals3, i32 0, i32 5, !dbg !278
+  %5 = load i16, i16* %i, align 2, !dbg !279
+  %arrayidx = getelementptr inbounds [128 x %struct._node_t], [128 x %struct._node_t]* %dict, i16 0, i16 %5, !dbg !278
+  store %struct._node_t* %arrayidx, %struct._node_t** %sibling_node, align 2, !dbg !280
+  %6 = load %struct._node_t*, %struct._node_t** %sibling_node, align 2, !dbg !281
+  %letter = getelementptr inbounds %struct._node_t, %struct._node_t* %6, i32 0, i32 0, !dbg !283
+  %7 = load i16, i16* %letter, align 2, !dbg !283
+  %8 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !284
+  %globals4 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %8, i32 0, i32 1, !dbg !284
+  %letter5 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals4, i32 0, i32 0, !dbg !284
+  %9 = load i16, i16* %letter5, align 2, !dbg !284
+  %cmp6 = icmp eq i16 %7, %9, !dbg !285
+  br i1 %cmp6, label %if.then7, label %if.else, !dbg !286
 
 if.then7:                                         ; preds = %if.then
-  %10 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !318
-  %globals8 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %10, i32 0, i32 1, !dbg !318
-  %sibling9 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals8, i32 0, i32 8, !dbg !318
-  %11 = load i16, i16* %sibling9, align 2, !dbg !318
-  %12 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !320
-  %globals10 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %12, i32 0, i32 1, !dbg !320
-  %parent_next = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals10, i32 0, i32 11, !dbg !320
-  store i16 %11, i16* %parent_next, align 2, !dbg !321
-  %13 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !322
-  %globals11 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %13, i32 0, i32 1, !dbg !322
-  %check = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals11, i32 0, i32 16, !dbg !322
-  store i16 0, i16* %check, align 2, !dbg !323
-  br label %if.end34, !dbg !324
+  %10 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !287
+  %globals8 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %10, i32 0, i32 1, !dbg !287
+  %sibling9 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals8, i32 0, i32 8, !dbg !287
+  %11 = load i16, i16* %sibling9, align 2, !dbg !287
+  %12 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !289
+  %globals10 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %12, i32 0, i32 1, !dbg !289
+  %parent_next = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals10, i32 0, i32 11, !dbg !289
+  store i16 %11, i16* %parent_next, align 2, !dbg !290
+  %13 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !291
+  %globals11 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %13, i32 0, i32 1, !dbg !291
+  %check = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals11, i32 0, i32 16, !dbg !291
+  store i16 0, i16* %check, align 2, !dbg !292
+  br label %if.end34, !dbg !293
 
 if.else:                                          ; preds = %if.then
-  %14 = load %struct._node_t*, %struct._node_t** %sibling_node, align 2, !dbg !325
-  %sibling12 = getelementptr inbounds %struct._node_t, %struct._node_t* %14, i32 0, i32 1, !dbg !328
-  %15 = load i16, i16* %sibling12, align 2, !dbg !328
-  %cmp13 = icmp ne i16 %15, 0, !dbg !329
-  br i1 %cmp13, label %if.then14, label %if.end, !dbg !330
+  %14 = load %struct._node_t*, %struct._node_t** %sibling_node, align 2, !dbg !294
+  %sibling12 = getelementptr inbounds %struct._node_t, %struct._node_t* %14, i32 0, i32 1, !dbg !297
+  %15 = load i16, i16* %sibling12, align 2, !dbg !297
+  %cmp13 = icmp ne i16 %15, 0, !dbg !298
+  br i1 %cmp13, label %if.then14, label %if.end, !dbg !299
 
 if.then14:                                        ; preds = %if.else
-  %16 = load %struct._node_t*, %struct._node_t** %sibling_node, align 2, !dbg !331
-  %sibling15 = getelementptr inbounds %struct._node_t, %struct._node_t* %16, i32 0, i32 1, !dbg !333
-  %17 = load i16, i16* %sibling15, align 2, !dbg !333
-  %18 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !334
-  %globals16 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %18, i32 0, i32 1, !dbg !334
-  %sibling17 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals16, i32 0, i32 8, !dbg !334
-  store i16 %17, i16* %sibling17, align 2, !dbg !335
-  %19 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !336
-  %globals18 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %19, i32 0, i32 1, !dbg !336
-  %check19 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals18, i32 0, i32 16, !dbg !336
-  store i16 1, i16* %check19, align 2, !dbg !337
-  br label %if.end34, !dbg !338
+  %16 = load %struct._node_t*, %struct._node_t** %sibling_node, align 2, !dbg !300
+  %sibling15 = getelementptr inbounds %struct._node_t, %struct._node_t* %16, i32 0, i32 1, !dbg !302
+  %17 = load i16, i16* %sibling15, align 2, !dbg !302
+  %18 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !303
+  %globals16 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %18, i32 0, i32 1, !dbg !303
+  %sibling17 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals16, i32 0, i32 8, !dbg !303
+  store i16 %17, i16* %sibling17, align 2, !dbg !304
+  %19 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !305
+  %globals18 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %19, i32 0, i32 1, !dbg !305
+  %check19 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals18, i32 0, i32 16, !dbg !305
+  store i16 1, i16* %check19, align 2, !dbg !306
+  br label %if.end34, !dbg !307
 
 if.end:                                           ; preds = %if.else
   br label %if.end20
 
 if.end20:                                         ; preds = %if.end
-  br label %if.end21, !dbg !339
+  br label %if.end21, !dbg !308
 
 if.end21:                                         ; preds = %if.end20, %entry
-  call void @llvm.dbg.declare(metadata i16* %starting_node_idx, metadata !340, metadata !DIExpression()), !dbg !341
-  %20 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !342
-  %globals22 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %20, i32 0, i32 1, !dbg !342
-  %letter23 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals22, i32 0, i32 0, !dbg !342
-  %21 = load i16, i16* %letter23, align 2, !dbg !342
-  store i16 %21, i16* %starting_node_idx, align 2, !dbg !341
-  %22 = load i16, i16* %starting_node_idx, align 2, !dbg !343
-  %23 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !344
-  %globals24 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %23, i32 0, i32 1, !dbg !344
-  %parent_next25 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals24, i32 0, i32 11, !dbg !344
-  store i16 %22, i16* %parent_next25, align 2, !dbg !345
-  %24 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !346
-  %globals26 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %24, i32 0, i32 1, !dbg !346
-  %child = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals26, i32 0, i32 9, !dbg !346
-  %25 = load i16, i16* %child, align 2, !dbg !346
-  %cmp27 = icmp eq i16 %25, 0, !dbg !348
-  br i1 %cmp27, label %if.then28, label %if.else31, !dbg !349
+  call void @llvm.dbg.declare(metadata i16* %starting_node_idx, metadata !309, metadata !DIExpression()), !dbg !310
+  %20 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !311
+  %globals22 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %20, i32 0, i32 1, !dbg !311
+  %letter23 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals22, i32 0, i32 0, !dbg !311
+  %21 = load i16, i16* %letter23, align 2, !dbg !311
+  store i16 %21, i16* %starting_node_idx, align 2, !dbg !310
+  %22 = load i16, i16* %starting_node_idx, align 2, !dbg !312
+  %23 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !313
+  %globals24 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %23, i32 0, i32 1, !dbg !313
+  %parent_next25 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals24, i32 0, i32 11, !dbg !313
+  store i16 %22, i16* %parent_next25, align 2, !dbg !314
+  %24 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !315
+  %globals26 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %24, i32 0, i32 1, !dbg !315
+  %child = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals26, i32 0, i32 9, !dbg !315
+  %25 = load i16, i16* %child, align 2, !dbg !315
+  %cmp27 = icmp eq i16 %25, 0, !dbg !317
+  br i1 %cmp27, label %if.then28, label %if.else31, !dbg !318
 
 if.then28:                                        ; preds = %if.end21
-  %26 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !350
-  %globals29 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %26, i32 0, i32 1, !dbg !350
-  %check30 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals29, i32 0, i32 16, !dbg !350
-  store i16 2, i16* %check30, align 2, !dbg !352
-  br label %if.end34, !dbg !353
+  %26 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !319
+  %globals29 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %26, i32 0, i32 1, !dbg !319
+  %check30 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals29, i32 0, i32 16, !dbg !319
+  store i16 2, i16* %check30, align 2, !dbg !321
+  br label %if.end34, !dbg !322
 
 if.else31:                                        ; preds = %if.end21
-  %27 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !354
-  %globals32 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %27, i32 0, i32 1, !dbg !354
-  %check33 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals32, i32 0, i32 16, !dbg !354
-  store i16 3, i16* %check33, align 2, !dbg !356
+  %27 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !323
+  %globals32 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %27, i32 0, i32 1, !dbg !323
+  %check33 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals32, i32 0, i32 16, !dbg !323
+  store i16 3, i16* %check33, align 2, !dbg !325
   br label %if.end34
 
 if.end34:                                         ; preds = %if.then7, %if.then14, %if.else31, %if.then28
-  ret void, !dbg !357
+  ret void, !dbg !326
 }
 
 ; Function Attrs: noinline nounwind optnone
-define dso_local void @task_add_node() #0 !dbg !358 {
+define dso_local void @task_add_node() #0 !dbg !327 {
 entry:
   %sibling_node = alloca %struct._node_t*, align 2
   %i = alloca i16, align 2
   %next_sibling = alloca i16, align 2
   %sibling_node_obj = alloca %struct._node_t, align 2
-  call void @llvm.dbg.declare(metadata %struct._node_t** %sibling_node, metadata !359, metadata !DIExpression()), !dbg !360
-  call void @llvm.dbg.declare(metadata i16* %i, metadata !361, metadata !DIExpression()), !dbg !362
-  %0 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !363
-  %globals = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %0, i32 0, i32 1, !dbg !363
-  %sibling = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals, i32 0, i32 8, !dbg !363
-  %1 = load i16, i16* %sibling, align 2, !dbg !363
-  store i16 %1, i16* %i, align 2, !dbg !362
-  %2 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !364
-  %globals1 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %2, i32 0, i32 1, !dbg !364
-  %dict = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals1, i32 0, i32 5, !dbg !364
-  %3 = load i16, i16* %i, align 2, !dbg !365
-  %arrayidx = getelementptr inbounds [128 x %struct._node_t], [128 x %struct._node_t]* %dict, i16 0, i16 %3, !dbg !364
-  store %struct._node_t* %arrayidx, %struct._node_t** %sibling_node, align 2, !dbg !366
-  %4 = load %struct._node_t*, %struct._node_t** %sibling_node, align 2, !dbg !367
-  %sibling2 = getelementptr inbounds %struct._node_t, %struct._node_t* %4, i32 0, i32 1, !dbg !369
-  %5 = load i16, i16* %sibling2, align 2, !dbg !369
-  %cmp = icmp ne i16 %5, 0, !dbg !370
-  br i1 %cmp, label %if.then, label %if.else, !dbg !371
+  call void @llvm.dbg.declare(metadata %struct._node_t** %sibling_node, metadata !328, metadata !DIExpression()), !dbg !329
+  call void @llvm.dbg.declare(metadata i16* %i, metadata !330, metadata !DIExpression()), !dbg !331
+  %0 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !332
+  %globals = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %0, i32 0, i32 1, !dbg !332
+  %sibling = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals, i32 0, i32 8, !dbg !332
+  %1 = load i16, i16* %sibling, align 2, !dbg !332
+  store i16 %1, i16* %i, align 2, !dbg !331
+  %2 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !333
+  %globals1 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %2, i32 0, i32 1, !dbg !333
+  %dict = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals1, i32 0, i32 5, !dbg !333
+  %3 = load i16, i16* %i, align 2, !dbg !334
+  %arrayidx = getelementptr inbounds [128 x %struct._node_t], [128 x %struct._node_t]* %dict, i16 0, i16 %3, !dbg !333
+  store %struct._node_t* %arrayidx, %struct._node_t** %sibling_node, align 2, !dbg !335
+  %4 = load %struct._node_t*, %struct._node_t** %sibling_node, align 2, !dbg !336
+  %sibling2 = getelementptr inbounds %struct._node_t, %struct._node_t* %4, i32 0, i32 1, !dbg !338
+  %5 = load i16, i16* %sibling2, align 2, !dbg !338
+  %cmp = icmp ne i16 %5, 0, !dbg !339
+  br i1 %cmp, label %if.then, label %if.else, !dbg !340
 
 if.then:                                          ; preds = %entry
-  call void @llvm.dbg.declare(metadata i16* %next_sibling, metadata !372, metadata !DIExpression()), !dbg !374
-  %6 = load %struct._node_t*, %struct._node_t** %sibling_node, align 2, !dbg !375
-  %sibling3 = getelementptr inbounds %struct._node_t, %struct._node_t* %6, i32 0, i32 1, !dbg !376
-  %7 = load i16, i16* %sibling3, align 2, !dbg !376
-  store i16 %7, i16* %next_sibling, align 2, !dbg !374
-  %8 = load i16, i16* %next_sibling, align 2, !dbg !377
-  %9 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !378
-  %globals4 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %9, i32 0, i32 1, !dbg !378
-  %sibling5 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals4, i32 0, i32 8, !dbg !378
-  store i16 %8, i16* %sibling5, align 2, !dbg !379
-  %10 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !380
-  %globals6 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %10, i32 0, i32 1, !dbg !380
-  %check = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals6, i32 0, i32 16, !dbg !380
-  store i16 0, i16* %check, align 2, !dbg !381
-  br label %if.end, !dbg !382
+  call void @llvm.dbg.declare(metadata i16* %next_sibling, metadata !341, metadata !DIExpression()), !dbg !343
+  %6 = load %struct._node_t*, %struct._node_t** %sibling_node, align 2, !dbg !344
+  %sibling3 = getelementptr inbounds %struct._node_t, %struct._node_t* %6, i32 0, i32 1, !dbg !345
+  %7 = load i16, i16* %sibling3, align 2, !dbg !345
+  store i16 %7, i16* %next_sibling, align 2, !dbg !343
+  %8 = load i16, i16* %next_sibling, align 2, !dbg !346
+  %9 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !347
+  %globals4 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %9, i32 0, i32 1, !dbg !347
+  %sibling5 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals4, i32 0, i32 8, !dbg !347
+  store i16 %8, i16* %sibling5, align 2, !dbg !348
+  %10 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !349
+  %globals6 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %10, i32 0, i32 1, !dbg !349
+  %check = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals6, i32 0, i32 16, !dbg !349
+  store i16 0, i16* %check, align 2, !dbg !350
+  br label %if.end, !dbg !351
 
 if.else:                                          ; preds = %entry
-  call void @llvm.dbg.declare(metadata %struct._node_t* %sibling_node_obj, metadata !383, metadata !DIExpression()), !dbg !385
-  %11 = load %struct._node_t*, %struct._node_t** %sibling_node, align 2, !dbg !386
-  %12 = bitcast %struct._node_t* %sibling_node_obj to i8*, !dbg !387
-  %13 = bitcast %struct._node_t* %11 to i8*, !dbg !387
-  call void @llvm.memcpy.p0i8.p0i8.i16(i8* align 2 %12, i8* align 2 %13, i16 6, i1 false), !dbg !387
-  %14 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !388
-  %globals7 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %14, i32 0, i32 1, !dbg !388
-  %sibling_node8 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals7, i32 0, i32 14, !dbg !388
-  %15 = bitcast %struct._node_t* %sibling_node8 to i8*, !dbg !389
-  %16 = bitcast %struct._node_t* %sibling_node_obj to i8*, !dbg !389
-  call void @llvm.memcpy.p0i8.p0i8.i16(i8* align 2 %15, i8* align 2 %16, i16 6, i1 false), !dbg !389
-  %17 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !390
-  %globals9 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %17, i32 0, i32 1, !dbg !390
-  %check10 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals9, i32 0, i32 16, !dbg !390
-  store i16 1, i16* %check10, align 2, !dbg !391
+  call void @llvm.dbg.declare(metadata %struct._node_t* %sibling_node_obj, metadata !352, metadata !DIExpression()), !dbg !354
+  %11 = load %struct._node_t*, %struct._node_t** %sibling_node, align 2, !dbg !355
+  %12 = bitcast %struct._node_t* %sibling_node_obj to i8*, !dbg !356
+  %13 = bitcast %struct._node_t* %11 to i8*, !dbg !356
+  call void @llvm.memcpy.p0i8.p0i8.i16(i8* align 2 %12, i8* align 2 %13, i16 6, i1 false), !dbg !356
+  %14 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !357
+  %globals7 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %14, i32 0, i32 1, !dbg !357
+  %sibling_node8 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals7, i32 0, i32 14, !dbg !357
+  %15 = bitcast %struct._node_t* %sibling_node8 to i8*, !dbg !358
+  %16 = bitcast %struct._node_t* %sibling_node_obj to i8*, !dbg !358
+  call void @llvm.memcpy.p0i8.p0i8.i16(i8* align 2 %15, i8* align 2 %16, i16 6, i1 false), !dbg !358
+  %17 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !359
+  %globals9 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %17, i32 0, i32 1, !dbg !359
+  %check10 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals9, i32 0, i32 16, !dbg !359
+  store i16 1, i16* %check10, align 2, !dbg !360
   br label %if.end
 
 if.end:                                           ; preds = %if.else, %if.then
-  ret void, !dbg !392
+  ret void, !dbg !361
 }
 
 ; Function Attrs: noinline nounwind optnone
-define dso_local void @task_add_insert() #0 !dbg !393 {
+define dso_local void @task_add_insert() #0 !dbg !362 {
 entry:
   %child = alloca i16, align 2
   %child_node = alloca %struct._node_t, align 2
   %cond = alloca %struct._node_t, align 2
   %parent_node_obj = alloca %struct._node_t, align 2
   %last_sibling_node = alloca %struct._node_t, align 2
-  %0 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !394
-  %globals = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %0, i32 0, i32 1, !dbg !394
-  %node_count = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals, i32 0, i32 4, !dbg !394
-  %1 = load i16, i16* %node_count, align 2, !dbg !394
-  %cmp = icmp eq i16 %1, 128, !dbg !396
-  br i1 %cmp, label %if.then, label %if.end, !dbg !397
+  %0 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !363
+  %globals = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %0, i32 0, i32 1, !dbg !363
+  %node_count = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals, i32 0, i32 4, !dbg !363
+  %1 = load i16, i16* %node_count, align 2, !dbg !363
+  %cmp = icmp eq i16 %1, 128, !dbg !365
+  br i1 %cmp, label %if.then, label %if.end, !dbg !366
 
 if.then:                                          ; preds = %entry
-  call void @task_done(), !dbg !398
-  br label %while.body, !dbg !400
+  call void @task_done(), !dbg !367
+  br label %while.body, !dbg !369
 
 while.body:                                       ; preds = %if.then, %while.body
-  br label %while.body, !dbg !400, !llvm.loop !401
+  br label %while.body, !dbg !369, !llvm.loop !370
 
 if.end:                                           ; preds = %entry
-  call void @llvm.dbg.declare(metadata i16* %child, metadata !403, metadata !DIExpression()), !dbg !404
-  %2 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !405
-  %globals1 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %2, i32 0, i32 1, !dbg !405
-  %node_count2 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals1, i32 0, i32 4, !dbg !405
-  %3 = load i16, i16* %node_count2, align 2, !dbg !405
-  store i16 %3, i16* %child, align 2, !dbg !404
-  call void @llvm.dbg.declare(metadata %struct._node_t* %child_node, metadata !406, metadata !DIExpression()), !dbg !407
-  %letter = getelementptr inbounds %struct._node_t, %struct._node_t* %child_node, i32 0, i32 0, !dbg !408
-  %4 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !409
-  %globals3 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %4, i32 0, i32 1, !dbg !409
-  %letter4 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals3, i32 0, i32 0, !dbg !409
-  %5 = load i16, i16* %letter4, align 2, !dbg !409
-  store i16 %5, i16* %letter, align 2, !dbg !408
-  %sibling = getelementptr inbounds %struct._node_t, %struct._node_t* %child_node, i32 0, i32 1, !dbg !408
-  store i16 0, i16* %sibling, align 2, !dbg !408
-  %child5 = getelementptr inbounds %struct._node_t, %struct._node_t* %child_node, i32 0, i32 2, !dbg !408
-  store i16 0, i16* %child5, align 2, !dbg !408
-  call void @llvm.dbg.declare(metadata %struct._node_t* %cond, metadata !410, metadata !DIExpression()), !dbg !411
-  %6 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !412
-  %globals6 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %6, i32 0, i32 1, !dbg !412
-  %parent_node = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals6, i32 0, i32 12, !dbg !412
-  %7 = bitcast %struct._node_t* %cond to i8*, !dbg !412
-  %8 = bitcast %struct._node_t* %parent_node to i8*, !dbg !412
-  call void @llvm.memcpy.p0i8.p0i8.i16(i8* align 2 %7, i8* align 2 %8, i16 6, i1 false), !dbg !412
-  %child7 = getelementptr inbounds %struct._node_t, %struct._node_t* %cond, i32 0, i32 2, !dbg !413
-  %9 = load i16, i16* %child7, align 2, !dbg !413
-  %cmp8 = icmp eq i16 %9, 0, !dbg !415
-  br i1 %cmp8, label %if.then9, label %if.else, !dbg !416
+  call void @llvm.dbg.declare(metadata i16* %child, metadata !372, metadata !DIExpression()), !dbg !373
+  %2 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !374
+  %globals1 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %2, i32 0, i32 1, !dbg !374
+  %node_count2 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals1, i32 0, i32 4, !dbg !374
+  %3 = load i16, i16* %node_count2, align 2, !dbg !374
+  store i16 %3, i16* %child, align 2, !dbg !373
+  call void @llvm.dbg.declare(metadata %struct._node_t* %child_node, metadata !375, metadata !DIExpression()), !dbg !376
+  %letter = getelementptr inbounds %struct._node_t, %struct._node_t* %child_node, i32 0, i32 0, !dbg !377
+  %4 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !378
+  %globals3 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %4, i32 0, i32 1, !dbg !378
+  %letter4 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals3, i32 0, i32 0, !dbg !378
+  %5 = load i16, i16* %letter4, align 2, !dbg !378
+  store i16 %5, i16* %letter, align 2, !dbg !377
+  %sibling = getelementptr inbounds %struct._node_t, %struct._node_t* %child_node, i32 0, i32 1, !dbg !377
+  store i16 0, i16* %sibling, align 2, !dbg !377
+  %child5 = getelementptr inbounds %struct._node_t, %struct._node_t* %child_node, i32 0, i32 2, !dbg !377
+  store i16 0, i16* %child5, align 2, !dbg !377
+  call void @llvm.dbg.declare(metadata %struct._node_t* %cond, metadata !379, metadata !DIExpression()), !dbg !380
+  %6 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !381
+  %globals6 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %6, i32 0, i32 1, !dbg !381
+  %parent_node = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals6, i32 0, i32 12, !dbg !381
+  %7 = bitcast %struct._node_t* %cond to i8*, !dbg !381
+  %8 = bitcast %struct._node_t* %parent_node to i8*, !dbg !381
+  call void @llvm.memcpy.p0i8.p0i8.i16(i8* align 2 %7, i8* align 2 %8, i16 6, i1 false), !dbg !381
+  %child7 = getelementptr inbounds %struct._node_t, %struct._node_t* %cond, i32 0, i32 2, !dbg !382
+  %9 = load i16, i16* %child7, align 2, !dbg !382
+  %cmp8 = icmp eq i16 %9, 0, !dbg !384
+  br i1 %cmp8, label %if.then9, label %if.else, !dbg !385
 
 if.then9:                                         ; preds = %if.end
-  call void @llvm.dbg.declare(metadata %struct._node_t* %parent_node_obj, metadata !417, metadata !DIExpression()), !dbg !419
-  %10 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !420
-  %globals10 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %10, i32 0, i32 1, !dbg !420
-  %parent_node11 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals10, i32 0, i32 12, !dbg !420
-  %11 = bitcast %struct._node_t* %parent_node_obj to i8*, !dbg !420
-  %12 = bitcast %struct._node_t* %parent_node11 to i8*, !dbg !420
-  call void @llvm.memcpy.p0i8.p0i8.i16(i8* align 2 %11, i8* align 2 %12, i16 6, i1 false), !dbg !420
-  %13 = load i16, i16* %child, align 2, !dbg !421
-  %child12 = getelementptr inbounds %struct._node_t, %struct._node_t* %parent_node_obj, i32 0, i32 2, !dbg !422
-  store i16 %13, i16* %child12, align 2, !dbg !423
-  %14 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !424
-  %globals13 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %14, i32 0, i32 1, !dbg !424
-  %dict = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals13, i32 0, i32 5, !dbg !424
-  %15 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !425
-  %globals14 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %15, i32 0, i32 1, !dbg !425
-  %parent = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals14, i32 0, i32 10, !dbg !425
-  %16 = load i16, i16* %parent, align 2, !dbg !425
-  %arrayidx = getelementptr inbounds [128 x %struct._node_t], [128 x %struct._node_t]* %dict, i16 0, i16 %16, !dbg !424
-  %17 = bitcast %struct._node_t* %arrayidx to i8*, !dbg !426
-  %18 = bitcast %struct._node_t* %parent_node_obj to i8*, !dbg !426
-  call void @llvm.memcpy.p0i8.p0i8.i16(i8* align 2 %17, i8* align 2 %18, i16 6, i1 false), !dbg !426
-  br label %if.end22, !dbg !427
+  call void @llvm.dbg.declare(metadata %struct._node_t* %parent_node_obj, metadata !386, metadata !DIExpression()), !dbg !388
+  %10 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !389
+  %globals10 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %10, i32 0, i32 1, !dbg !389
+  %parent_node11 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals10, i32 0, i32 12, !dbg !389
+  %11 = bitcast %struct._node_t* %parent_node_obj to i8*, !dbg !389
+  %12 = bitcast %struct._node_t* %parent_node11 to i8*, !dbg !389
+  call void @llvm.memcpy.p0i8.p0i8.i16(i8* align 2 %11, i8* align 2 %12, i16 6, i1 false), !dbg !389
+  %13 = load i16, i16* %child, align 2, !dbg !390
+  %child12 = getelementptr inbounds %struct._node_t, %struct._node_t* %parent_node_obj, i32 0, i32 2, !dbg !391
+  store i16 %13, i16* %child12, align 2, !dbg !392
+  %14 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !393
+  %globals13 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %14, i32 0, i32 1, !dbg !393
+  %dict = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals13, i32 0, i32 5, !dbg !393
+  %15 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !394
+  %globals14 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %15, i32 0, i32 1, !dbg !394
+  %parent = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals14, i32 0, i32 10, !dbg !394
+  %16 = load i16, i16* %parent, align 2, !dbg !394
+  %arrayidx = getelementptr inbounds [128 x %struct._node_t], [128 x %struct._node_t]* %dict, i16 0, i16 %16, !dbg !393
+  %17 = bitcast %struct._node_t* %arrayidx to i8*, !dbg !395
+  %18 = bitcast %struct._node_t* %parent_node_obj to i8*, !dbg !395
+  call void @llvm.memcpy.p0i8.p0i8.i16(i8* align 2 %17, i8* align 2 %18, i16 6, i1 false), !dbg !395
+  br label %if.end22, !dbg !396
 
 if.else:                                          ; preds = %if.end
-  call void @llvm.dbg.declare(metadata %struct._node_t* %last_sibling_node, metadata !428, metadata !DIExpression()), !dbg !430
-  %19 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !431
-  %globals15 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %19, i32 0, i32 1, !dbg !431
-  %sibling_node = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals15, i32 0, i32 14, !dbg !431
-  %20 = bitcast %struct._node_t* %last_sibling_node to i8*, !dbg !431
-  %21 = bitcast %struct._node_t* %sibling_node to i8*, !dbg !431
-  call void @llvm.memcpy.p0i8.p0i8.i16(i8* align 2 %20, i8* align 2 %21, i16 6, i1 false), !dbg !431
-  %22 = load i16, i16* %child, align 2, !dbg !432
-  %sibling16 = getelementptr inbounds %struct._node_t, %struct._node_t* %last_sibling_node, i32 0, i32 1, !dbg !433
-  store i16 %22, i16* %sibling16, align 2, !dbg !434
-  %23 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !435
-  %globals17 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %23, i32 0, i32 1, !dbg !435
-  %dict18 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals17, i32 0, i32 5, !dbg !435
-  %24 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !436
-  %globals19 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %24, i32 0, i32 1, !dbg !436
-  %sibling20 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals19, i32 0, i32 8, !dbg !436
-  %25 = load i16, i16* %sibling20, align 2, !dbg !436
-  %arrayidx21 = getelementptr inbounds [128 x %struct._node_t], [128 x %struct._node_t]* %dict18, i16 0, i16 %25, !dbg !435
-  %26 = bitcast %struct._node_t* %arrayidx21 to i8*, !dbg !437
-  %27 = bitcast %struct._node_t* %last_sibling_node to i8*, !dbg !437
-  call void @llvm.memcpy.p0i8.p0i8.i16(i8* align 2 %26, i8* align 2 %27, i16 6, i1 false), !dbg !437
+  call void @llvm.dbg.declare(metadata %struct._node_t* %last_sibling_node, metadata !397, metadata !DIExpression()), !dbg !399
+  %19 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !400
+  %globals15 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %19, i32 0, i32 1, !dbg !400
+  %sibling_node = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals15, i32 0, i32 14, !dbg !400
+  %20 = bitcast %struct._node_t* %last_sibling_node to i8*, !dbg !400
+  %21 = bitcast %struct._node_t* %sibling_node to i8*, !dbg !400
+  call void @llvm.memcpy.p0i8.p0i8.i16(i8* align 2 %20, i8* align 2 %21, i16 6, i1 false), !dbg !400
+  %22 = load i16, i16* %child, align 2, !dbg !401
+  %sibling16 = getelementptr inbounds %struct._node_t, %struct._node_t* %last_sibling_node, i32 0, i32 1, !dbg !402
+  store i16 %22, i16* %sibling16, align 2, !dbg !403
+  %23 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !404
+  %globals17 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %23, i32 0, i32 1, !dbg !404
+  %dict18 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals17, i32 0, i32 5, !dbg !404
+  %24 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !405
+  %globals19 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %24, i32 0, i32 1, !dbg !405
+  %sibling20 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals19, i32 0, i32 8, !dbg !405
+  %25 = load i16, i16* %sibling20, align 2, !dbg !405
+  %arrayidx21 = getelementptr inbounds [128 x %struct._node_t], [128 x %struct._node_t]* %dict18, i16 0, i16 %25, !dbg !404
+  %26 = bitcast %struct._node_t* %arrayidx21 to i8*, !dbg !406
+  %27 = bitcast %struct._node_t* %last_sibling_node to i8*, !dbg !406
+  call void @llvm.memcpy.p0i8.p0i8.i16(i8* align 2 %26, i8* align 2 %27, i16 6, i1 false), !dbg !406
   br label %if.end22
 
 if.end22:                                         ; preds = %if.else, %if.then9
-  %28 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !438
-  %globals23 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %28, i32 0, i32 1, !dbg !438
-  %dict24 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals23, i32 0, i32 5, !dbg !438
-  %29 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !439
-  %globals25 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %29, i32 0, i32 1, !dbg !439
-  %child26 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals25, i32 0, i32 9, !dbg !439
-  %30 = load i16, i16* %child26, align 2, !dbg !439
-  %arrayidx27 = getelementptr inbounds [128 x %struct._node_t], [128 x %struct._node_t]* %dict24, i16 0, i16 %30, !dbg !438
-  %31 = bitcast %struct._node_t* %arrayidx27 to i8*, !dbg !440
-  %32 = bitcast %struct._node_t* %child_node to i8*, !dbg !440
-  call void @llvm.memcpy.p0i8.p0i8.i16(i8* align 2 %31, i8* align 2 %32, i16 6, i1 false), !dbg !440
-  %33 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !441
-  %globals28 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %33, i32 0, i32 1, !dbg !441
-  %parent29 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals28, i32 0, i32 10, !dbg !441
-  %34 = load i16, i16* %parent29, align 2, !dbg !441
-  %35 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !442
-  %globals30 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %35, i32 0, i32 1, !dbg !442
-  %symbol = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals30, i32 0, i32 15, !dbg !442
-  store i16 %34, i16* %symbol, align 2, !dbg !443
-  %36 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !444
-  %globals31 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %36, i32 0, i32 1, !dbg !444
-  %node_count32 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals31, i32 0, i32 4, !dbg !444
-  %37 = load i16, i16* %node_count32, align 2, !dbg !445
-  %inc = add i16 %37, 1, !dbg !445
-  store i16 %inc, i16* %node_count32, align 2, !dbg !445
-  ret void, !dbg !446
+  %28 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !407
+  %globals23 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %28, i32 0, i32 1, !dbg !407
+  %dict24 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals23, i32 0, i32 5, !dbg !407
+  %29 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !408
+  %globals25 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %29, i32 0, i32 1, !dbg !408
+  %child26 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals25, i32 0, i32 9, !dbg !408
+  %30 = load i16, i16* %child26, align 2, !dbg !408
+  %arrayidx27 = getelementptr inbounds [128 x %struct._node_t], [128 x %struct._node_t]* %dict24, i16 0, i16 %30, !dbg !407
+  %31 = bitcast %struct._node_t* %arrayidx27 to i8*, !dbg !409
+  %32 = bitcast %struct._node_t* %child_node to i8*, !dbg !409
+  call void @llvm.memcpy.p0i8.p0i8.i16(i8* align 2 %31, i8* align 2 %32, i16 6, i1 false), !dbg !409
+  %33 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !410
+  %globals28 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %33, i32 0, i32 1, !dbg !410
+  %parent29 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals28, i32 0, i32 10, !dbg !410
+  %34 = load i16, i16* %parent29, align 2, !dbg !410
+  %35 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !411
+  %globals30 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %35, i32 0, i32 1, !dbg !411
+  %symbol = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals30, i32 0, i32 15, !dbg !411
+  store i16 %34, i16* %symbol, align 2, !dbg !412
+  %36 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !413
+  %globals31 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %36, i32 0, i32 1, !dbg !413
+  %node_count32 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals31, i32 0, i32 4, !dbg !413
+  %37 = load i16, i16* %node_count32, align 2, !dbg !414
+  %inc = add i16 %37, 1, !dbg !414
+  store i16 %inc, i16* %node_count32, align 2, !dbg !414
+  ret void, !dbg !415
 }
 
 ; Function Attrs: noinline nounwind optnone
-define dso_local void @task_append_compressed() #0 !dbg !447 {
+define dso_local void @task_append_compressed() #0 !dbg !416 {
 entry:
-  %0 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !448
-  %globals = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %0, i32 0, i32 1, !dbg !448
-  %symbol = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals, i32 0, i32 15, !dbg !448
-  %1 = load i16, i16* %symbol, align 2, !dbg !448
-  %2 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !449
-  %globals1 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %2, i32 0, i32 1, !dbg !449
-  %compressed_data = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals1, i32 0, i32 13, !dbg !449
-  %3 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !450
-  %globals2 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %3, i32 0, i32 1, !dbg !450
-  %out_len = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals2, i32 0, i32 3, !dbg !450
-  %4 = load i16, i16* %out_len, align 2, !dbg !450
-  %arrayidx = getelementptr inbounds [16 x %struct._node_t], [16 x %struct._node_t]* %compressed_data, i16 0, i16 %4, !dbg !449
-  %letter = getelementptr inbounds %struct._node_t, %struct._node_t* %arrayidx, i32 0, i32 0, !dbg !451
-  store i16 %1, i16* %letter, align 2, !dbg !452
-  %5 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !453
-  %globals3 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %5, i32 0, i32 1, !dbg !453
-  %out_len4 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals3, i32 0, i32 3, !dbg !453
-  %6 = load i16, i16* %out_len4, align 2, !dbg !454
-  %inc = add i16 %6, 1, !dbg !454
-  store i16 %inc, i16* %out_len4, align 2, !dbg !454
-  ret void, !dbg !455
+  %0 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !417
+  %globals = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %0, i32 0, i32 1, !dbg !417
+  %symbol = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals, i32 0, i32 15, !dbg !417
+  %1 = load i16, i16* %symbol, align 2, !dbg !417
+  %2 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !418
+  %globals1 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %2, i32 0, i32 1, !dbg !418
+  %compressed_data = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals1, i32 0, i32 13, !dbg !418
+  %3 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !419
+  %globals2 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %3, i32 0, i32 1, !dbg !419
+  %out_len = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals2, i32 0, i32 3, !dbg !419
+  %4 = load i16, i16* %out_len, align 2, !dbg !419
+  %arrayidx = getelementptr inbounds [16 x %struct._node_t], [16 x %struct._node_t]* %compressed_data, i16 0, i16 %4, !dbg !418
+  %letter = getelementptr inbounds %struct._node_t, %struct._node_t* %arrayidx, i32 0, i32 0, !dbg !420
+  store i16 %1, i16* %letter, align 2, !dbg !421
+  %5 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !422
+  %globals3 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %5, i32 0, i32 1, !dbg !422
+  %out_len4 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals3, i32 0, i32 3, !dbg !422
+  %6 = load i16, i16* %out_len4, align 2, !dbg !423
+  %inc = add i16 %6, 1, !dbg !423
+  store i16 %inc, i16* %out_len4, align 2, !dbg !423
+  ret void, !dbg !424
 }
 
 ; Function Attrs: noinline nounwind optnone
-define dso_local void @task_done() #0 !dbg !456 {
+define dso_local void @task_done() #0 !dbg !425 {
 entry:
-  call void @exit(i16 0) #6, !dbg !457
-  unreachable, !dbg !457
+  call void @exit(i16 0) #6, !dbg !426
+  unreachable, !dbg !426
 }
 
 ; Function Attrs: noreturn
 declare dso_local void @exit(i16) #4
 
 ; Function Attrs: noinline nounwind optnone
-define dso_local void @task_commit() #0 !dbg !458 {
+define dso_local void @task_commit() #0 !dbg !427 {
 entry:
-  ret void, !dbg !459
+  ret void, !dbg !428
 }
 
 ; Function Attrs: noinline nounwind optnone
-define dso_local i16 @main() #0 !dbg !460 {
+define dso_local i16 @main() #0 !dbg !429 {
 entry:
   %retval = alloca i16, align 2
   store i16 0, i16* %retval, align 2
-  store i16 1, i16* getelementptr inbounds (%struct.Camel, %struct.Camel* @camel, i32 0, i32 0), align 2, !dbg !463
-  store %struct.camel_buffer_t* getelementptr inbounds (%struct.Camel, %struct.Camel* @camel, i32 0, i32 1), %struct.camel_buffer_t** @safe, align 2, !dbg !464
-  store %struct.camel_buffer_t* getelementptr inbounds (%struct.Camel, %struct.Camel* @camel, i32 0, i32 2), %struct.camel_buffer_t** @unsafe, align 2, !dbg !465
-  call void @camel_init(), !dbg !466
-  call void @task_init(), !dbg !467
-  br label %while.cond, !dbg !468
+  store i16 1, i16* getelementptr inbounds (%struct.Camel, %struct.Camel* @camel, i32 0, i32 0), align 2, !dbg !432
+  store %struct.camel_buffer_t* getelementptr inbounds (%struct.Camel, %struct.Camel* @camel, i32 0, i32 1), %struct.camel_buffer_t** @safe, align 2, !dbg !433
+  store %struct.camel_buffer_t* getelementptr inbounds (%struct.Camel, %struct.Camel* @camel, i32 0, i32 2), %struct.camel_buffer_t** @unsafe, align 2, !dbg !434
+  call void @camel_init(), !dbg !435
+  call void @task_init(), !dbg !436
+  br label %do.body, !dbg !436
 
-while.cond:                                       ; preds = %if.end23, %entry
-  %0 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !469
-  %globals = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %0, i32 0, i32 1, !dbg !469
-  %out_len = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals, i32 0, i32 3, !dbg !469
-  %1 = load i16, i16* %out_len, align 2, !dbg !469
-  %cmp = icmp ult i16 %1, 16, !dbg !470
-  br i1 %cmp, label %while.body, label %while.end24, !dbg !468
+do.body:                                          ; preds = %entry
+  %0 = load i16, i16* getelementptr inbounds (%struct.Camel, %struct.Camel* @camel, i32 0, i32 0), align 2, !dbg !437
+  %cmp = icmp eq i16 %0, 1, !dbg !437
+  br i1 %cmp, label %if.then, label %if.else, !dbg !440
+
+if.then:                                          ; preds = %do.body
+  store %struct.camel_buffer_t* getelementptr inbounds (%struct.Camel, %struct.Camel* @camel, i32 0, i32 2), %struct.camel_buffer_t** @safe, align 2, !dbg !441
+  store %struct.camel_buffer_t* getelementptr inbounds (%struct.Camel, %struct.Camel* @camel, i32 0, i32 1), %struct.camel_buffer_t** @unsafe, align 2, !dbg !441
+  %1 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2, !dbg !441
+  %reg_file = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %1, i32 0, i32 0, !dbg !441
+  %arraydecay = getelementptr inbounds [11 x i16], [11 x i16]* %reg_file, i16 0, i16 0, !dbg !441
+  call void @__dump_registers(i16* %arraydecay), !dbg !441
+  store i16 2, i16* getelementptr inbounds (%struct.Camel, %struct.Camel* @camel, i32 0, i32 0), align 2, !dbg !441
+  br label %if.end, !dbg !441
+
+if.else:                                          ; preds = %do.body
+  store %struct.camel_buffer_t* getelementptr inbounds (%struct.Camel, %struct.Camel* @camel, i32 0, i32 1), %struct.camel_buffer_t** @safe, align 2, !dbg !443
+  store %struct.camel_buffer_t* getelementptr inbounds (%struct.Camel, %struct.Camel* @camel, i32 0, i32 2), %struct.camel_buffer_t** @unsafe, align 2, !dbg !443
+  %2 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2, !dbg !443
+  %reg_file1 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %2, i32 0, i32 0, !dbg !443
+  %arraydecay2 = getelementptr inbounds [11 x i16], [11 x i16]* %reg_file1, i16 0, i16 0, !dbg !443
+  call void @__dump_registers(i16* %arraydecay2), !dbg !443
+  store i16 1, i16* getelementptr inbounds (%struct.Camel, %struct.Camel* @camel, i32 0, i32 0), align 2, !dbg !443
+  br label %if.end
+
+if.end:                                           ; preds = %if.else, %if.then
+  br label %do.end, !dbg !440
+
+do.end:                                           ; preds = %if.end
+  %unsafe = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
+  %globals1 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %unsafe, i32 0, i32 1
+  %BCast = bitcast %struct.camel_global_t* %globals1 to i8*
+  %safe = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2
+  %globals2 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %safe, i32 0, i32 1
+  %BCast3 = bitcast %struct.camel_global_t* %globals2 to i8*
+  call void @llvm.memcpy.p0i8.p0i8.i16(i8* align 2 %BCast, i8* align 2 %BCast3, i16 902, i1 false), !dbg !436
+  call void @task_commit(), !dbg !436
+  br label %while.cond, !dbg !445
+
+while.cond:                                       ; preds = %do.end113, %do.end
+  %3 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2, !dbg !446
+  %globals = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %3, i32 0, i32 1, !dbg !446
+  %out_len = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals, i32 0, i32 3, !dbg !446
+  %4 = load i16, i16* %out_len, align 2, !dbg !446
+  %cmp3 = icmp ult i16 %4, 16, !dbg !447
+  br i1 %cmp3, label %while.body, label %while.end114, !dbg !445
 
 while.body:                                       ; preds = %while.cond
-  call void @task_sample(), !dbg !471
-  %2 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !473
-  %globals1 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %2, i32 0, i32 1, !dbg !473
-  %check = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals1, i32 0, i32 16, !dbg !473
-  %3 = load i16, i16* %check, align 2, !dbg !473
-  %cmp2 = icmp eq i16 %3, 0, !dbg !475
-  br i1 %cmp2, label %if.then, label %if.end, !dbg !476
+  %unsafe4 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
+  %globals5 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %unsafe4, i32 0, i32 1
+  %BCast6 = bitcast %struct.camel_global_t* %globals5 to i8*
+  %safe7 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2
+  %globals8 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %safe7, i32 0, i32 1
+  %BCast9 = bitcast %struct.camel_global_t* %globals8 to i8*
+  call void @llvm.memcpy.p0i8.p0i8.i16(i8* align 2 %BCast6, i8* align 2 %BCast9, i16 902, i1 false), !dbg !448
+  call void @task_sample(), !dbg !448
+  br label %do.body4, !dbg !448
 
-if.then:                                          ; preds = %while.body
-  call void @task_measure_temp(), !dbg !477
-  br label %if.end, !dbg !479
+do.body4:                                         ; preds = %while.body
+  %5 = load i16, i16* getelementptr inbounds (%struct.Camel, %struct.Camel* @camel, i32 0, i32 0), align 2, !dbg !450
+  %cmp5 = icmp eq i16 %5, 1, !dbg !450
+  br i1 %cmp5, label %if.then6, label %if.else9, !dbg !453
 
-if.end:                                           ; preds = %if.then, %while.body
-  br label %while.body4, !dbg !480
+if.then6:                                         ; preds = %do.body4
+  store %struct.camel_buffer_t* getelementptr inbounds (%struct.Camel, %struct.Camel* @camel, i32 0, i32 2), %struct.camel_buffer_t** @safe, align 2, !dbg !454
+  store %struct.camel_buffer_t* getelementptr inbounds (%struct.Camel, %struct.Camel* @camel, i32 0, i32 1), %struct.camel_buffer_t** @unsafe, align 2, !dbg !454
+  %6 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2, !dbg !454
+  %reg_file7 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %6, i32 0, i32 0, !dbg !454
+  %arraydecay8 = getelementptr inbounds [11 x i16], [11 x i16]* %reg_file7, i16 0, i16 0, !dbg !454
+  call void @__dump_registers(i16* %arraydecay8), !dbg !454
+  store i16 2, i16* getelementptr inbounds (%struct.Camel, %struct.Camel* @camel, i32 0, i32 0), align 2, !dbg !454
+  br label %if.end12, !dbg !454
 
-while.body4:                                      ; preds = %if.end, %if.end12
-  call void @task_letterize(), !dbg !481
-  call void @task_compress(), !dbg !483
-  br label %do.body, !dbg !484
+if.else9:                                         ; preds = %do.body4
+  store %struct.camel_buffer_t* getelementptr inbounds (%struct.Camel, %struct.Camel* @camel, i32 0, i32 1), %struct.camel_buffer_t** @safe, align 2, !dbg !456
+  store %struct.camel_buffer_t* getelementptr inbounds (%struct.Camel, %struct.Camel* @camel, i32 0, i32 2), %struct.camel_buffer_t** @unsafe, align 2, !dbg !456
+  %7 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2, !dbg !456
+  %reg_file10 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %7, i32 0, i32 0, !dbg !456
+  %arraydecay11 = getelementptr inbounds [11 x i16], [11 x i16]* %reg_file10, i16 0, i16 0, !dbg !456
+  call void @__dump_registers(i16* %arraydecay11), !dbg !456
+  store i16 1, i16* getelementptr inbounds (%struct.Camel, %struct.Camel* @camel, i32 0, i32 0), align 2, !dbg !456
+  br label %if.end12
 
-do.body:                                          ; preds = %do.cond, %while.body4
-  call void @task_find_sibling(), !dbg !485
-  br label %do.cond, !dbg !487
+if.end12:                                         ; preds = %if.else9, %if.then6
+  br label %do.end13, !dbg !453
 
-do.cond:                                          ; preds = %do.body
-  %4 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !488
-  %globals5 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %4, i32 0, i32 1, !dbg !488
-  %check6 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals5, i32 0, i32 16, !dbg !488
-  %5 = load i16, i16* %check6, align 2, !dbg !488
-  %cmp7 = icmp eq i16 %5, 1, !dbg !489
-  br i1 %cmp7, label %do.body, label %do.end, !dbg !487, !llvm.loop !490
+do.end13:                                         ; preds = %if.end12
+  call void @task_commit(), !dbg !448
+  %8 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2, !dbg !458
+  %globals14 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %8, i32 0, i32 1, !dbg !458
+  %check = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals14, i32 0, i32 16, !dbg !458
+  %9 = load i16, i16* %check, align 2, !dbg !458
+  %cmp15 = icmp eq i16 %9, 0, !dbg !460
+  br i1 %cmp15, label %if.then16, label %if.end27, !dbg !461
 
-do.end:                                           ; preds = %do.cond
-  %6 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !492
-  %globals8 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %6, i32 0, i32 1, !dbg !492
-  %check9 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals8, i32 0, i32 16, !dbg !492
-  %7 = load i16, i16* %check9, align 2, !dbg !492
-  %cmp10 = icmp ne i16 %7, 0, !dbg !494
-  br i1 %cmp10, label %if.then11, label %if.end12, !dbg !495
+if.then16:                                        ; preds = %do.end13
+  %unsafe10 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
+  %globals11 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %unsafe10, i32 0, i32 1
+  %BCast12 = bitcast %struct.camel_global_t* %globals11 to i8*
+  %safe13 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2
+  %globals15 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %safe13, i32 0, i32 1
+  %BCast16 = bitcast %struct.camel_global_t* %globals15 to i8*
+  call void @llvm.memcpy.p0i8.p0i8.i16(i8* align 2 %BCast12, i8* align 2 %BCast16, i16 902, i1 false), !dbg !462
+  call void @task_measure_temp(), !dbg !462
+  br label %do.body17, !dbg !462
 
-if.then11:                                        ; preds = %do.end
-  br label %while.end, !dbg !496
+do.body17:                                        ; preds = %if.then16
+  %10 = load i16, i16* getelementptr inbounds (%struct.Camel, %struct.Camel* @camel, i32 0, i32 0), align 2, !dbg !464
+  %cmp18 = icmp eq i16 %10, 1, !dbg !464
+  br i1 %cmp18, label %if.then19, label %if.else22, !dbg !467
 
-if.end12:                                         ; preds = %do.end
-  br label %while.body4, !dbg !480, !llvm.loop !497
+if.then19:                                        ; preds = %do.body17
+  store %struct.camel_buffer_t* getelementptr inbounds (%struct.Camel, %struct.Camel* @camel, i32 0, i32 2), %struct.camel_buffer_t** @safe, align 2, !dbg !468
+  store %struct.camel_buffer_t* getelementptr inbounds (%struct.Camel, %struct.Camel* @camel, i32 0, i32 1), %struct.camel_buffer_t** @unsafe, align 2, !dbg !468
+  %11 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2, !dbg !468
+  %reg_file20 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %11, i32 0, i32 0, !dbg !468
+  %arraydecay21 = getelementptr inbounds [11 x i16], [11 x i16]* %reg_file20, i16 0, i16 0, !dbg !468
+  call void @__dump_registers(i16* %arraydecay21), !dbg !468
+  store i16 2, i16* getelementptr inbounds (%struct.Camel, %struct.Camel* @camel, i32 0, i32 0), align 2, !dbg !468
+  br label %if.end25, !dbg !468
 
-while.end:                                        ; preds = %if.then11
-  %8 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !499
-  %globals13 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %8, i32 0, i32 1, !dbg !499
-  %check14 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals13, i32 0, i32 16, !dbg !499
-  %9 = load i16, i16* %check14, align 2, !dbg !499
-  %cmp15 = icmp eq i16 %9, 3, !dbg !501
-  br i1 %cmp15, label %if.then16, label %if.end23, !dbg !502
+if.else22:                                        ; preds = %do.body17
+  store %struct.camel_buffer_t* getelementptr inbounds (%struct.Camel, %struct.Camel* @camel, i32 0, i32 1), %struct.camel_buffer_t** @safe, align 2, !dbg !470
+  store %struct.camel_buffer_t* getelementptr inbounds (%struct.Camel, %struct.Camel* @camel, i32 0, i32 2), %struct.camel_buffer_t** @unsafe, align 2, !dbg !470
+  %12 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2, !dbg !470
+  %reg_file23 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %12, i32 0, i32 0, !dbg !470
+  %arraydecay24 = getelementptr inbounds [11 x i16], [11 x i16]* %reg_file23, i16 0, i16 0, !dbg !470
+  call void @__dump_registers(i16* %arraydecay24), !dbg !470
+  store i16 1, i16* getelementptr inbounds (%struct.Camel, %struct.Camel* @camel, i32 0, i32 0), align 2, !dbg !470
+  br label %if.end25
 
-if.then16:                                        ; preds = %while.end
-  br label %do.body17, !dbg !503
+if.end25:                                         ; preds = %if.else22, %if.then19
+  br label %do.end26, !dbg !467
 
-do.body17:                                        ; preds = %do.cond18, %if.then16
-  call void @task_add_node(), !dbg !505
-  br label %do.cond18, !dbg !507
+do.end26:                                         ; preds = %if.end25
+  call void @task_commit(), !dbg !462
+  br label %if.end27, !dbg !472
 
-do.cond18:                                        ; preds = %do.body17
-  %10 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2, !dbg !508
-  %globals19 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %10, i32 0, i32 1, !dbg !508
-  %check20 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals19, i32 0, i32 16, !dbg !508
-  %11 = load i16, i16* %check20, align 2, !dbg !508
-  %cmp21 = icmp eq i16 %11, 0, !dbg !509
-  br i1 %cmp21, label %do.body17, label %do.end22, !dbg !507, !llvm.loop !510
+if.end27:                                         ; preds = %do.end26, %do.end13
+  br label %while.body29, !dbg !473
 
-do.end22:                                         ; preds = %do.cond18
-  br label %if.end23, !dbg !512
+while.body29:                                     ; preds = %if.end27, %if.end69
+  %unsafe17 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
+  %globals18 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %unsafe17, i32 0, i32 1
+  %BCast19 = bitcast %struct.camel_global_t* %globals18 to i8*
+  %safe20 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2
+  %globals21 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %safe20, i32 0, i32 1
+  %BCast22 = bitcast %struct.camel_global_t* %globals21 to i8*
+  call void @llvm.memcpy.p0i8.p0i8.i16(i8* align 2 %BCast19, i8* align 2 %BCast22, i16 902, i1 false), !dbg !474
+  call void @task_letterize(), !dbg !474
+  br label %do.body30, !dbg !474
 
-if.end23:                                         ; preds = %do.end22, %while.end
-  call void @task_add_insert(), !dbg !513
-  call void @task_append_compressed(), !dbg !514
-  br label %while.cond, !dbg !468, !llvm.loop !515
+do.body30:                                        ; preds = %while.body29
+  %13 = load i16, i16* getelementptr inbounds (%struct.Camel, %struct.Camel* @camel, i32 0, i32 0), align 2, !dbg !476
+  %cmp31 = icmp eq i16 %13, 1, !dbg !476
+  br i1 %cmp31, label %if.then32, label %if.else35, !dbg !479
 
-while.end24:                                      ; preds = %while.cond
-  call void @task_done(), !dbg !517
-  %12 = load i16, i16* %retval, align 2, !dbg !518
-  ret i16 %12, !dbg !518
+if.then32:                                        ; preds = %do.body30
+  store %struct.camel_buffer_t* getelementptr inbounds (%struct.Camel, %struct.Camel* @camel, i32 0, i32 2), %struct.camel_buffer_t** @safe, align 2, !dbg !480
+  store %struct.camel_buffer_t* getelementptr inbounds (%struct.Camel, %struct.Camel* @camel, i32 0, i32 1), %struct.camel_buffer_t** @unsafe, align 2, !dbg !480
+  %14 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2, !dbg !480
+  %reg_file33 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %14, i32 0, i32 0, !dbg !480
+  %arraydecay34 = getelementptr inbounds [11 x i16], [11 x i16]* %reg_file33, i16 0, i16 0, !dbg !480
+  call void @__dump_registers(i16* %arraydecay34), !dbg !480
+  store i16 2, i16* getelementptr inbounds (%struct.Camel, %struct.Camel* @camel, i32 0, i32 0), align 2, !dbg !480
+  br label %if.end38, !dbg !480
+
+if.else35:                                        ; preds = %do.body30
+  store %struct.camel_buffer_t* getelementptr inbounds (%struct.Camel, %struct.Camel* @camel, i32 0, i32 1), %struct.camel_buffer_t** @safe, align 2, !dbg !482
+  store %struct.camel_buffer_t* getelementptr inbounds (%struct.Camel, %struct.Camel* @camel, i32 0, i32 2), %struct.camel_buffer_t** @unsafe, align 2, !dbg !482
+  %15 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2, !dbg !482
+  %reg_file36 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %15, i32 0, i32 0, !dbg !482
+  %arraydecay37 = getelementptr inbounds [11 x i16], [11 x i16]* %reg_file36, i16 0, i16 0, !dbg !482
+  call void @__dump_registers(i16* %arraydecay37), !dbg !482
+  store i16 1, i16* getelementptr inbounds (%struct.Camel, %struct.Camel* @camel, i32 0, i32 0), align 2, !dbg !482
+  br label %if.end38
+
+if.end38:                                         ; preds = %if.else35, %if.then32
+  br label %do.end39, !dbg !479
+
+do.end39:                                         ; preds = %if.end38
+  call void @task_commit(), !dbg !474
+  %unsafe23 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
+  %globals24 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %unsafe23, i32 0, i32 1
+  %BCast25 = bitcast %struct.camel_global_t* %globals24 to i8*
+  %safe26 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2
+  %globals27 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %safe26, i32 0, i32 1
+  %BCast28 = bitcast %struct.camel_global_t* %globals27 to i8*
+  call void @llvm.memcpy.p0i8.p0i8.i16(i8* align 2 %BCast25, i8* align 2 %BCast28, i16 902, i1 false), !dbg !484
+  call void @task_compress(), !dbg !484
+  br label %do.body40, !dbg !484
+
+do.body40:                                        ; preds = %do.end39
+  %16 = load i16, i16* getelementptr inbounds (%struct.Camel, %struct.Camel* @camel, i32 0, i32 0), align 2, !dbg !485
+  %cmp41 = icmp eq i16 %16, 1, !dbg !485
+  br i1 %cmp41, label %if.then42, label %if.else45, !dbg !488
+
+if.then42:                                        ; preds = %do.body40
+  store %struct.camel_buffer_t* getelementptr inbounds (%struct.Camel, %struct.Camel* @camel, i32 0, i32 2), %struct.camel_buffer_t** @safe, align 2, !dbg !489
+  store %struct.camel_buffer_t* getelementptr inbounds (%struct.Camel, %struct.Camel* @camel, i32 0, i32 1), %struct.camel_buffer_t** @unsafe, align 2, !dbg !489
+  %17 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2, !dbg !489
+  %reg_file43 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %17, i32 0, i32 0, !dbg !489
+  %arraydecay44 = getelementptr inbounds [11 x i16], [11 x i16]* %reg_file43, i16 0, i16 0, !dbg !489
+  call void @__dump_registers(i16* %arraydecay44), !dbg !489
+  store i16 2, i16* getelementptr inbounds (%struct.Camel, %struct.Camel* @camel, i32 0, i32 0), align 2, !dbg !489
+  br label %if.end48, !dbg !489
+
+if.else45:                                        ; preds = %do.body40
+  store %struct.camel_buffer_t* getelementptr inbounds (%struct.Camel, %struct.Camel* @camel, i32 0, i32 1), %struct.camel_buffer_t** @safe, align 2, !dbg !491
+  store %struct.camel_buffer_t* getelementptr inbounds (%struct.Camel, %struct.Camel* @camel, i32 0, i32 2), %struct.camel_buffer_t** @unsafe, align 2, !dbg !491
+  %18 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2, !dbg !491
+  %reg_file46 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %18, i32 0, i32 0, !dbg !491
+  %arraydecay47 = getelementptr inbounds [11 x i16], [11 x i16]* %reg_file46, i16 0, i16 0, !dbg !491
+  call void @__dump_registers(i16* %arraydecay47), !dbg !491
+  store i16 1, i16* getelementptr inbounds (%struct.Camel, %struct.Camel* @camel, i32 0, i32 0), align 2, !dbg !491
+  br label %if.end48
+
+if.end48:                                         ; preds = %if.else45, %if.then42
+  br label %do.end49, !dbg !488
+
+do.end49:                                         ; preds = %if.end48
+  call void @task_commit(), !dbg !484
+  br label %do.body50, !dbg !493
+
+do.body50:                                        ; preds = %do.cond, %do.end49
+  %unsafe29 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
+  %globals30 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %unsafe29, i32 0, i32 1
+  %BCast31 = bitcast %struct.camel_global_t* %globals30 to i8*
+  %safe32 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2
+  %globals33 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %safe32, i32 0, i32 1
+  %BCast34 = bitcast %struct.camel_global_t* %globals33 to i8*
+  call void @llvm.memcpy.p0i8.p0i8.i16(i8* align 2 %BCast31, i8* align 2 %BCast34, i16 902, i1 false), !dbg !494
+  call void @task_find_sibling(), !dbg !494
+  br label %do.body51, !dbg !494
+
+do.body51:                                        ; preds = %do.body50
+  %19 = load i16, i16* getelementptr inbounds (%struct.Camel, %struct.Camel* @camel, i32 0, i32 0), align 2, !dbg !496
+  %cmp52 = icmp eq i16 %19, 1, !dbg !496
+  br i1 %cmp52, label %if.then53, label %if.else56, !dbg !499
+
+if.then53:                                        ; preds = %do.body51
+  store %struct.camel_buffer_t* getelementptr inbounds (%struct.Camel, %struct.Camel* @camel, i32 0, i32 2), %struct.camel_buffer_t** @safe, align 2, !dbg !500
+  store %struct.camel_buffer_t* getelementptr inbounds (%struct.Camel, %struct.Camel* @camel, i32 0, i32 1), %struct.camel_buffer_t** @unsafe, align 2, !dbg !500
+  %20 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2, !dbg !500
+  %reg_file54 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %20, i32 0, i32 0, !dbg !500
+  %arraydecay55 = getelementptr inbounds [11 x i16], [11 x i16]* %reg_file54, i16 0, i16 0, !dbg !500
+  call void @__dump_registers(i16* %arraydecay55), !dbg !500
+  store i16 2, i16* getelementptr inbounds (%struct.Camel, %struct.Camel* @camel, i32 0, i32 0), align 2, !dbg !500
+  br label %if.end59, !dbg !500
+
+if.else56:                                        ; preds = %do.body51
+  store %struct.camel_buffer_t* getelementptr inbounds (%struct.Camel, %struct.Camel* @camel, i32 0, i32 1), %struct.camel_buffer_t** @safe, align 2, !dbg !502
+  store %struct.camel_buffer_t* getelementptr inbounds (%struct.Camel, %struct.Camel* @camel, i32 0, i32 2), %struct.camel_buffer_t** @unsafe, align 2, !dbg !502
+  %21 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2, !dbg !502
+  %reg_file57 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %21, i32 0, i32 0, !dbg !502
+  %arraydecay58 = getelementptr inbounds [11 x i16], [11 x i16]* %reg_file57, i16 0, i16 0, !dbg !502
+  call void @__dump_registers(i16* %arraydecay58), !dbg !502
+  store i16 1, i16* getelementptr inbounds (%struct.Camel, %struct.Camel* @camel, i32 0, i32 0), align 2, !dbg !502
+  br label %if.end59
+
+if.end59:                                         ; preds = %if.else56, %if.then53
+  br label %do.end60, !dbg !499
+
+do.end60:                                         ; preds = %if.end59
+  call void @task_commit(), !dbg !494
+  br label %do.cond, !dbg !504
+
+do.cond:                                          ; preds = %do.end60
+  %22 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2, !dbg !505
+  %globals61 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %22, i32 0, i32 1, !dbg !505
+  %check62 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals61, i32 0, i32 16, !dbg !505
+  %23 = load i16, i16* %check62, align 2, !dbg !505
+  %cmp63 = icmp eq i16 %23, 1, !dbg !506
+  br i1 %cmp63, label %do.body50, label %do.end64, !dbg !504, !llvm.loop !507
+
+do.end64:                                         ; preds = %do.cond
+  %24 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2, !dbg !509
+  %globals65 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %24, i32 0, i32 1, !dbg !509
+  %check66 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals65, i32 0, i32 16, !dbg !509
+  %25 = load i16, i16* %check66, align 2, !dbg !509
+  %cmp67 = icmp ne i16 %25, 0, !dbg !511
+  br i1 %cmp67, label %if.then68, label %if.end69, !dbg !512
+
+if.then68:                                        ; preds = %do.end64
+  br label %while.end, !dbg !513
+
+if.end69:                                         ; preds = %do.end64
+  br label %while.body29, !dbg !473, !llvm.loop !514
+
+while.end:                                        ; preds = %if.then68
+  %26 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2, !dbg !516
+  %globals70 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %26, i32 0, i32 1, !dbg !516
+  %check71 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals70, i32 0, i32 16, !dbg !516
+  %27 = load i16, i16* %check71, align 2, !dbg !516
+  %cmp72 = icmp eq i16 %27, 3, !dbg !518
+  br i1 %cmp72, label %if.then73, label %if.end91, !dbg !519
+
+if.then73:                                        ; preds = %while.end
+  br label %do.body74, !dbg !520
+
+do.body74:                                        ; preds = %do.cond86, %if.then73
+  %unsafe35 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
+  %globals36 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %unsafe35, i32 0, i32 1
+  %BCast37 = bitcast %struct.camel_global_t* %globals36 to i8*
+  %safe38 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2
+  %globals39 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %safe38, i32 0, i32 1
+  %BCast40 = bitcast %struct.camel_global_t* %globals39 to i8*
+  call void @llvm.memcpy.p0i8.p0i8.i16(i8* align 2 %BCast37, i8* align 2 %BCast40, i16 902, i1 false), !dbg !522
+  call void @task_add_node(), !dbg !522
+  br label %do.body75, !dbg !522
+
+do.body75:                                        ; preds = %do.body74
+  %28 = load i16, i16* getelementptr inbounds (%struct.Camel, %struct.Camel* @camel, i32 0, i32 0), align 2, !dbg !524
+  %cmp76 = icmp eq i16 %28, 1, !dbg !524
+  br i1 %cmp76, label %if.then77, label %if.else80, !dbg !527
+
+if.then77:                                        ; preds = %do.body75
+  store %struct.camel_buffer_t* getelementptr inbounds (%struct.Camel, %struct.Camel* @camel, i32 0, i32 2), %struct.camel_buffer_t** @safe, align 2, !dbg !528
+  store %struct.camel_buffer_t* getelementptr inbounds (%struct.Camel, %struct.Camel* @camel, i32 0, i32 1), %struct.camel_buffer_t** @unsafe, align 2, !dbg !528
+  %29 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2, !dbg !528
+  %reg_file78 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %29, i32 0, i32 0, !dbg !528
+  %arraydecay79 = getelementptr inbounds [11 x i16], [11 x i16]* %reg_file78, i16 0, i16 0, !dbg !528
+  call void @__dump_registers(i16* %arraydecay79), !dbg !528
+  store i16 2, i16* getelementptr inbounds (%struct.Camel, %struct.Camel* @camel, i32 0, i32 0), align 2, !dbg !528
+  br label %if.end83, !dbg !528
+
+if.else80:                                        ; preds = %do.body75
+  store %struct.camel_buffer_t* getelementptr inbounds (%struct.Camel, %struct.Camel* @camel, i32 0, i32 1), %struct.camel_buffer_t** @safe, align 2, !dbg !530
+  store %struct.camel_buffer_t* getelementptr inbounds (%struct.Camel, %struct.Camel* @camel, i32 0, i32 2), %struct.camel_buffer_t** @unsafe, align 2, !dbg !530
+  %30 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2, !dbg !530
+  %reg_file81 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %30, i32 0, i32 0, !dbg !530
+  %arraydecay82 = getelementptr inbounds [11 x i16], [11 x i16]* %reg_file81, i16 0, i16 0, !dbg !530
+  call void @__dump_registers(i16* %arraydecay82), !dbg !530
+  store i16 1, i16* getelementptr inbounds (%struct.Camel, %struct.Camel* @camel, i32 0, i32 0), align 2, !dbg !530
+  br label %if.end83
+
+if.end83:                                         ; preds = %if.else80, %if.then77
+  br label %do.end85, !dbg !527
+
+do.end85:                                         ; preds = %if.end83
+  call void @task_commit(), !dbg !522
+  br label %do.cond86, !dbg !532
+
+do.cond86:                                        ; preds = %do.end85
+  %31 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2, !dbg !533
+  %globals87 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %31, i32 0, i32 1, !dbg !533
+  %check88 = getelementptr inbounds %struct.camel_global_t, %struct.camel_global_t* %globals87, i32 0, i32 16, !dbg !533
+  %32 = load i16, i16* %check88, align 2, !dbg !533
+  %cmp89 = icmp eq i16 %32, 0, !dbg !534
+  br i1 %cmp89, label %do.body74, label %do.end90, !dbg !532, !llvm.loop !535
+
+do.end90:                                         ; preds = %do.cond86
+  br label %if.end91, !dbg !537
+
+if.end91:                                         ; preds = %do.end90, %while.end
+  %unsafe41 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
+  %globals42 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %unsafe41, i32 0, i32 1
+  %BCast43 = bitcast %struct.camel_global_t* %globals42 to i8*
+  %safe44 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2
+  %globals45 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %safe44, i32 0, i32 1
+  %BCast46 = bitcast %struct.camel_global_t* %globals45 to i8*
+  call void @llvm.memcpy.p0i8.p0i8.i16(i8* align 2 %BCast43, i8* align 2 %BCast46, i16 902, i1 false), !dbg !538
+  call void @task_add_insert(), !dbg !538
+  br label %do.body92, !dbg !538
+
+do.body92:                                        ; preds = %if.end91
+  %33 = load i16, i16* getelementptr inbounds (%struct.Camel, %struct.Camel* @camel, i32 0, i32 0), align 2, !dbg !539
+  %cmp93 = icmp eq i16 %33, 1, !dbg !539
+  br i1 %cmp93, label %if.then94, label %if.else97, !dbg !542
+
+if.then94:                                        ; preds = %do.body92
+  store %struct.camel_buffer_t* getelementptr inbounds (%struct.Camel, %struct.Camel* @camel, i32 0, i32 2), %struct.camel_buffer_t** @safe, align 2, !dbg !543
+  store %struct.camel_buffer_t* getelementptr inbounds (%struct.Camel, %struct.Camel* @camel, i32 0, i32 1), %struct.camel_buffer_t** @unsafe, align 2, !dbg !543
+  %34 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2, !dbg !543
+  %reg_file95 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %34, i32 0, i32 0, !dbg !543
+  %arraydecay96 = getelementptr inbounds [11 x i16], [11 x i16]* %reg_file95, i16 0, i16 0, !dbg !543
+  call void @__dump_registers(i16* %arraydecay96), !dbg !543
+  store i16 2, i16* getelementptr inbounds (%struct.Camel, %struct.Camel* @camel, i32 0, i32 0), align 2, !dbg !543
+  br label %if.end100, !dbg !543
+
+if.else97:                                        ; preds = %do.body92
+  store %struct.camel_buffer_t* getelementptr inbounds (%struct.Camel, %struct.Camel* @camel, i32 0, i32 1), %struct.camel_buffer_t** @safe, align 2, !dbg !545
+  store %struct.camel_buffer_t* getelementptr inbounds (%struct.Camel, %struct.Camel* @camel, i32 0, i32 2), %struct.camel_buffer_t** @unsafe, align 2, !dbg !545
+  %35 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2, !dbg !545
+  %reg_file98 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %35, i32 0, i32 0, !dbg !545
+  %arraydecay99 = getelementptr inbounds [11 x i16], [11 x i16]* %reg_file98, i16 0, i16 0, !dbg !545
+  call void @__dump_registers(i16* %arraydecay99), !dbg !545
+  store i16 1, i16* getelementptr inbounds (%struct.Camel, %struct.Camel* @camel, i32 0, i32 0), align 2, !dbg !545
+  br label %if.end100
+
+if.end100:                                        ; preds = %if.else97, %if.then94
+  br label %do.end102, !dbg !542
+
+do.end102:                                        ; preds = %if.end100
+  call void @task_commit(), !dbg !538
+  %unsafe47 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
+  %globals48 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %unsafe47, i32 0, i32 1
+  %BCast49 = bitcast %struct.camel_global_t* %globals48 to i8*
+  %safe50 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2
+  %globals51 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %safe50, i32 0, i32 1
+  %BCast52 = bitcast %struct.camel_global_t* %globals51 to i8*
+  call void @llvm.memcpy.p0i8.p0i8.i16(i8* align 2 %BCast49, i8* align 2 %BCast52, i16 902, i1 false), !dbg !547
+  call void @task_append_compressed(), !dbg !547
+  br label %do.body103, !dbg !547
+
+do.body103:                                       ; preds = %do.end102
+  %36 = load i16, i16* getelementptr inbounds (%struct.Camel, %struct.Camel* @camel, i32 0, i32 0), align 2, !dbg !548
+  %cmp104 = icmp eq i16 %36, 1, !dbg !548
+  br i1 %cmp104, label %if.then105, label %if.else108, !dbg !551
+
+if.then105:                                       ; preds = %do.body103
+  store %struct.camel_buffer_t* getelementptr inbounds (%struct.Camel, %struct.Camel* @camel, i32 0, i32 2), %struct.camel_buffer_t** @safe, align 2, !dbg !552
+  store %struct.camel_buffer_t* getelementptr inbounds (%struct.Camel, %struct.Camel* @camel, i32 0, i32 1), %struct.camel_buffer_t** @unsafe, align 2, !dbg !552
+  %37 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2, !dbg !552
+  %reg_file106 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %37, i32 0, i32 0, !dbg !552
+  %arraydecay107 = getelementptr inbounds [11 x i16], [11 x i16]* %reg_file106, i16 0, i16 0, !dbg !552
+  call void @__dump_registers(i16* %arraydecay107), !dbg !552
+  store i16 2, i16* getelementptr inbounds (%struct.Camel, %struct.Camel* @camel, i32 0, i32 0), align 2, !dbg !552
+  br label %if.end111, !dbg !552
+
+if.else108:                                       ; preds = %do.body103
+  store %struct.camel_buffer_t* getelementptr inbounds (%struct.Camel, %struct.Camel* @camel, i32 0, i32 1), %struct.camel_buffer_t** @safe, align 2, !dbg !554
+  store %struct.camel_buffer_t* getelementptr inbounds (%struct.Camel, %struct.Camel* @camel, i32 0, i32 2), %struct.camel_buffer_t** @unsafe, align 2, !dbg !554
+  %38 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2, !dbg !554
+  %reg_file109 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %38, i32 0, i32 0, !dbg !554
+  %arraydecay110 = getelementptr inbounds [11 x i16], [11 x i16]* %reg_file109, i16 0, i16 0, !dbg !554
+  call void @__dump_registers(i16* %arraydecay110), !dbg !554
+  store i16 1, i16* getelementptr inbounds (%struct.Camel, %struct.Camel* @camel, i32 0, i32 0), align 2, !dbg !554
+  br label %if.end111
+
+if.end111:                                        ; preds = %if.else108, %if.then105
+  br label %do.end113, !dbg !551
+
+do.end113:                                        ; preds = %if.end111
+  call void @task_commit(), !dbg !547
+  br label %while.cond, !dbg !445, !llvm.loop !556
+
+while.end114:                                     ; preds = %while.cond
+  %unsafe53 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @unsafe, align 2
+  %globals54 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %unsafe53, i32 0, i32 1
+  %BCast55 = bitcast %struct.camel_global_t* %globals54 to i8*
+  %safe56 = load %struct.camel_buffer_t*, %struct.camel_buffer_t** @safe, align 2
+  %globals57 = getelementptr inbounds %struct.camel_buffer_t, %struct.camel_buffer_t* %safe56, i32 0, i32 1
+  %BCast58 = bitcast %struct.camel_global_t* %globals57 to i8*
+  call void @llvm.memcpy.p0i8.p0i8.i16(i8* align 2 %BCast55, i8* align 2 %BCast58, i16 902, i1 false), !dbg !558
+  call void @task_done(), !dbg !558
+  %39 = load i16, i16* %retval, align 2, !dbg !559
+  ret i16 %39, !dbg !559
 }
+
+declare dso_local void @__dump_registers(i16*) #1
 
 attributes #0 = { noinline nounwind optnone "correctly-rounded-divide-sqrt-fp-math"="false" "disable-tail-calls"="false" "frame-pointer"="none" "less-precise-fpmad"="false" "min-legal-vector-width"="0" "no-infs-fp-math"="false" "no-jump-tables"="false" "no-nans-fp-math"="false" "no-signed-zeros-fp-math"="false" "no-trapping-math"="false" "stack-protector-buffer-size"="8" "unsafe-fp-math"="false" "use-soft-float"="false" }
 attributes #1 = { "correctly-rounded-divide-sqrt-fp-math"="false" "disable-tail-calls"="false" "frame-pointer"="none" "less-precise-fpmad"="false" "no-infs-fp-math"="false" "no-nans-fp-math"="false" "no-signed-zeros-fp-math"="false" "no-trapping-math"="false" "stack-protector-buffer-size"="8" "unsafe-fp-math"="false" "use-soft-float"="false" }
@@ -1021,407 +1332,448 @@ attributes #6 = { noreturn }
 !112 = !DILocation(line: 209, column: 5, scope: !110)
 !113 = !DILocation(line: 210, column: 9, scope: !114)
 !114 = distinct !DILexicalBlock(scope: !106, file: !3, line: 209, column: 12)
-!115 = !DILocation(line: 227, column: 3, scope: !116)
-!116 = distinct !DILexicalBlock(scope: !96, file: !3, line: 227, column: 3)
-!117 = !{i32 -2146595622}
-!118 = !DILocalVariable(name: "__x", scope: !119, file: !3, line: 229, type: !6)
-!119 = distinct !DILexicalBlock(scope: !96, file: !3, line: 229, column: 33)
-!120 = !DILocation(line: 229, column: 33, scope: !119)
-!121 = !{i32 -2146595386}
-!122 = !DILocation(line: 229, column: 51, scope: !96)
-!123 = !DILocation(line: 229, column: 33, scope: !96)
-!124 = !DILocalVariable(name: "__x", scope: !125, file: !3, line: 229, type: !6)
-!125 = distinct !DILexicalBlock(scope: !96, file: !3, line: 229, column: 65)
-!126 = !DILocation(line: 229, column: 65, scope: !125)
-!127 = !{i32 -2146595261}
-!128 = !DILocation(line: 229, column: 83, scope: !96)
-!129 = !DILocation(line: 229, column: 63, scope: !96)
-!130 = !DILocation(line: 229, column: 19, scope: !96)
-!131 = !DILocation(line: 229, column: 17, scope: !96)
-!132 = !DILocation(line: 230, column: 37, scope: !96)
-!133 = !DILocation(line: 230, column: 71, scope: !96)
-!134 = !DILocation(line: 230, column: 23, scope: !96)
-!135 = !DILocation(line: 230, column: 21, scope: !96)
-!136 = !DILocation(line: 233, column: 6, scope: !137)
-!137 = distinct !DILexicalBlock(scope: !96, file: !3, line: 233, column: 6)
-!138 = !DILocation(line: 233, column: 27, scope: !137)
-!139 = !DILocation(line: 233, column: 33, scope: !137)
-!140 = !DILocation(line: 233, column: 24, scope: !137)
-!141 = !DILocation(line: 233, column: 6, scope: !96)
-!142 = !DILocation(line: 234, column: 11, scope: !143)
-!143 = distinct !DILexicalBlock(scope: !137, file: !3, line: 233, column: 51)
-!144 = !DILocation(line: 234, column: 4, scope: !143)
-!145 = !DILocation(line: 234, column: 19, scope: !143)
-!146 = !DILocation(line: 235, column: 4, scope: !143)
-!147 = !DILocation(line: 236, column: 24, scope: !143)
-!148 = !DILocation(line: 236, column: 30, scope: !143)
-!149 = !DILocation(line: 236, column: 4, scope: !143)
-!150 = !DILocation(line: 237, column: 3, scope: !143)
-!151 = !DILocation(line: 238, column: 4, scope: !152)
-!152 = distinct !DILexicalBlock(scope: !137, file: !3, line: 237, column: 9)
-!153 = !DILocation(line: 241, column: 1, scope: !96)
-!154 = distinct !DISubprogram(name: "task_init", scope: !3, file: !3, line: 251, type: !12, scopeLine: 252, spFlags: DISPFlagDefinition, unit: !2, retainedNodes: !4)
-!155 = !DILocation(line: 253, column: 2, scope: !154)
-!156 = !DILocation(line: 253, column: 18, scope: !154)
-!157 = !DILocation(line: 254, column: 2, scope: !154)
-!158 = !DILocation(line: 254, column: 14, scope: !154)
-!159 = !DILocation(line: 255, column: 2, scope: !154)
-!160 = !DILocation(line: 255, column: 13, scope: !154)
-!161 = !DILocation(line: 256, column: 2, scope: !154)
-!162 = !DILocation(line: 256, column: 18, scope: !154)
-!163 = !DILocation(line: 257, column: 2, scope: !154)
-!164 = !DILocation(line: 257, column: 17, scope: !154)
-!165 = !DILocation(line: 258, column: 2, scope: !154)
-!166 = !DILocation(line: 258, column: 19, scope: !154)
-!167 = !DILocation(line: 260, column: 2, scope: !154)
-!168 = !DILocation(line: 260, column: 9, scope: !154)
-!169 = !DILocation(line: 260, column: 20, scope: !154)
-!170 = !DILocalVariable(name: "node", scope: !171, file: !3, line: 262, type: !47)
-!171 = distinct !DILexicalBlock(scope: !154, file: !3, line: 260, column: 35)
-!172 = !DILocation(line: 262, column: 10, scope: !171)
-!173 = !DILocation(line: 262, column: 17, scope: !171)
-!174 = !DILocation(line: 263, column: 14, scope: !171)
-!175 = !DILocalVariable(name: "i", scope: !171, file: !3, line: 267, type: !176)
-!176 = !DIBasicType(name: "int", size: 16, encoding: DW_ATE_signed)
-!177 = !DILocation(line: 267, column: 7, scope: !171)
-!178 = !DILocation(line: 267, column: 11, scope: !171)
-!179 = !DILocation(line: 268, column: 3, scope: !171)
-!180 = !DILocation(line: 268, column: 12, scope: !171)
-!181 = !DILocation(line: 268, column: 17, scope: !171)
-!182 = !DILocation(line: 269, column: 3, scope: !171)
-!183 = !DILocation(line: 269, column: 13, scope: !171)
-!184 = distinct !{!184, !167, !185}
-!185 = !DILocation(line: 270, column: 2, scope: !154)
-!186 = !DILocation(line: 272, column: 2, scope: !154)
-!187 = !DILocation(line: 272, column: 17, scope: !154)
-!188 = !DILocation(line: 273, column: 1, scope: !154)
-!189 = distinct !DISubprogram(name: "task_sample", scope: !3, file: !3, line: 275, type: !12, scopeLine: 276, spFlags: DISPFlagDefinition, unit: !2, retainedNodes: !4)
-!190 = !DILocalVariable(name: "next_letter_idx", scope: !189, file: !3, line: 277, type: !6)
-!191 = !DILocation(line: 277, column: 11, scope: !189)
-!192 = !DILocation(line: 277, column: 29, scope: !189)
-!193 = !DILocation(line: 277, column: 44, scope: !189)
-!194 = !DILocation(line: 278, column: 6, scope: !195)
-!195 = distinct !DILexicalBlock(scope: !189, file: !3, line: 278, column: 6)
-!196 = !DILocation(line: 278, column: 22, scope: !195)
-!197 = !DILocation(line: 278, column: 6, scope: !189)
-!198 = !DILocation(line: 279, column: 19, scope: !195)
-!199 = !DILocation(line: 279, column: 3, scope: !195)
-!200 = !DILocation(line: 281, column: 6, scope: !201)
-!201 = distinct !DILexicalBlock(scope: !189, file: !3, line: 281, column: 6)
-!202 = !DILocation(line: 281, column: 21, scope: !201)
-!203 = !DILocation(line: 281, column: 6, scope: !189)
-!204 = !DILocation(line: 282, column: 20, scope: !205)
-!205 = distinct !DILexicalBlock(scope: !201, file: !3, line: 281, column: 27)
-!206 = !DILocation(line: 282, column: 3, scope: !205)
-!207 = !DILocation(line: 282, column: 18, scope: !205)
-!208 = !DILocation(line: 283, column: 3, scope: !205)
-!209 = !DILocation(line: 283, column: 13, scope: !205)
-!210 = !DILocation(line: 285, column: 2, scope: !205)
-!211 = !DILocation(line: 286, column: 20, scope: !212)
-!212 = distinct !DILexicalBlock(scope: !201, file: !3, line: 285, column: 9)
-!213 = !DILocation(line: 286, column: 3, scope: !212)
-!214 = !DILocation(line: 286, column: 18, scope: !212)
-!215 = !DILocation(line: 287, column: 3, scope: !212)
-!216 = !DILocation(line: 287, column: 13, scope: !212)
-!217 = !DILocation(line: 290, column: 1, scope: !189)
-!218 = distinct !DISubprogram(name: "task_measure_temp", scope: !3, file: !3, line: 292, type: !12, scopeLine: 293, spFlags: DISPFlagDefinition, unit: !2, retainedNodes: !4)
-!219 = !DILocalVariable(name: "prev_sample", scope: !218, file: !3, line: 294, type: !42)
-!220 = !DILocation(line: 294, column: 11, scope: !218)
-!221 = !DILocation(line: 295, column: 16, scope: !218)
-!222 = !DILocation(line: 295, column: 14, scope: !218)
-!223 = !DILocalVariable(name: "sample", scope: !218, file: !3, line: 297, type: !42)
-!224 = !DILocation(line: 297, column: 11, scope: !218)
-!225 = !DILocation(line: 297, column: 35, scope: !218)
-!226 = !DILocation(line: 297, column: 20, scope: !218)
-!227 = !DILocation(line: 298, column: 16, scope: !218)
-!228 = !DILocation(line: 298, column: 14, scope: !218)
-!229 = !DILocation(line: 299, column: 20, scope: !218)
-!230 = !DILocation(line: 299, column: 2, scope: !218)
-!231 = !DILocation(line: 299, column: 18, scope: !218)
-!232 = !DILocation(line: 300, column: 15, scope: !218)
-!233 = !DILocation(line: 300, column: 2, scope: !218)
-!234 = !DILocation(line: 300, column: 13, scope: !218)
-!235 = !DILocation(line: 302, column: 1, scope: !218)
-!236 = distinct !DISubprogram(name: "acquire_sample", scope: !3, file: !3, line: 245, type: !237, scopeLine: 246, flags: DIFlagPrototyped, spFlags: DISPFlagLocalToUnit | DISPFlagDefinition, unit: !2, retainedNodes: !4)
-!237 = !DISubroutineType(types: !238)
-!238 = !{!42, !39}
-!239 = !DILocalVariable(name: "prev_sample", arg: 1, scope: !236, file: !3, line: 245, type: !39)
-!240 = !DILocation(line: 245, column: 41, scope: !236)
-!241 = !DILocalVariable(name: "sample", scope: !236, file: !3, line: 247, type: !39)
-!242 = !DILocation(line: 247, column: 11, scope: !236)
-!243 = !DILocation(line: 247, column: 21, scope: !236)
-!244 = !DILocation(line: 247, column: 33, scope: !236)
-!245 = !DILocation(line: 247, column: 38, scope: !236)
-!246 = !DILocation(line: 248, column: 9, scope: !236)
-!247 = !DILocation(line: 248, column: 2, scope: !236)
-!248 = distinct !DISubprogram(name: "task_letterize", scope: !3, file: !3, line: 304, type: !12, scopeLine: 305, spFlags: DISPFlagDefinition, unit: !2, retainedNodes: !4)
-!249 = !DILocalVariable(name: "letter_idx", scope: !248, file: !3, line: 306, type: !6)
-!250 = !DILocation(line: 306, column: 11, scope: !248)
-!251 = !DILocation(line: 306, column: 24, scope: !248)
-!252 = !DILocation(line: 307, column: 6, scope: !253)
-!253 = distinct !DILexicalBlock(scope: !248, file: !3, line: 307, column: 6)
-!254 = !DILocation(line: 307, column: 17, scope: !253)
-!255 = !DILocation(line: 307, column: 6, scope: !248)
-!256 = !DILocation(line: 308, column: 14, scope: !253)
-!257 = !DILocation(line: 308, column: 3, scope: !253)
-!258 = !DILocation(line: 310, column: 13, scope: !253)
-!259 = !DILocalVariable(name: "letter_shift", scope: !248, file: !3, line: 311, type: !6)
-!260 = !DILocation(line: 311, column: 11, scope: !248)
-!261 = !DILocation(line: 311, column: 45, scope: !248)
-!262 = !DILocation(line: 311, column: 43, scope: !248)
-!263 = !DILocalVariable(name: "letter", scope: !248, file: !3, line: 312, type: !39)
-!264 = !DILocation(line: 312, column: 11, scope: !248)
-!265 = !DILocation(line: 312, column: 21, scope: !248)
-!266 = !DILocation(line: 312, column: 50, scope: !248)
-!267 = !DILocation(line: 312, column: 47, scope: !248)
-!268 = !DILocation(line: 312, column: 32, scope: !248)
-!269 = !DILocation(line: 312, column: 68, scope: !248)
-!270 = !DILocation(line: 312, column: 65, scope: !248)
-!271 = !DILocation(line: 314, column: 15, scope: !248)
-!272 = !DILocation(line: 314, column: 2, scope: !248)
-!273 = !DILocation(line: 314, column: 13, scope: !248)
-!274 = !DILocation(line: 316, column: 1, scope: !248)
-!275 = distinct !DISubprogram(name: "task_compress", scope: !3, file: !3, line: 318, type: !12, scopeLine: 319, spFlags: DISPFlagDefinition, unit: !2, retainedNodes: !4)
-!276 = !DILocalVariable(name: "parent_node", scope: !275, file: !3, line: 320, type: !47)
-!277 = !DILocation(line: 320, column: 9, scope: !275)
-!278 = !DILocalVariable(name: "parent", scope: !275, file: !3, line: 321, type: !7)
-!279 = !DILocation(line: 321, column: 10, scope: !275)
-!280 = !DILocation(line: 321, column: 19, scope: !275)
-!281 = !DILocation(line: 322, column: 16, scope: !275)
-!282 = !DILocation(line: 322, column: 25, scope: !275)
-!283 = !DILocation(line: 324, column: 28, scope: !275)
-!284 = !DILocation(line: 324, column: 2, scope: !275)
-!285 = !DILocation(line: 324, column: 14, scope: !275)
-!286 = !DILocation(line: 325, column: 2, scope: !275)
-!287 = !DILocation(line: 325, column: 20, scope: !275)
-!288 = !DILocation(line: 326, column: 15, scope: !275)
-!289 = !DILocation(line: 326, column: 2, scope: !275)
-!290 = !DILocation(line: 326, column: 13, scope: !275)
-!291 = !DILocation(line: 327, column: 26, scope: !275)
-!292 = !DILocation(line: 327, column: 2, scope: !275)
-!293 = !DILocation(line: 327, column: 12, scope: !275)
-!294 = !DILocation(line: 328, column: 2, scope: !275)
-!295 = !DILocation(line: 328, column: 18, scope: !275)
-!296 = !DILocation(line: 330, column: 1, scope: !275)
-!297 = distinct !DISubprogram(name: "task_find_sibling", scope: !3, file: !3, line: 332, type: !12, scopeLine: 333, spFlags: DISPFlagDefinition, unit: !2, retainedNodes: !4)
-!298 = !DILocalVariable(name: "sibling_node", scope: !297, file: !3, line: 334, type: !299)
-!299 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !47, size: 16)
-!300 = !DILocation(line: 334, column: 10, scope: !297)
-!301 = !DILocation(line: 336, column: 6, scope: !302)
-!302 = distinct !DILexicalBlock(scope: !297, file: !3, line: 336, column: 6)
-!303 = !DILocation(line: 336, column: 18, scope: !302)
-!304 = !DILocation(line: 336, column: 6, scope: !297)
-!305 = !DILocalVariable(name: "i", scope: !306, file: !3, line: 337, type: !176)
-!306 = distinct !DILexicalBlock(scope: !302, file: !3, line: 336, column: 26)
-!307 = !DILocation(line: 337, column: 7, scope: !306)
-!308 = !DILocation(line: 337, column: 11, scope: !306)
-!309 = !DILocation(line: 338, column: 19, scope: !306)
-!310 = !DILocation(line: 338, column: 28, scope: !306)
-!311 = !DILocation(line: 338, column: 16, scope: !306)
-!312 = !DILocation(line: 340, column: 7, scope: !313)
-!313 = distinct !DILexicalBlock(scope: !306, file: !3, line: 340, column: 7)
-!314 = !DILocation(line: 340, column: 21, scope: !313)
-!315 = !DILocation(line: 340, column: 31, scope: !313)
-!316 = !DILocation(line: 340, column: 28, scope: !313)
-!317 = !DILocation(line: 340, column: 7, scope: !306)
-!318 = !DILocation(line: 342, column: 22, scope: !319)
-!319 = distinct !DILexicalBlock(scope: !313, file: !3, line: 340, column: 43)
-!320 = !DILocation(line: 342, column: 4, scope: !319)
-!321 = !DILocation(line: 342, column: 20, scope: !319)
-!322 = !DILocation(line: 344, column: 4, scope: !319)
-!323 = !DILocation(line: 344, column: 14, scope: !319)
-!324 = !DILocation(line: 345, column: 4, scope: !319)
-!325 = !DILocation(line: 347, column: 7, scope: !326)
-!326 = distinct !DILexicalBlock(scope: !327, file: !3, line: 347, column: 7)
-!327 = distinct !DILexicalBlock(scope: !313, file: !3, line: 346, column: 10)
-!328 = !DILocation(line: 347, column: 21, scope: !326)
-!329 = !DILocation(line: 347, column: 29, scope: !326)
-!330 = !DILocation(line: 347, column: 7, scope: !327)
-!331 = !DILocation(line: 348, column: 19, scope: !332)
-!332 = distinct !DILexicalBlock(scope: !326, file: !3, line: 347, column: 34)
-!333 = !DILocation(line: 348, column: 33, scope: !332)
-!334 = !DILocation(line: 348, column: 5, scope: !332)
-!335 = !DILocation(line: 348, column: 17, scope: !332)
-!336 = !DILocation(line: 349, column: 5, scope: !332)
-!337 = !DILocation(line: 349, column: 15, scope: !332)
-!338 = !DILocation(line: 350, column: 5, scope: !332)
-!339 = !DILocation(line: 354, column: 2, scope: !306)
-!340 = !DILocalVariable(name: "starting_node_idx", scope: !297, file: !3, line: 356, type: !7)
-!341 = !DILocation(line: 356, column: 10, scope: !297)
-!342 = !DILocation(line: 356, column: 39, scope: !297)
-!343 = !DILocation(line: 357, column: 20, scope: !297)
-!344 = !DILocation(line: 357, column: 2, scope: !297)
-!345 = !DILocation(line: 357, column: 18, scope: !297)
-!346 = !DILocation(line: 359, column: 6, scope: !347)
-!347 = distinct !DILexicalBlock(scope: !297, file: !3, line: 359, column: 6)
-!348 = !DILocation(line: 359, column: 16, scope: !347)
-!349 = !DILocation(line: 359, column: 6, scope: !297)
-!350 = !DILocation(line: 360, column: 3, scope: !351)
-!351 = distinct !DILexicalBlock(scope: !347, file: !3, line: 359, column: 24)
-!352 = !DILocation(line: 360, column: 13, scope: !351)
-!353 = !DILocation(line: 361, column: 2, scope: !351)
-!354 = !DILocation(line: 362, column: 3, scope: !355)
-!355 = distinct !DILexicalBlock(scope: !347, file: !3, line: 361, column: 9)
-!356 = !DILocation(line: 362, column: 13, scope: !355)
-!357 = !DILocation(line: 364, column: 1, scope: !297)
-!358 = distinct !DISubprogram(name: "task_add_node", scope: !3, file: !3, line: 367, type: !12, scopeLine: 368, spFlags: DISPFlagDefinition, unit: !2, retainedNodes: !4)
-!359 = !DILocalVariable(name: "sibling_node", scope: !358, file: !3, line: 369, type: !299)
-!360 = !DILocation(line: 369, column: 10, scope: !358)
-!361 = !DILocalVariable(name: "i", scope: !358, file: !3, line: 371, type: !176)
-!362 = !DILocation(line: 371, column: 6, scope: !358)
-!363 = !DILocation(line: 371, column: 10, scope: !358)
-!364 = !DILocation(line: 372, column: 18, scope: !358)
-!365 = !DILocation(line: 372, column: 27, scope: !358)
-!366 = !DILocation(line: 372, column: 15, scope: !358)
-!367 = !DILocation(line: 374, column: 6, scope: !368)
-!368 = distinct !DILexicalBlock(scope: !358, file: !3, line: 374, column: 6)
-!369 = !DILocation(line: 374, column: 20, scope: !368)
-!370 = !DILocation(line: 374, column: 28, scope: !368)
-!371 = !DILocation(line: 374, column: 6, scope: !358)
-!372 = !DILocalVariable(name: "next_sibling", scope: !373, file: !3, line: 375, type: !7)
-!373 = distinct !DILexicalBlock(scope: !368, file: !3, line: 374, column: 36)
-!374 = !DILocation(line: 375, column: 11, scope: !373)
-!375 = !DILocation(line: 375, column: 26, scope: !373)
-!376 = !DILocation(line: 375, column: 40, scope: !373)
-!377 = !DILocation(line: 376, column: 17, scope: !373)
-!378 = !DILocation(line: 376, column: 3, scope: !373)
-!379 = !DILocation(line: 376, column: 15, scope: !373)
-!380 = !DILocation(line: 378, column: 3, scope: !373)
-!381 = !DILocation(line: 378, column: 13, scope: !373)
-!382 = !DILocation(line: 380, column: 2, scope: !373)
-!383 = !DILocalVariable(name: "sibling_node_obj", scope: !384, file: !3, line: 382, type: !47)
-!384 = distinct !DILexicalBlock(scope: !368, file: !3, line: 380, column: 9)
-!385 = !DILocation(line: 382, column: 10, scope: !384)
-!386 = !DILocation(line: 382, column: 30, scope: !384)
-!387 = !DILocation(line: 382, column: 29, scope: !384)
-!388 = !DILocation(line: 383, column: 3, scope: !384)
-!389 = !DILocation(line: 383, column: 22, scope: !384)
-!390 = !DILocation(line: 385, column: 3, scope: !384)
-!391 = !DILocation(line: 385, column: 13, scope: !384)
-!392 = !DILocation(line: 387, column: 1, scope: !358)
-!393 = distinct !DISubprogram(name: "task_add_insert", scope: !3, file: !3, line: 389, type: !12, scopeLine: 390, spFlags: DISPFlagDefinition, unit: !2, retainedNodes: !4)
-!394 = !DILocation(line: 392, column: 6, scope: !395)
-!395 = distinct !DILexicalBlock(scope: !393, file: !3, line: 392, column: 6)
-!396 = !DILocation(line: 392, column: 21, scope: !395)
-!397 = !DILocation(line: 392, column: 6, scope: !393)
-!398 = !DILocation(line: 393, column: 3, scope: !399)
-!399 = distinct !DILexicalBlock(scope: !395, file: !3, line: 392, column: 35)
-!400 = !DILocation(line: 394, column: 3, scope: !399)
-!401 = distinct !{!401, !400, !402}
-!402 = !DILocation(line: 394, column: 12, scope: !399)
-!403 = !DILocalVariable(name: "child", scope: !393, file: !3, line: 397, type: !7)
-!404 = !DILocation(line: 397, column: 10, scope: !393)
-!405 = !DILocation(line: 397, column: 18, scope: !393)
-!406 = !DILocalVariable(name: "child_node", scope: !393, file: !3, line: 398, type: !47)
-!407 = !DILocation(line: 398, column: 9, scope: !393)
-!408 = !DILocation(line: 398, column: 22, scope: !393)
-!409 = !DILocation(line: 399, column: 13, scope: !393)
-!410 = !DILocalVariable(name: "cond", scope: !393, file: !3, line: 405, type: !47)
-!411 = !DILocation(line: 405, column: 9, scope: !393)
-!412 = !DILocation(line: 405, column: 16, scope: !393)
-!413 = !DILocation(line: 407, column: 11, scope: !414)
-!414 = distinct !DILexicalBlock(scope: !393, file: !3, line: 407, column: 6)
-!415 = !DILocation(line: 407, column: 17, scope: !414)
-!416 = !DILocation(line: 407, column: 6, scope: !393)
-!417 = !DILocalVariable(name: "parent_node_obj", scope: !418, file: !3, line: 409, type: !47)
-!418 = distinct !DILexicalBlock(scope: !414, file: !3, line: 407, column: 25)
-!419 = !DILocation(line: 409, column: 10, scope: !418)
-!420 = !DILocation(line: 409, column: 28, scope: !418)
-!421 = !DILocation(line: 410, column: 27, scope: !418)
-!422 = !DILocation(line: 410, column: 19, scope: !418)
-!423 = !DILocation(line: 410, column: 25, scope: !418)
-!424 = !DILocation(line: 412, column: 3, scope: !418)
-!425 = !DILocation(line: 412, column: 12, scope: !418)
-!426 = !DILocation(line: 412, column: 26, scope: !418)
-!427 = !DILocation(line: 414, column: 2, scope: !418)
-!428 = !DILocalVariable(name: "last_sibling_node", scope: !429, file: !3, line: 416, type: !47)
-!429 = distinct !DILexicalBlock(scope: !414, file: !3, line: 414, column: 9)
-!430 = !DILocation(line: 416, column: 10, scope: !429)
-!431 = !DILocation(line: 416, column: 30, scope: !429)
-!432 = !DILocation(line: 418, column: 31, scope: !429)
-!433 = !DILocation(line: 418, column: 21, scope: !429)
-!434 = !DILocation(line: 418, column: 29, scope: !429)
-!435 = !DILocation(line: 419, column: 3, scope: !429)
-!436 = !DILocation(line: 419, column: 12, scope: !429)
-!437 = !DILocation(line: 419, column: 27, scope: !429)
-!438 = !DILocation(line: 421, column: 2, scope: !393)
-!439 = !DILocation(line: 421, column: 11, scope: !393)
-!440 = !DILocation(line: 421, column: 24, scope: !393)
-!441 = !DILocation(line: 422, column: 15, scope: !393)
-!442 = !DILocation(line: 422, column: 2, scope: !393)
-!443 = !DILocation(line: 422, column: 13, scope: !393)
-!444 = !DILocation(line: 423, column: 2, scope: !393)
-!445 = !DILocation(line: 423, column: 16, scope: !393)
-!446 = !DILocation(line: 425, column: 1, scope: !393)
-!447 = distinct !DISubprogram(name: "task_append_compressed", scope: !3, file: !3, line: 427, type: !12, scopeLine: 428, spFlags: DISPFlagDefinition, unit: !2, retainedNodes: !4)
-!448 = !DILocation(line: 429, column: 44, scope: !447)
-!449 = !DILocation(line: 429, column: 2, scope: !447)
-!450 = !DILocation(line: 429, column: 22, scope: !447)
-!451 = !DILocation(line: 429, column: 35, scope: !447)
-!452 = !DILocation(line: 429, column: 42, scope: !447)
-!453 = !DILocation(line: 431, column: 4, scope: !447)
-!454 = !DILocation(line: 431, column: 2, scope: !447)
-!455 = !DILocation(line: 432, column: 1, scope: !447)
-!456 = distinct !DISubprogram(name: "task_done", scope: !3, file: !3, line: 434, type: !12, scopeLine: 435, spFlags: DISPFlagDefinition, unit: !2, retainedNodes: !4)
-!457 = !DILocation(line: 436, column: 2, scope: !456)
-!458 = distinct !DISubprogram(name: "task_commit", scope: !3, file: !3, line: 439, type: !12, scopeLine: 439, spFlags: DISPFlagDefinition, unit: !2, retainedNodes: !4)
-!459 = !DILocation(line: 441, column: 1, scope: !458)
-!460 = distinct !DISubprogram(name: "main", scope: !3, file: !3, line: 443, type: !461, scopeLine: 443, spFlags: DISPFlagDefinition, unit: !2, retainedNodes: !4)
-!461 = !DISubroutineType(types: !462)
-!462 = !{!176}
-!463 = !DILocation(line: 445, column: 16, scope: !460)
-!464 = !DILocation(line: 446, column: 10, scope: !460)
-!465 = !DILocation(line: 447, column: 12, scope: !460)
-!466 = !DILocation(line: 448, column: 5, scope: !460)
-!467 = !DILocation(line: 450, column: 2, scope: !460)
-!468 = !DILocation(line: 452, column: 2, scope: !460)
-!469 = !DILocation(line: 452, column: 8, scope: !460)
-!470 = !DILocation(line: 452, column: 21, scope: !460)
-!471 = !DILocation(line: 454, column: 3, scope: !472)
-!472 = distinct !DILexicalBlock(scope: !460, file: !3, line: 452, column: 35)
-!473 = !DILocation(line: 456, column: 7, scope: !474)
-!474 = distinct !DILexicalBlock(scope: !472, file: !3, line: 456, column: 7)
-!475 = !DILocation(line: 456, column: 18, scope: !474)
-!476 = !DILocation(line: 456, column: 7, scope: !472)
-!477 = !DILocation(line: 458, column: 4, scope: !478)
-!478 = distinct !DILexicalBlock(scope: !474, file: !3, line: 456, column: 23)
-!479 = !DILocation(line: 460, column: 3, scope: !478)
-!480 = !DILocation(line: 462, column: 3, scope: !472)
-!481 = !DILocation(line: 464, column: 4, scope: !482)
-!482 = distinct !DILexicalBlock(scope: !472, file: !3, line: 462, column: 13)
-!483 = !DILocation(line: 466, column: 4, scope: !482)
-!484 = !DILocation(line: 468, column: 4, scope: !482)
-!485 = !DILocation(line: 470, column: 5, scope: !486)
-!486 = distinct !DILexicalBlock(scope: !482, file: !3, line: 468, column: 7)
-!487 = !DILocation(line: 472, column: 4, scope: !486)
-!488 = !DILocation(line: 472, column: 13, scope: !482)
-!489 = !DILocation(line: 472, column: 24, scope: !482)
-!490 = distinct !{!490, !484, !491}
-!491 = !DILocation(line: 472, column: 28, scope: !482)
-!492 = !DILocation(line: 474, column: 8, scope: !493)
-!493 = distinct !DILexicalBlock(scope: !482, file: !3, line: 474, column: 8)
-!494 = !DILocation(line: 474, column: 19, scope: !493)
-!495 = !DILocation(line: 474, column: 8, scope: !482)
-!496 = !DILocation(line: 475, column: 5, scope: !493)
-!497 = distinct !{!497, !480, !498}
-!498 = !DILocation(line: 476, column: 3, scope: !472)
-!499 = !DILocation(line: 478, column: 7, scope: !500)
-!500 = distinct !DILexicalBlock(scope: !472, file: !3, line: 478, column: 7)
-!501 = !DILocation(line: 478, column: 18, scope: !500)
-!502 = !DILocation(line: 478, column: 7, scope: !472)
-!503 = !DILocation(line: 479, column: 4, scope: !504)
-!504 = distinct !DILexicalBlock(scope: !500, file: !3, line: 478, column: 24)
-!505 = !DILocation(line: 481, column: 5, scope: !506)
-!506 = distinct !DILexicalBlock(scope: !504, file: !3, line: 479, column: 6)
-!507 = !DILocation(line: 484, column: 4, scope: !506)
-!508 = !DILocation(line: 484, column: 13, scope: !504)
-!509 = !DILocation(line: 484, column: 24, scope: !504)
-!510 = distinct !{!510, !503, !511}
-!511 = !DILocation(line: 484, column: 28, scope: !504)
-!512 = !DILocation(line: 485, column: 3, scope: !504)
-!513 = !DILocation(line: 487, column: 3, scope: !472)
-!514 = !DILocation(line: 489, column: 3, scope: !472)
-!515 = distinct !{!515, !468, !516}
-!516 = !DILocation(line: 491, column: 2, scope: !460)
-!517 = !DILocation(line: 493, column: 2, scope: !460)
-!518 = !DILocation(line: 494, column: 1, scope: !460)
+!115 = !DILocation(line: 216, column: 5, scope: !116)
+!116 = distinct !DILexicalBlock(scope: !96, file: !3, line: 216, column: 5)
+!117 = !{i32 -2146595624}
+!118 = !DILocation(line: 217, column: 5, scope: !96)
+!119 = !DILocation(line: 218, column: 25, scope: !96)
+!120 = !DILocation(line: 218, column: 31, scope: !96)
+!121 = !DILocation(line: 218, column: 5, scope: !96)
+!122 = !DILocation(line: 241, column: 1, scope: !96)
+!123 = distinct !DISubprogram(name: "task_init", scope: !3, file: !3, line: 251, type: !12, scopeLine: 252, spFlags: DISPFlagDefinition, unit: !2, retainedNodes: !4)
+!124 = !DILocation(line: 253, column: 2, scope: !123)
+!125 = !DILocation(line: 253, column: 18, scope: !123)
+!126 = !DILocation(line: 254, column: 2, scope: !123)
+!127 = !DILocation(line: 254, column: 14, scope: !123)
+!128 = !DILocation(line: 255, column: 2, scope: !123)
+!129 = !DILocation(line: 255, column: 13, scope: !123)
+!130 = !DILocation(line: 256, column: 2, scope: !123)
+!131 = !DILocation(line: 256, column: 18, scope: !123)
+!132 = !DILocation(line: 257, column: 2, scope: !123)
+!133 = !DILocation(line: 257, column: 17, scope: !123)
+!134 = !DILocation(line: 258, column: 2, scope: !123)
+!135 = !DILocation(line: 258, column: 19, scope: !123)
+!136 = !DILocation(line: 260, column: 2, scope: !123)
+!137 = !DILocation(line: 260, column: 9, scope: !123)
+!138 = !DILocation(line: 260, column: 20, scope: !123)
+!139 = !DILocalVariable(name: "node", scope: !140, file: !3, line: 262, type: !47)
+!140 = distinct !DILexicalBlock(scope: !123, file: !3, line: 260, column: 35)
+!141 = !DILocation(line: 262, column: 10, scope: !140)
+!142 = !DILocation(line: 262, column: 17, scope: !140)
+!143 = !DILocation(line: 263, column: 14, scope: !140)
+!144 = !DILocalVariable(name: "i", scope: !140, file: !3, line: 267, type: !145)
+!145 = !DIBasicType(name: "int", size: 16, encoding: DW_ATE_signed)
+!146 = !DILocation(line: 267, column: 7, scope: !140)
+!147 = !DILocation(line: 267, column: 11, scope: !140)
+!148 = !DILocation(line: 268, column: 3, scope: !140)
+!149 = !DILocation(line: 268, column: 12, scope: !140)
+!150 = !DILocation(line: 268, column: 17, scope: !140)
+!151 = !DILocation(line: 269, column: 3, scope: !140)
+!152 = !DILocation(line: 269, column: 13, scope: !140)
+!153 = distinct !{!153, !136, !154}
+!154 = !DILocation(line: 270, column: 2, scope: !123)
+!155 = !DILocation(line: 272, column: 2, scope: !123)
+!156 = !DILocation(line: 272, column: 17, scope: !123)
+!157 = !DILocation(line: 273, column: 1, scope: !123)
+!158 = distinct !DISubprogram(name: "task_sample", scope: !3, file: !3, line: 275, type: !12, scopeLine: 276, spFlags: DISPFlagDefinition, unit: !2, retainedNodes: !4)
+!159 = !DILocalVariable(name: "next_letter_idx", scope: !158, file: !3, line: 277, type: !6)
+!160 = !DILocation(line: 277, column: 11, scope: !158)
+!161 = !DILocation(line: 277, column: 29, scope: !158)
+!162 = !DILocation(line: 277, column: 44, scope: !158)
+!163 = !DILocation(line: 278, column: 6, scope: !164)
+!164 = distinct !DILexicalBlock(scope: !158, file: !3, line: 278, column: 6)
+!165 = !DILocation(line: 278, column: 22, scope: !164)
+!166 = !DILocation(line: 278, column: 6, scope: !158)
+!167 = !DILocation(line: 279, column: 19, scope: !164)
+!168 = !DILocation(line: 279, column: 3, scope: !164)
+!169 = !DILocation(line: 281, column: 6, scope: !170)
+!170 = distinct !DILexicalBlock(scope: !158, file: !3, line: 281, column: 6)
+!171 = !DILocation(line: 281, column: 21, scope: !170)
+!172 = !DILocation(line: 281, column: 6, scope: !158)
+!173 = !DILocation(line: 282, column: 20, scope: !174)
+!174 = distinct !DILexicalBlock(scope: !170, file: !3, line: 281, column: 27)
+!175 = !DILocation(line: 282, column: 3, scope: !174)
+!176 = !DILocation(line: 282, column: 18, scope: !174)
+!177 = !DILocation(line: 283, column: 3, scope: !174)
+!178 = !DILocation(line: 283, column: 13, scope: !174)
+!179 = !DILocation(line: 285, column: 2, scope: !174)
+!180 = !DILocation(line: 286, column: 20, scope: !181)
+!181 = distinct !DILexicalBlock(scope: !170, file: !3, line: 285, column: 9)
+!182 = !DILocation(line: 286, column: 3, scope: !181)
+!183 = !DILocation(line: 286, column: 18, scope: !181)
+!184 = !DILocation(line: 287, column: 3, scope: !181)
+!185 = !DILocation(line: 287, column: 13, scope: !181)
+!186 = !DILocation(line: 290, column: 1, scope: !158)
+!187 = distinct !DISubprogram(name: "task_measure_temp", scope: !3, file: !3, line: 292, type: !12, scopeLine: 293, spFlags: DISPFlagDefinition, unit: !2, retainedNodes: !4)
+!188 = !DILocalVariable(name: "prev_sample", scope: !187, file: !3, line: 294, type: !42)
+!189 = !DILocation(line: 294, column: 11, scope: !187)
+!190 = !DILocation(line: 295, column: 16, scope: !187)
+!191 = !DILocation(line: 295, column: 14, scope: !187)
+!192 = !DILocalVariable(name: "sample", scope: !187, file: !3, line: 297, type: !42)
+!193 = !DILocation(line: 297, column: 11, scope: !187)
+!194 = !DILocation(line: 297, column: 35, scope: !187)
+!195 = !DILocation(line: 297, column: 20, scope: !187)
+!196 = !DILocation(line: 298, column: 16, scope: !187)
+!197 = !DILocation(line: 298, column: 14, scope: !187)
+!198 = !DILocation(line: 299, column: 20, scope: !187)
+!199 = !DILocation(line: 299, column: 2, scope: !187)
+!200 = !DILocation(line: 299, column: 18, scope: !187)
+!201 = !DILocation(line: 300, column: 15, scope: !187)
+!202 = !DILocation(line: 300, column: 2, scope: !187)
+!203 = !DILocation(line: 300, column: 13, scope: !187)
+!204 = !DILocation(line: 302, column: 1, scope: !187)
+!205 = distinct !DISubprogram(name: "acquire_sample", scope: !3, file: !3, line: 245, type: !206, scopeLine: 246, flags: DIFlagPrototyped, spFlags: DISPFlagLocalToUnit | DISPFlagDefinition, unit: !2, retainedNodes: !4)
+!206 = !DISubroutineType(types: !207)
+!207 = !{!42, !39}
+!208 = !DILocalVariable(name: "prev_sample", arg: 1, scope: !205, file: !3, line: 245, type: !39)
+!209 = !DILocation(line: 245, column: 41, scope: !205)
+!210 = !DILocalVariable(name: "sample", scope: !205, file: !3, line: 247, type: !39)
+!211 = !DILocation(line: 247, column: 11, scope: !205)
+!212 = !DILocation(line: 247, column: 21, scope: !205)
+!213 = !DILocation(line: 247, column: 33, scope: !205)
+!214 = !DILocation(line: 247, column: 38, scope: !205)
+!215 = !DILocation(line: 248, column: 9, scope: !205)
+!216 = !DILocation(line: 248, column: 2, scope: !205)
+!217 = distinct !DISubprogram(name: "task_letterize", scope: !3, file: !3, line: 304, type: !12, scopeLine: 305, spFlags: DISPFlagDefinition, unit: !2, retainedNodes: !4)
+!218 = !DILocalVariable(name: "letter_idx", scope: !217, file: !3, line: 306, type: !6)
+!219 = !DILocation(line: 306, column: 11, scope: !217)
+!220 = !DILocation(line: 306, column: 24, scope: !217)
+!221 = !DILocation(line: 307, column: 6, scope: !222)
+!222 = distinct !DILexicalBlock(scope: !217, file: !3, line: 307, column: 6)
+!223 = !DILocation(line: 307, column: 17, scope: !222)
+!224 = !DILocation(line: 307, column: 6, scope: !217)
+!225 = !DILocation(line: 308, column: 14, scope: !222)
+!226 = !DILocation(line: 308, column: 3, scope: !222)
+!227 = !DILocation(line: 310, column: 13, scope: !222)
+!228 = !DILocalVariable(name: "letter_shift", scope: !217, file: !3, line: 311, type: !6)
+!229 = !DILocation(line: 311, column: 11, scope: !217)
+!230 = !DILocation(line: 311, column: 45, scope: !217)
+!231 = !DILocation(line: 311, column: 43, scope: !217)
+!232 = !DILocalVariable(name: "letter", scope: !217, file: !3, line: 312, type: !39)
+!233 = !DILocation(line: 312, column: 11, scope: !217)
+!234 = !DILocation(line: 312, column: 21, scope: !217)
+!235 = !DILocation(line: 312, column: 50, scope: !217)
+!236 = !DILocation(line: 312, column: 47, scope: !217)
+!237 = !DILocation(line: 312, column: 32, scope: !217)
+!238 = !DILocation(line: 312, column: 68, scope: !217)
+!239 = !DILocation(line: 312, column: 65, scope: !217)
+!240 = !DILocation(line: 314, column: 15, scope: !217)
+!241 = !DILocation(line: 314, column: 2, scope: !217)
+!242 = !DILocation(line: 314, column: 13, scope: !217)
+!243 = !DILocation(line: 316, column: 1, scope: !217)
+!244 = distinct !DISubprogram(name: "task_compress", scope: !3, file: !3, line: 318, type: !12, scopeLine: 319, spFlags: DISPFlagDefinition, unit: !2, retainedNodes: !4)
+!245 = !DILocalVariable(name: "parent_node", scope: !244, file: !3, line: 320, type: !47)
+!246 = !DILocation(line: 320, column: 9, scope: !244)
+!247 = !DILocalVariable(name: "parent", scope: !244, file: !3, line: 321, type: !7)
+!248 = !DILocation(line: 321, column: 10, scope: !244)
+!249 = !DILocation(line: 321, column: 19, scope: !244)
+!250 = !DILocation(line: 322, column: 16, scope: !244)
+!251 = !DILocation(line: 322, column: 25, scope: !244)
+!252 = !DILocation(line: 324, column: 28, scope: !244)
+!253 = !DILocation(line: 324, column: 2, scope: !244)
+!254 = !DILocation(line: 324, column: 14, scope: !244)
+!255 = !DILocation(line: 325, column: 2, scope: !244)
+!256 = !DILocation(line: 325, column: 20, scope: !244)
+!257 = !DILocation(line: 326, column: 15, scope: !244)
+!258 = !DILocation(line: 326, column: 2, scope: !244)
+!259 = !DILocation(line: 326, column: 13, scope: !244)
+!260 = !DILocation(line: 327, column: 26, scope: !244)
+!261 = !DILocation(line: 327, column: 2, scope: !244)
+!262 = !DILocation(line: 327, column: 12, scope: !244)
+!263 = !DILocation(line: 328, column: 2, scope: !244)
+!264 = !DILocation(line: 328, column: 18, scope: !244)
+!265 = !DILocation(line: 330, column: 1, scope: !244)
+!266 = distinct !DISubprogram(name: "task_find_sibling", scope: !3, file: !3, line: 332, type: !12, scopeLine: 333, spFlags: DISPFlagDefinition, unit: !2, retainedNodes: !4)
+!267 = !DILocalVariable(name: "sibling_node", scope: !266, file: !3, line: 334, type: !268)
+!268 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !47, size: 16)
+!269 = !DILocation(line: 334, column: 10, scope: !266)
+!270 = !DILocation(line: 336, column: 6, scope: !271)
+!271 = distinct !DILexicalBlock(scope: !266, file: !3, line: 336, column: 6)
+!272 = !DILocation(line: 336, column: 18, scope: !271)
+!273 = !DILocation(line: 336, column: 6, scope: !266)
+!274 = !DILocalVariable(name: "i", scope: !275, file: !3, line: 337, type: !145)
+!275 = distinct !DILexicalBlock(scope: !271, file: !3, line: 336, column: 26)
+!276 = !DILocation(line: 337, column: 7, scope: !275)
+!277 = !DILocation(line: 337, column: 11, scope: !275)
+!278 = !DILocation(line: 338, column: 19, scope: !275)
+!279 = !DILocation(line: 338, column: 28, scope: !275)
+!280 = !DILocation(line: 338, column: 16, scope: !275)
+!281 = !DILocation(line: 340, column: 7, scope: !282)
+!282 = distinct !DILexicalBlock(scope: !275, file: !3, line: 340, column: 7)
+!283 = !DILocation(line: 340, column: 21, scope: !282)
+!284 = !DILocation(line: 340, column: 31, scope: !282)
+!285 = !DILocation(line: 340, column: 28, scope: !282)
+!286 = !DILocation(line: 340, column: 7, scope: !275)
+!287 = !DILocation(line: 342, column: 22, scope: !288)
+!288 = distinct !DILexicalBlock(scope: !282, file: !3, line: 340, column: 43)
+!289 = !DILocation(line: 342, column: 4, scope: !288)
+!290 = !DILocation(line: 342, column: 20, scope: !288)
+!291 = !DILocation(line: 344, column: 4, scope: !288)
+!292 = !DILocation(line: 344, column: 14, scope: !288)
+!293 = !DILocation(line: 345, column: 4, scope: !288)
+!294 = !DILocation(line: 347, column: 7, scope: !295)
+!295 = distinct !DILexicalBlock(scope: !296, file: !3, line: 347, column: 7)
+!296 = distinct !DILexicalBlock(scope: !282, file: !3, line: 346, column: 10)
+!297 = !DILocation(line: 347, column: 21, scope: !295)
+!298 = !DILocation(line: 347, column: 29, scope: !295)
+!299 = !DILocation(line: 347, column: 7, scope: !296)
+!300 = !DILocation(line: 348, column: 19, scope: !301)
+!301 = distinct !DILexicalBlock(scope: !295, file: !3, line: 347, column: 34)
+!302 = !DILocation(line: 348, column: 33, scope: !301)
+!303 = !DILocation(line: 348, column: 5, scope: !301)
+!304 = !DILocation(line: 348, column: 17, scope: !301)
+!305 = !DILocation(line: 349, column: 5, scope: !301)
+!306 = !DILocation(line: 349, column: 15, scope: !301)
+!307 = !DILocation(line: 350, column: 5, scope: !301)
+!308 = !DILocation(line: 354, column: 2, scope: !275)
+!309 = !DILocalVariable(name: "starting_node_idx", scope: !266, file: !3, line: 356, type: !7)
+!310 = !DILocation(line: 356, column: 10, scope: !266)
+!311 = !DILocation(line: 356, column: 39, scope: !266)
+!312 = !DILocation(line: 357, column: 20, scope: !266)
+!313 = !DILocation(line: 357, column: 2, scope: !266)
+!314 = !DILocation(line: 357, column: 18, scope: !266)
+!315 = !DILocation(line: 359, column: 6, scope: !316)
+!316 = distinct !DILexicalBlock(scope: !266, file: !3, line: 359, column: 6)
+!317 = !DILocation(line: 359, column: 16, scope: !316)
+!318 = !DILocation(line: 359, column: 6, scope: !266)
+!319 = !DILocation(line: 360, column: 3, scope: !320)
+!320 = distinct !DILexicalBlock(scope: !316, file: !3, line: 359, column: 24)
+!321 = !DILocation(line: 360, column: 13, scope: !320)
+!322 = !DILocation(line: 361, column: 2, scope: !320)
+!323 = !DILocation(line: 362, column: 3, scope: !324)
+!324 = distinct !DILexicalBlock(scope: !316, file: !3, line: 361, column: 9)
+!325 = !DILocation(line: 362, column: 13, scope: !324)
+!326 = !DILocation(line: 364, column: 1, scope: !266)
+!327 = distinct !DISubprogram(name: "task_add_node", scope: !3, file: !3, line: 367, type: !12, scopeLine: 368, spFlags: DISPFlagDefinition, unit: !2, retainedNodes: !4)
+!328 = !DILocalVariable(name: "sibling_node", scope: !327, file: !3, line: 369, type: !268)
+!329 = !DILocation(line: 369, column: 10, scope: !327)
+!330 = !DILocalVariable(name: "i", scope: !327, file: !3, line: 371, type: !145)
+!331 = !DILocation(line: 371, column: 6, scope: !327)
+!332 = !DILocation(line: 371, column: 10, scope: !327)
+!333 = !DILocation(line: 372, column: 18, scope: !327)
+!334 = !DILocation(line: 372, column: 27, scope: !327)
+!335 = !DILocation(line: 372, column: 15, scope: !327)
+!336 = !DILocation(line: 374, column: 6, scope: !337)
+!337 = distinct !DILexicalBlock(scope: !327, file: !3, line: 374, column: 6)
+!338 = !DILocation(line: 374, column: 20, scope: !337)
+!339 = !DILocation(line: 374, column: 28, scope: !337)
+!340 = !DILocation(line: 374, column: 6, scope: !327)
+!341 = !DILocalVariable(name: "next_sibling", scope: !342, file: !3, line: 375, type: !7)
+!342 = distinct !DILexicalBlock(scope: !337, file: !3, line: 374, column: 36)
+!343 = !DILocation(line: 375, column: 11, scope: !342)
+!344 = !DILocation(line: 375, column: 26, scope: !342)
+!345 = !DILocation(line: 375, column: 40, scope: !342)
+!346 = !DILocation(line: 376, column: 17, scope: !342)
+!347 = !DILocation(line: 376, column: 3, scope: !342)
+!348 = !DILocation(line: 376, column: 15, scope: !342)
+!349 = !DILocation(line: 378, column: 3, scope: !342)
+!350 = !DILocation(line: 378, column: 13, scope: !342)
+!351 = !DILocation(line: 380, column: 2, scope: !342)
+!352 = !DILocalVariable(name: "sibling_node_obj", scope: !353, file: !3, line: 382, type: !47)
+!353 = distinct !DILexicalBlock(scope: !337, file: !3, line: 380, column: 9)
+!354 = !DILocation(line: 382, column: 10, scope: !353)
+!355 = !DILocation(line: 382, column: 30, scope: !353)
+!356 = !DILocation(line: 382, column: 29, scope: !353)
+!357 = !DILocation(line: 383, column: 3, scope: !353)
+!358 = !DILocation(line: 383, column: 22, scope: !353)
+!359 = !DILocation(line: 385, column: 3, scope: !353)
+!360 = !DILocation(line: 385, column: 13, scope: !353)
+!361 = !DILocation(line: 387, column: 1, scope: !327)
+!362 = distinct !DISubprogram(name: "task_add_insert", scope: !3, file: !3, line: 389, type: !12, scopeLine: 390, spFlags: DISPFlagDefinition, unit: !2, retainedNodes: !4)
+!363 = !DILocation(line: 392, column: 6, scope: !364)
+!364 = distinct !DILexicalBlock(scope: !362, file: !3, line: 392, column: 6)
+!365 = !DILocation(line: 392, column: 21, scope: !364)
+!366 = !DILocation(line: 392, column: 6, scope: !362)
+!367 = !DILocation(line: 393, column: 3, scope: !368)
+!368 = distinct !DILexicalBlock(scope: !364, file: !3, line: 392, column: 35)
+!369 = !DILocation(line: 394, column: 3, scope: !368)
+!370 = distinct !{!370, !369, !371}
+!371 = !DILocation(line: 394, column: 12, scope: !368)
+!372 = !DILocalVariable(name: "child", scope: !362, file: !3, line: 397, type: !7)
+!373 = !DILocation(line: 397, column: 10, scope: !362)
+!374 = !DILocation(line: 397, column: 18, scope: !362)
+!375 = !DILocalVariable(name: "child_node", scope: !362, file: !3, line: 398, type: !47)
+!376 = !DILocation(line: 398, column: 9, scope: !362)
+!377 = !DILocation(line: 398, column: 22, scope: !362)
+!378 = !DILocation(line: 399, column: 13, scope: !362)
+!379 = !DILocalVariable(name: "cond", scope: !362, file: !3, line: 405, type: !47)
+!380 = !DILocation(line: 405, column: 9, scope: !362)
+!381 = !DILocation(line: 405, column: 16, scope: !362)
+!382 = !DILocation(line: 407, column: 11, scope: !383)
+!383 = distinct !DILexicalBlock(scope: !362, file: !3, line: 407, column: 6)
+!384 = !DILocation(line: 407, column: 17, scope: !383)
+!385 = !DILocation(line: 407, column: 6, scope: !362)
+!386 = !DILocalVariable(name: "parent_node_obj", scope: !387, file: !3, line: 409, type: !47)
+!387 = distinct !DILexicalBlock(scope: !383, file: !3, line: 407, column: 25)
+!388 = !DILocation(line: 409, column: 10, scope: !387)
+!389 = !DILocation(line: 409, column: 28, scope: !387)
+!390 = !DILocation(line: 410, column: 27, scope: !387)
+!391 = !DILocation(line: 410, column: 19, scope: !387)
+!392 = !DILocation(line: 410, column: 25, scope: !387)
+!393 = !DILocation(line: 412, column: 3, scope: !387)
+!394 = !DILocation(line: 412, column: 12, scope: !387)
+!395 = !DILocation(line: 412, column: 26, scope: !387)
+!396 = !DILocation(line: 414, column: 2, scope: !387)
+!397 = !DILocalVariable(name: "last_sibling_node", scope: !398, file: !3, line: 416, type: !47)
+!398 = distinct !DILexicalBlock(scope: !383, file: !3, line: 414, column: 9)
+!399 = !DILocation(line: 416, column: 10, scope: !398)
+!400 = !DILocation(line: 416, column: 30, scope: !398)
+!401 = !DILocation(line: 418, column: 31, scope: !398)
+!402 = !DILocation(line: 418, column: 21, scope: !398)
+!403 = !DILocation(line: 418, column: 29, scope: !398)
+!404 = !DILocation(line: 419, column: 3, scope: !398)
+!405 = !DILocation(line: 419, column: 12, scope: !398)
+!406 = !DILocation(line: 419, column: 27, scope: !398)
+!407 = !DILocation(line: 421, column: 2, scope: !362)
+!408 = !DILocation(line: 421, column: 11, scope: !362)
+!409 = !DILocation(line: 421, column: 24, scope: !362)
+!410 = !DILocation(line: 422, column: 15, scope: !362)
+!411 = !DILocation(line: 422, column: 2, scope: !362)
+!412 = !DILocation(line: 422, column: 13, scope: !362)
+!413 = !DILocation(line: 423, column: 2, scope: !362)
+!414 = !DILocation(line: 423, column: 16, scope: !362)
+!415 = !DILocation(line: 425, column: 1, scope: !362)
+!416 = distinct !DISubprogram(name: "task_append_compressed", scope: !3, file: !3, line: 427, type: !12, scopeLine: 428, spFlags: DISPFlagDefinition, unit: !2, retainedNodes: !4)
+!417 = !DILocation(line: 429, column: 44, scope: !416)
+!418 = !DILocation(line: 429, column: 2, scope: !416)
+!419 = !DILocation(line: 429, column: 22, scope: !416)
+!420 = !DILocation(line: 429, column: 35, scope: !416)
+!421 = !DILocation(line: 429, column: 42, scope: !416)
+!422 = !DILocation(line: 431, column: 4, scope: !416)
+!423 = !DILocation(line: 431, column: 2, scope: !416)
+!424 = !DILocation(line: 432, column: 1, scope: !416)
+!425 = distinct !DISubprogram(name: "task_done", scope: !3, file: !3, line: 434, type: !12, scopeLine: 435, spFlags: DISPFlagDefinition, unit: !2, retainedNodes: !4)
+!426 = !DILocation(line: 436, column: 2, scope: !425)
+!427 = distinct !DISubprogram(name: "task_commit", scope: !3, file: !3, line: 439, type: !12, scopeLine: 439, spFlags: DISPFlagDefinition, unit: !2, retainedNodes: !4)
+!428 = !DILocation(line: 441, column: 1, scope: !427)
+!429 = distinct !DISubprogram(name: "main", scope: !3, file: !3, line: 443, type: !430, scopeLine: 443, spFlags: DISPFlagDefinition, unit: !2, retainedNodes: !4)
+!430 = !DISubroutineType(types: !431)
+!431 = !{!145}
+!432 = !DILocation(line: 445, column: 16, scope: !429)
+!433 = !DILocation(line: 446, column: 10, scope: !429)
+!434 = !DILocation(line: 447, column: 12, scope: !429)
+!435 = !DILocation(line: 448, column: 5, scope: !429)
+!436 = !DILocation(line: 450, column: 2, scope: !429)
+!437 = !DILocation(line: 450, column: 2, scope: !438)
+!438 = distinct !DILexicalBlock(scope: !439, file: !3, line: 450, column: 2)
+!439 = distinct !DILexicalBlock(scope: !429, file: !3, line: 450, column: 2)
+!440 = !DILocation(line: 450, column: 2, scope: !439)
+!441 = !DILocation(line: 450, column: 2, scope: !442)
+!442 = distinct !DILexicalBlock(scope: !438, file: !3, line: 450, column: 2)
+!443 = !DILocation(line: 450, column: 2, scope: !444)
+!444 = distinct !DILexicalBlock(scope: !438, file: !3, line: 450, column: 2)
+!445 = !DILocation(line: 452, column: 2, scope: !429)
+!446 = !DILocation(line: 452, column: 8, scope: !429)
+!447 = !DILocation(line: 452, column: 21, scope: !429)
+!448 = !DILocation(line: 454, column: 3, scope: !449)
+!449 = distinct !DILexicalBlock(scope: !429, file: !3, line: 452, column: 35)
+!450 = !DILocation(line: 454, column: 3, scope: !451)
+!451 = distinct !DILexicalBlock(scope: !452, file: !3, line: 454, column: 3)
+!452 = distinct !DILexicalBlock(scope: !449, file: !3, line: 454, column: 3)
+!453 = !DILocation(line: 454, column: 3, scope: !452)
+!454 = !DILocation(line: 454, column: 3, scope: !455)
+!455 = distinct !DILexicalBlock(scope: !451, file: !3, line: 454, column: 3)
+!456 = !DILocation(line: 454, column: 3, scope: !457)
+!457 = distinct !DILexicalBlock(scope: !451, file: !3, line: 454, column: 3)
+!458 = !DILocation(line: 456, column: 7, scope: !459)
+!459 = distinct !DILexicalBlock(scope: !449, file: !3, line: 456, column: 7)
+!460 = !DILocation(line: 456, column: 18, scope: !459)
+!461 = !DILocation(line: 456, column: 7, scope: !449)
+!462 = !DILocation(line: 458, column: 4, scope: !463)
+!463 = distinct !DILexicalBlock(scope: !459, file: !3, line: 456, column: 23)
+!464 = !DILocation(line: 458, column: 4, scope: !465)
+!465 = distinct !DILexicalBlock(scope: !466, file: !3, line: 458, column: 4)
+!466 = distinct !DILexicalBlock(scope: !463, file: !3, line: 458, column: 4)
+!467 = !DILocation(line: 458, column: 4, scope: !466)
+!468 = !DILocation(line: 458, column: 4, scope: !469)
+!469 = distinct !DILexicalBlock(scope: !465, file: !3, line: 458, column: 4)
+!470 = !DILocation(line: 458, column: 4, scope: !471)
+!471 = distinct !DILexicalBlock(scope: !465, file: !3, line: 458, column: 4)
+!472 = !DILocation(line: 460, column: 3, scope: !463)
+!473 = !DILocation(line: 462, column: 3, scope: !449)
+!474 = !DILocation(line: 464, column: 4, scope: !475)
+!475 = distinct !DILexicalBlock(scope: !449, file: !3, line: 462, column: 13)
+!476 = !DILocation(line: 464, column: 4, scope: !477)
+!477 = distinct !DILexicalBlock(scope: !478, file: !3, line: 464, column: 4)
+!478 = distinct !DILexicalBlock(scope: !475, file: !3, line: 464, column: 4)
+!479 = !DILocation(line: 464, column: 4, scope: !478)
+!480 = !DILocation(line: 464, column: 4, scope: !481)
+!481 = distinct !DILexicalBlock(scope: !477, file: !3, line: 464, column: 4)
+!482 = !DILocation(line: 464, column: 4, scope: !483)
+!483 = distinct !DILexicalBlock(scope: !477, file: !3, line: 464, column: 4)
+!484 = !DILocation(line: 466, column: 4, scope: !475)
+!485 = !DILocation(line: 466, column: 4, scope: !486)
+!486 = distinct !DILexicalBlock(scope: !487, file: !3, line: 466, column: 4)
+!487 = distinct !DILexicalBlock(scope: !475, file: !3, line: 466, column: 4)
+!488 = !DILocation(line: 466, column: 4, scope: !487)
+!489 = !DILocation(line: 466, column: 4, scope: !490)
+!490 = distinct !DILexicalBlock(scope: !486, file: !3, line: 466, column: 4)
+!491 = !DILocation(line: 466, column: 4, scope: !492)
+!492 = distinct !DILexicalBlock(scope: !486, file: !3, line: 466, column: 4)
+!493 = !DILocation(line: 468, column: 4, scope: !475)
+!494 = !DILocation(line: 470, column: 5, scope: !495)
+!495 = distinct !DILexicalBlock(scope: !475, file: !3, line: 468, column: 7)
+!496 = !DILocation(line: 470, column: 5, scope: !497)
+!497 = distinct !DILexicalBlock(scope: !498, file: !3, line: 470, column: 5)
+!498 = distinct !DILexicalBlock(scope: !495, file: !3, line: 470, column: 5)
+!499 = !DILocation(line: 470, column: 5, scope: !498)
+!500 = !DILocation(line: 470, column: 5, scope: !501)
+!501 = distinct !DILexicalBlock(scope: !497, file: !3, line: 470, column: 5)
+!502 = !DILocation(line: 470, column: 5, scope: !503)
+!503 = distinct !DILexicalBlock(scope: !497, file: !3, line: 470, column: 5)
+!504 = !DILocation(line: 472, column: 4, scope: !495)
+!505 = !DILocation(line: 472, column: 13, scope: !475)
+!506 = !DILocation(line: 472, column: 24, scope: !475)
+!507 = distinct !{!507, !493, !508}
+!508 = !DILocation(line: 472, column: 28, scope: !475)
+!509 = !DILocation(line: 474, column: 8, scope: !510)
+!510 = distinct !DILexicalBlock(scope: !475, file: !3, line: 474, column: 8)
+!511 = !DILocation(line: 474, column: 19, scope: !510)
+!512 = !DILocation(line: 474, column: 8, scope: !475)
+!513 = !DILocation(line: 475, column: 5, scope: !510)
+!514 = distinct !{!514, !473, !515}
+!515 = !DILocation(line: 476, column: 3, scope: !449)
+!516 = !DILocation(line: 478, column: 7, scope: !517)
+!517 = distinct !DILexicalBlock(scope: !449, file: !3, line: 478, column: 7)
+!518 = !DILocation(line: 478, column: 18, scope: !517)
+!519 = !DILocation(line: 478, column: 7, scope: !449)
+!520 = !DILocation(line: 479, column: 4, scope: !521)
+!521 = distinct !DILexicalBlock(scope: !517, file: !3, line: 478, column: 24)
+!522 = !DILocation(line: 481, column: 5, scope: !523)
+!523 = distinct !DILexicalBlock(scope: !521, file: !3, line: 479, column: 6)
+!524 = !DILocation(line: 481, column: 5, scope: !525)
+!525 = distinct !DILexicalBlock(scope: !526, file: !3, line: 481, column: 5)
+!526 = distinct !DILexicalBlock(scope: !523, file: !3, line: 481, column: 5)
+!527 = !DILocation(line: 481, column: 5, scope: !526)
+!528 = !DILocation(line: 481, column: 5, scope: !529)
+!529 = distinct !DILexicalBlock(scope: !525, file: !3, line: 481, column: 5)
+!530 = !DILocation(line: 481, column: 5, scope: !531)
+!531 = distinct !DILexicalBlock(scope: !525, file: !3, line: 481, column: 5)
+!532 = !DILocation(line: 484, column: 4, scope: !523)
+!533 = !DILocation(line: 484, column: 13, scope: !521)
+!534 = !DILocation(line: 484, column: 24, scope: !521)
+!535 = distinct !{!535, !520, !536}
+!536 = !DILocation(line: 484, column: 28, scope: !521)
+!537 = !DILocation(line: 485, column: 3, scope: !521)
+!538 = !DILocation(line: 487, column: 3, scope: !449)
+!539 = !DILocation(line: 487, column: 3, scope: !540)
+!540 = distinct !DILexicalBlock(scope: !541, file: !3, line: 487, column: 3)
+!541 = distinct !DILexicalBlock(scope: !449, file: !3, line: 487, column: 3)
+!542 = !DILocation(line: 487, column: 3, scope: !541)
+!543 = !DILocation(line: 487, column: 3, scope: !544)
+!544 = distinct !DILexicalBlock(scope: !540, file: !3, line: 487, column: 3)
+!545 = !DILocation(line: 487, column: 3, scope: !546)
+!546 = distinct !DILexicalBlock(scope: !540, file: !3, line: 487, column: 3)
+!547 = !DILocation(line: 489, column: 3, scope: !449)
+!548 = !DILocation(line: 489, column: 3, scope: !549)
+!549 = distinct !DILexicalBlock(scope: !550, file: !3, line: 489, column: 3)
+!550 = distinct !DILexicalBlock(scope: !449, file: !3, line: 489, column: 3)
+!551 = !DILocation(line: 489, column: 3, scope: !550)
+!552 = !DILocation(line: 489, column: 3, scope: !553)
+!553 = distinct !DILexicalBlock(scope: !549, file: !3, line: 489, column: 3)
+!554 = !DILocation(line: 489, column: 3, scope: !555)
+!555 = distinct !DILexicalBlock(scope: !549, file: !3, line: 489, column: 3)
+!556 = distinct !{!556, !445, !557}
+!557 = !DILocation(line: 491, column: 2, scope: !429)
+!558 = !DILocation(line: 493, column: 2, scope: !429)
+!559 = !DILocation(line: 494, column: 1, scope: !429)
