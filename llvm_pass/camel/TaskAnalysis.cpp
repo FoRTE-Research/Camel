@@ -26,6 +26,9 @@ void TaskAnalysis::AnalyzeModule(Module &M){
 
         } else if (isMain(&F)){
 
+            //M.dump()
+            //F.getAttributes().dump();
+
             //get all calls to tasks in main
             getTaskCalls(F);
             
@@ -41,6 +44,9 @@ void TaskAnalysis::AnalyzeTask(Function &F){
     // traverse all instructions inside a function
     for (auto &B: F) {
 
+        // detecting if conditions
+        // errs () << B.getName() << "\n";
+        
         for (auto &I: B) {
 
             // we only care about loads, stores and memcpys

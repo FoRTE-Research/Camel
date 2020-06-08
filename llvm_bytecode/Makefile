@@ -1,11 +1,11 @@
 #Usage: make crc= mode= board=
 
 # Benchmarks
-override outputs += camel_ar.bc camel_ar.ll camel_ar_mod.bc camel_ar_mod_opt.bc camel_ar_mod.ll camel_ar_mod.s camel_ar.s camel_ar.out
-override outputs += camel_bc.bc camel_bc.ll camel_bc_mod.bc camel_bc_mod_opt.bc camel_bc_mod.ll camel_bc_mod.s camel_bc.s camel_bc.out
-override outputs += camel_cem.bc camel_cem.ll camel_cem_mod.bc camel_cem_mod_opt.bc camel_cem_mod.ll camel_cem_mod.s camel_cem.s camel_cem.out
-override outputs += camel_cuckoo.bc camel_cuckoo.ll camel_cuckoo_mod.bc camel_cuckoo_mod_opt.bc camel_cuckoo_mod.ll camel_cuckoo_mod.s camel_cuckoo.s camel_cuckoo.out
-override outputs += camel_rsa.bc camel_rsa.ll camel_rsa_mod.bc camel_rsa_mod.ll camel_rsa_mod_opt.bc camel_rsa_mod.s camel_rsa.s camel_rsa.out
+override outputs += camel_ar.bc camel_ar.ll camel_ar_mod.bc camel_ar_mod.ll camel_ar_opt.bc camel_ar_opt.ll camel_ar_mod.s camel_ar.s camel_ar.out
+override outputs += camel_bc.bc camel_bc.ll camel_bc_mod.bc camel_bc_mod.ll camel_bc_opt.bc camel_bc_opt.ll camel_bc_mod.s camel_bc.out
+override outputs += camel_cem.bc camel_cem.ll camel_cem_mod.bc camel_cem_opt.bc camel_cem_opt.ll camel_cem_mod.ll camel_cem_mod.s camel_cem.s camel_cem.out
+override outputs += camel_cuckoo.bc camel_cuckoo.ll camel_cuckoo_mod.bc camel_cuckoo_opt.bc camel_cuckoo_opt.ll camel_cuckoo_mod.ll camel_cuckoo_mod.s camel_cuckoo.s camel_cuckoo.out
+override outputs += camel_rsa.bc camel_rsa.ll camel_rsa_mod.bc camel_rsa_mod.ll camel_rsa_opt.bc camel_rsa_opt.ll camel_rsa_mod.s camel_rsa.s camel_rsa.out
 
 #Path to benchmarks source code
 VPATH = ../benchmarks
@@ -74,7 +74,7 @@ all: $(outputs)
 #some auxilary steps: LLVM IR .bc (LLC)-> Assembly .s 
 
 %.bc : %.c
-	$(CLANG) -emit-llvm -c -fheinous-gnu-extensions $(BFLAGS) -D$(CRC) -D$(MODE) $< -o $@
+	$(CLANG) -emit-llvm -c -O -Xclang -disable-llvm-passes  -fheinous-gnu-extensions $(BFLAGS) -D$(CRC) -D$(MODE) $< -o $@
 	
 %.ll : %.bc
 	$(DIS) $< -o $@
@@ -87,12 +87,15 @@ all: $(outputs)
 	$(OPT)  -load $(CAMEL) --CamelPass -$(MODE) $< > $@
 
 %_opt.bc: %_mod.bc
-	$(OPT) -Os $< > $@
+	$(OPT) -O2 $< > $@
+
+%_opt.ll : %_opt.bc
+	$(DIS) $< -o $@
 
 %_mod.ll : %_mod.bc
 	$(DIS) $< -o $@
 
-%_mod.s : %_mod.bc
+%_mod.s : %_opt.bc
 	$(LLC) $(LLCFLAGS) $< -o $@
 
 %.out : %_mod.s
