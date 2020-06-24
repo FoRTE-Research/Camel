@@ -19,6 +19,9 @@ void TaskAnalysis::AnalyzeModule(Module &M){
 
             errs() << "Analyzing task: " + F.getName() + "\n";
 
+            //prevent task inlining incase task boundaries are violated by compiler opts
+            //F.addFnAttr(Attribute::NoInline);
+
             //initialize read, write, readfirst and writefirst lists for a given task
             initializeTaskLists(F);
             //get all reads and writes in a task
@@ -26,7 +29,10 @@ void TaskAnalysis::AnalyzeModule(Module &M){
 
         } else if (isMain(&F)){
 
+            // Do not optimize the main function
             //M.dump()
+            // F.addFnAttr(Attribute::NoInline);
+            // F.addFnAttr(Attribute::OptimizeNone);
             //F.getAttributes().dump();
 
             //get all calls to tasks in main
@@ -46,10 +52,12 @@ void TaskAnalysis::AnalyzeTask(Function &F){
 
         // detecting if conditions
         // errs () << B.getName() << "\n";
-        
+
         for (auto &I: B) {
 
             // we only care about loads, stores and memcpys
+
+            //I.dump();
 
             if (LoadInst *load = dyn_cast<LoadInst>(&I)) {
 
@@ -236,6 +244,9 @@ void TaskAnalysis::traverseStore(StoreInst *store){
 void TaskAnalysis::insertLoad(vector<Instruction*> inst, GEPOperator *gep) {
 
     GEPOperator *comp;
+
+    //pesimistic idem analysis
+
     if (inst.size() == 1) {
         comp = gep;
         if (checkLoad.find(comp->getOperand(2)) == checkLoad.end()){
@@ -279,6 +290,10 @@ void TaskAnalysis::insertLoad(vector<Instruction*> inst, GEPOperator *gep) {
         }
     }
 
+    if (isIfBlock(dyn_cast<Instruction>(gep)))  {
+        readFirst[getParentTask(comp)].push_back(inst);
+    }
+    
     checkLoad.insert(comp->getOperand(2));
 
 }

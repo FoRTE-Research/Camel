@@ -495,7 +495,8 @@ void task_commit() {
 
 }
 
-int __attribute__((optnone))  main() {
+//int __attribute__((optnone))
+int  main() {
 	
     camel.flag = CKPT_1_FLG;
     safe = &(camel.buf1);

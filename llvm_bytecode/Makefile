@@ -1,11 +1,26 @@
 #Usage: make crc= mode= board=
 
 # Benchmarks
-override outputs += camel_ar.bc camel_ar.ll camel_ar_mod.bc camel_ar_mod.ll camel_ar_opt.bc camel_ar_opt.ll camel_ar_mod.s camel_ar.s camel_ar.out
-override outputs += camel_bc.bc camel_bc.ll camel_bc_mod.bc camel_bc_mod.ll camel_bc_opt.bc camel_bc_opt.ll camel_bc_mod.s camel_bc.out
-override outputs += camel_cem.bc camel_cem.ll camel_cem_mod.bc camel_cem_opt.bc camel_cem_opt.ll camel_cem_mod.ll camel_cem_mod.s camel_cem.s camel_cem.out
-override outputs += camel_cuckoo.bc camel_cuckoo.ll camel_cuckoo_mod.bc camel_cuckoo_opt.bc camel_cuckoo_opt.ll camel_cuckoo_mod.ll camel_cuckoo_mod.s camel_cuckoo.s camel_cuckoo.out
-override outputs += camel_rsa.bc camel_rsa.ll camel_rsa_mod.bc camel_rsa_mod.ll camel_rsa_opt.bc camel_rsa_opt.ll camel_rsa_mod.s camel_rsa.s camel_rsa.out
+override outputs += camel_ar.bc camel_ar.ll camel_ar.s \
+	camel_ar_mod.bc camel_ar_mod.ll camel_ar_mod.s camel_ar.out \
+	camel_ar_opt.bc camel_ar_opt.ll camel_ar_opt.s camel_ar_opt.out
+
+override outputs += camel_bc.bc camel_bc.ll camel_bc.s\
+	camel_bc_mod.bc camel_bc_mod.ll camel_bc_mod.s camel_bc.out\
+	camel_bc_opt.bc camel_bc_opt.ll camel_bc_opt.s camel_bc_opt.out
+
+override outputs += camel_cem.bc camel_cem.ll camel_cem.s \
+	camel_cem_mod.bc camel_cem_mod.ll camel_cem_mod.s camel_cem.out \
+	camel_cem_opt.bc camel_cem_opt.ll camel_cem_opt.s camel_cem_opt.out
+
+override outputs += camel_cuckoo.bc camel_cuckoo.ll camel_cuckoo.s \
+	camel_cuckoo_mod.bc camel_cuckoo_mod.ll camel_cuckoo_mod.s camel_cuckoo.out \
+	camel_cuckoo_opt.bc camel_cuckoo_opt.ll camel_cuckoo_opt.s camel_cuckoo_opt.out
+
+override outputs += camel_rsa.bc camel_rsa.ll camel_rsa.s \
+	camel_rsa_mod.s camel_rsa_mod.bc camel_rsa_mod.ll camel_rsa.out \
+	camel_rsa_opt.bc camel_rsa_opt.ll camel_rsa_opt.s camel_rsa_opt.out
+
 
 #Path to benchmarks source code
 VPATH = ../benchmarks
@@ -74,7 +89,7 @@ all: $(outputs)
 #some auxilary steps: LLVM IR .bc (LLC)-> Assembly .s 
 
 %.bc : %.c
-	$(CLANG) -emit-llvm -c -O -Xclang -disable-llvm-passes  -fheinous-gnu-extensions $(BFLAGS) -D$(CRC) -D$(MODE) $< -o $@
+	$(CLANG) -emit-llvm -c -O -Xclang -disable-llvm-passes -fheinous-gnu-extensions $(BFLAGS) -D$(CRC) -D$(MODE) $< -o $@
 	
 %.ll : %.bc
 	$(DIS) $< -o $@
@@ -86,19 +101,26 @@ all: $(outputs)
 	cd ../llvm_pass && cmake . && make && cd ../llvm_bytecode
 	$(OPT)  -load $(CAMEL) --CamelPass -$(MODE) $< > $@
 
+%_mod.ll : %_mod.bc
+	$(DIS) $< -o $@
+
+%_mod.s : %_mod.bc
+	$(LLC) $(LLCFLAGS) $< -o $@
+
+%.out : %_mod.s
+	$(GCC_BIN)/msp430-elf-gcc  $(CFLAGS) $< -o $@ -lm
+
+#opt level is O3 by default	
 %_opt.bc: %_mod.bc
-	$(OPT) -O2 $< > $@
+	$(OPT) -$(op) $< > $@ 
 
 %_opt.ll : %_opt.bc
 	$(DIS) $< -o $@
 
-%_mod.ll : %_mod.bc
-	$(DIS) $< -o $@
-
-%_mod.s : %_opt.bc
+%_opt.s: %_opt.bc
 	$(LLC) $(LLCFLAGS) $< -o $@
 
-%.out : %_mod.s
+%_opt.out: %_opt.s
 	$(GCC_BIN)/msp430-elf-gcc  $(CFLAGS) $< -o $@ -lm
 
 clean:

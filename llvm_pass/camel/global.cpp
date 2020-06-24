@@ -53,3 +53,14 @@ void printList(map < StringRef, vector<vector<Instruction*>> >list) {
         }
     }
 }
+
+bool isIfBlock(Instruction *I){
+
+    StringRef blockName = I->getParent()->getName();
+
+    if (blockName.contains("if.then") || blockName.contains("if.else"))
+        return true;
+    else
+        return false;
+        
+}

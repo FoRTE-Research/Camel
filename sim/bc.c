@@ -4,14 +4,14 @@
 #include <math.h>
 #include <string.h>
 #include <stdio.h>
+#include <time.h>
 
 //using namespace std;
 #define SEED 4L
 #define ITER 100
 #define CHAR_BIT 8
 
-uint16_t tmp_stack_crc;
-uint16_t tmp_stack_buf_crc;
+#define cps(x) unsafe->globals.x = safe->globals.x
 
 typedef struct camel_global_t
 {
@@ -57,10 +57,16 @@ void task_done() {
 	 
 	//cout << "end" << endl;
 	//cout << GV(count) << endl;
+	printf("n0: %d\n", safe->globals.n_0);
+	printf("n1: %d\n", safe->globals.n_1);
+	printf("n2: %d\n", safe->globals.n_2);
+	printf("n3: %d\n", safe->globals.n_3);
+	printf("n4: %d\n", safe->globals.n_4);
+	printf("n5: %d\n", safe->globals.n_5);
+	printf("n6: %d\n", safe->globals.n_6);
 
 	printf("The count is: %d\n", global_count);
 
-	exit(0);
 }
 
 
@@ -97,6 +103,9 @@ void task_init() {
 
 	//TRANSITION_TO(task_select_func);
 }
+
+
+#define writes_task_select_func() cps(seed); cps(iter); cps(func)
 
 void task_select_func() {
 
@@ -137,6 +146,9 @@ void task_select_func() {
 
 	// }
 }
+
+#define writes_task_bit_count() cps(seed); cps(iter); cps(n_0)
+
 void task_bit_count() {
 	uint32_t tmp_seed = GV(seed);
 	GV(seed) = GV(seed) + 13;
@@ -154,6 +166,9 @@ void task_bit_count() {
 	// 	TRANSITION_TO(task_select_func);
 	// }
 }
+
+#define writes_task_bitcount() cps(seed); cps(iter); cps(n_1)
+
 void task_bitcount() {
 	uint32_t tmp_seed = GV(seed);
 	GV(seed) = GV(seed) + 13;
@@ -172,6 +187,7 @@ void task_bitcount() {
 	// 	TRANSITION_TO(task_select_func);
 	// }
 }
+
 int recursive_cnt(uint32_t x){
 	int cnt = bits[(int)(x & 0x0000000FL)];
 
@@ -180,6 +196,9 @@ int recursive_cnt(uint32_t x){
 
 	return cnt;
 }
+
+#define writes_task_ntbl_bitcnt() cps(seed); cps(iter); cps(n_2)
+
 void task_ntbl_bitcnt() {
 	GV(n_2) += recursive_cnt(GV(seed));	
 	GV(seed) = GV(seed) + 13;
@@ -192,6 +211,9 @@ void task_ntbl_bitcnt() {
 	// 	TRANSITION_TO(task_select_func);
 	// }
 }
+
+#define writes_task_ntbl_bitcount() cps(seed); cps(iter); cps(n_3)
+
 void task_ntbl_bitcount() {
 	GV(n_3) += bits[ (int) (GV(seed) & 0x0000000FUL)       ] +
 		bits[ (int)((GV(seed) & 0x000000F0UL) >> 4) ] +
@@ -211,6 +233,9 @@ void task_ntbl_bitcount() {
 	// 	TRANSITION_TO(task_select_func);
 	// }
 }
+
+#define writes_task_BW_btbl_bitcount() cps(seed); cps(iter); cps(n_4)
+
 void task_BW_btbl_bitcount() {
 	union 
 	{ 
@@ -232,6 +257,9 @@ void task_BW_btbl_bitcount() {
 	// 	TRANSITION_TO(task_select_func);
 	// }
 }
+
+#define writes_task_AR_btbl_bitcount() cps(seed); cps(iter); cps(n_5)
+
 void task_AR_btbl_bitcount() {
 	unsigned char * Ptr = (unsigned char *) &GV(seed) ;
 	int Accu ;
@@ -251,6 +279,9 @@ void task_AR_btbl_bitcount() {
 	// 	TRANSITION_TO(task_select_func);
 	// }
 }
+
+#define writes_task_bit_shifter() cps(seed); cps(iter); cps(n_6)
+
 void task_bit_shifter() {
 	int i, nn;
 	uint32_t tmp_seed = GV(seed);
@@ -295,6 +326,7 @@ void commit() {
 
 int main() {
 
+	clock_t t = clock();
 	task_init();
 	commit();
 	memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t));
@@ -305,7 +337,8 @@ int main() {
 		//memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t));
 		task_select_func();
 		commit();
-		memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t));
+		writes_task_select_func();
+		//memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t));
 		task_commit();
 
 		if (GV(func) == 1){
@@ -315,7 +348,8 @@ int main() {
 				//memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t));
 				task_bit_count();
 				commit();
-				memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t));
+				writes_task_bit_count();
+				//memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t));
 				task_commit();
 
 			}
@@ -327,7 +361,8 @@ int main() {
 				//memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t));
 				task_bitcount();
 				commit();
-				memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t));
+				writes_task_bitcount();
+				//memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t));
 				task_commit();
 
 			}
@@ -339,7 +374,8 @@ int main() {
 				//memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t));
 				task_ntbl_bitcnt();
 				commit();
-				memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t));
+				writes_task_ntbl_bitcnt();
+				//memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t));
 				task_commit();
 
 			}
@@ -351,7 +387,8 @@ int main() {
 				//memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t));
 				task_ntbl_bitcount();
 				commit();
-				memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t));
+				writes_task_ntbl_bitcount();
+				//memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t));
 				task_commit();
 
 			}
@@ -363,7 +400,8 @@ int main() {
 				//memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t));
 				task_BW_btbl_bitcount();
 				commit();
-				memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t));
+				writes_task_BW_btbl_bitcount();
+				//memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t));
 				task_commit();
 
 			}
@@ -375,7 +413,8 @@ int main() {
 				//memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t));
 				task_AR_btbl_bitcount();
 				commit();
-				memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t));
+				writes_task_AR_btbl_bitcount();
+				//memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t));
 				task_commit();
 
 			}
@@ -387,7 +426,8 @@ int main() {
 				//memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t));
 				task_bit_shifter();
 				commit();
-				memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t));
+				writes_task_bit_shifter();
+				//memcpy(&(unsafe->globals), &(safe->globals), sizeof(camel_global_t));
 				task_commit();
 
 			}
@@ -395,6 +435,11 @@ int main() {
 		} else if (GV(func) == 8) {
 
 			task_done();
+			t = clock() - t; 
+			double time_taken = ((double)t)/CLOCKS_PER_SEC; // in seconds 
+		
+			printf("bc took %f seconds to execute \n", time_taken); 
+			exit(0);
 
 		} 
 	}

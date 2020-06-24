@@ -27,6 +27,7 @@ extern map <StringRef, GlobalVariable*> globals;
 
 // global functions
 
+bool isIfBlock(Instruction *I);
 StringRef getParentTask(Value *gep);
 void getGlobals(Module *M);
 bool isTask(Function *F);
