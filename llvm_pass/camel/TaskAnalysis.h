@@ -7,7 +7,7 @@ class TaskAnalysis {
     public:
 
         //traversal functions
-        void AnalyzeModule(Module &M);
+        void AnalyzeModule(Module &M, bool optimize);
         void AnalyzeTask(Function &F);
         void traverseLoad(LoadInst *load);
         void traverseStore(StoreInst *store);

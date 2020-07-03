@@ -23,52 +23,6 @@ typedef uint16_t camel_reg_t;
 uint16_t tmp_stack_crc;
 uint16_t tmp_stack_buf_crc;
 
-#if (CRC_ON && CRC_OFF) || !(CRC_ON || CRC_OFF)
-#error You must define exactly one of CRC_ON and CRC_OFF
-#endif
-
-#ifdef CRC_ON
-#define commit() do{                                                                                                      \
-                    _Pragma("GCC diagnostic ignored \"-Wint-conversion\"")                                                \
-										if(camel.flag == CKPT_1_FLG){																																					\
-											safe = &(camel.buf2);																																								\
-											unsafe = &(camel.buf1);																																							\
-											__dump_registers(safe->reg_file);																																		\
-										  tmp_stack_crc 		= __fast_hw_crc(_get_SP_register()+2, SRAM_TOP-(_get_SP_register()+2), CRC_INIT);	\
-										  tmp_stack_buf_crc = __fast_hw_crc(safe, sizeof(camel_buffer_t) - 2, tmp_stack_crc);									\
-										  safe->stack_and_buf_crc = tmp_stack_buf_crc;																												\
-											camel.flag = CKPT_2_FLG;																																						\
-										} else{																																																\
-											safe = &(camel.buf1);																																								\
-											unsafe = &(camel.buf2);																																							\
-											__dump_registers(safe->reg_file);																																		\
-										  tmp_stack_crc 		= __fast_hw_crc(_get_SP_register()+2, SRAM_TOP-(_get_SP_register()+2), CRC_INIT);	\
-										  tmp_stack_buf_crc = __fast_hw_crc(safe, sizeof(camel_buffer_t) - 2, tmp_stack_crc);									\
-										  safe->stack_and_buf_crc = tmp_stack_buf_crc;																												\
-											camel.flag = CKPT_1_FLG;																																						\
-										}																																																			\
-                    _Pragma("GCC diagnostic warning \"-Wint-conversion\"")                                                \
-                  }	while(0)
-
-#elif CRC_OFF
-#define commit() do{                                                                                                      \
-                    _Pragma("GCC diagnostic ignored \"-Wint-conversion\"")                                                \
-										if(camel.flag == CKPT_1_FLG){																																					\
-											safe = &(camel.buf2);																																								\
-											unsafe = &(camel.buf1);																																							\
-											__dump_registers(safe->reg_file);																																		\
-											camel.flag = CKPT_2_FLG;																																						\
-										} else{																																																\
-											safe = &(camel.buf1);																																								\
-											unsafe = &(camel.buf2);																																							\
-											__dump_registers(safe->reg_file);																																		\
-											camel.flag = CKPT_1_FLG;																																						\
-										}																																																			\
-                    _Pragma("GCC diagnostic warning \"-Wint-conversion\"")                                                \
-                  }	while(0)
-
-#endif
-
 void task_init();
 void task_select_func();
 void task_bit_count();
@@ -187,6 +141,107 @@ void camel_recover(){
 			__crt0_start();
 		}
     #endif
+}
+
+#if (CRC_ON && CRC_OFF) || !(CRC_ON || CRC_OFF)
+#error You must define exactly one of CRC_ON and CRC_OFF
+#endif
+
+#ifdef INLINE
+#ifdef CRC_ON
+#define commit() do{                                                                                                      \
+                    _Pragma("GCC diagnostic ignored \"-Wint-conversion\"")                                                \
+										if(camel.flag == CKPT_1_FLG){																																					\
+											safe = &(camel.buf2);																																								\
+											unsafe = &(camel.buf1);																																							\
+											__dump_registers(safe->reg_file);																																		\
+										  tmp_stack_crc 		= __fast_hw_crc(_get_SP_register()+2, SRAM_TOP-(_get_SP_register()+2), CRC_INIT);	\
+										  tmp_stack_buf_crc = __fast_hw_crc(safe, sizeof(camel_buffer_t) - 2, tmp_stack_crc);									\
+										  safe->stack_and_buf_crc = tmp_stack_buf_crc;																												\
+											camel.flag = CKPT_2_FLG;																																						\
+										} else{																																																\
+											safe = &(camel.buf1);																																								\
+											unsafe = &(camel.buf2);																																							\
+											__dump_registers(safe->reg_file);																																		\
+										  tmp_stack_crc 		= __fast_hw_crc(_get_SP_register()+2, SRAM_TOP-(_get_SP_register()+2), CRC_INIT);	\
+										  tmp_stack_buf_crc = __fast_hw_crc(safe, sizeof(camel_buffer_t) - 2, tmp_stack_crc);									\
+										  safe->stack_and_buf_crc = tmp_stack_buf_crc;																												\
+											camel.flag = CKPT_1_FLG;																																						\
+										}																																																			\
+                    _Pragma("GCC diagnostic warning \"-Wint-conversion\"")                                                \
+                  }	while(0)
+
+#elif CRC_OFF
+#define commit() do{                                                                                                      \
+                    _Pragma("GCC diagnostic ignored \"-Wint-conversion\"")                                                \
+										if(camel.flag == CKPT_1_FLG){																																					\
+											safe = &(camel.buf2);																																								\
+											unsafe = &(camel.buf1);																																							\
+											__dump_registers(safe->reg_file);																																		\
+											camel.flag = CKPT_2_FLG;																																						\
+										} else{																																																\
+											safe = &(camel.buf1);																																								\
+											unsafe = &(camel.buf2);																																							\
+											__dump_registers(safe->reg_file);																																		\
+											camel.flag = CKPT_1_FLG;																																						\
+										}																																																			\
+                    _Pragma("GCC diagnostic warning \"-Wint-conversion\"")                                                \
+                  }	while(0)
+
+#endif
+
+#elif NOINLINE
+#ifdef CRC_ON
+void commit() {
+				do {
+                    _Pragma("GCC diagnostic ignored \"-Wint-conversion\"")                                                \
+										if(camel.flag == CKPT_1_FLG){																																					\
+											safe = &(camel.buf2);																																								\
+											unsafe = &(camel.buf1);																																							\
+											__dump_registers(safe->reg_file);																																		\
+										  tmp_stack_crc 		= __fast_hw_crc(_get_SP_register()+2, SRAM_TOP-(_get_SP_register()+2), CRC_INIT);	\
+										  tmp_stack_buf_crc = __fast_hw_crc(safe, sizeof(camel_buffer_t) - 2, tmp_stack_crc);									\
+										  safe->stack_and_buf_crc = tmp_stack_buf_crc;																												\
+											camel.flag = CKPT_2_FLG;																																						\
+										} else{																																																\
+											safe = &(camel.buf1);																																								\
+											unsafe = &(camel.buf2);																																							\
+											__dump_registers(safe->reg_file);																																		\
+										  tmp_stack_crc 		= __fast_hw_crc(_get_SP_register()+2, SRAM_TOP-(_get_SP_register()+2), CRC_INIT);	\
+										  tmp_stack_buf_crc = __fast_hw_crc(safe, sizeof(camel_buffer_t) - 2, tmp_stack_crc);									\
+										  safe->stack_and_buf_crc = tmp_stack_buf_crc;																												\
+											camel.flag = CKPT_1_FLG;																																						\
+										}																																																			\
+                    _Pragma("GCC diagnostic warning \"-Wint-conversion\"")                                                \
+                  }	while(0);
+
+}
+#elif CRC_OFF
+
+void commit() {
+	
+				do{                                                                                                      \
+                    _Pragma("GCC diagnostic ignored \"-Wint-conversion\"")                                                \
+										if(camel.flag == CKPT_1_FLG){																																					\
+											safe = &(camel.buf2);																																								\
+											unsafe = &(camel.buf1);																																							\
+											__dump_registers(safe->reg_file);																																		\
+											camel.flag = CKPT_2_FLG;																																						\
+										} else{																																																\
+											safe = &(camel.buf1);																																								\
+											unsafe = &(camel.buf2);																																							\
+											__dump_registers(safe->reg_file);																																		\
+											camel.flag = CKPT_1_FLG;																																						\
+										}																																																			\
+                    _Pragma("GCC diagnostic warning \"-Wint-conversion\"")                                                \
+                  }	while(0);
+}
+#endif
+
+#endif
+
+__attribute__((naked)) void naked(){
+	__asm("ret");
 }
 
 // End Camel stuff

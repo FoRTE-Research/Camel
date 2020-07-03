@@ -11,9 +11,21 @@ enum OptLevel {
 // Commandline arguments for optimization level
 cl::opt<OptLevel> OptimizationLevel(cl::desc("Choose optimization level:"),
 cl::values(
-    clEnumVal(NONE , "No optimizations, enable debugging"),
-    clEnumVal(ALL, "Enable trivial optimizations"),
-    clEnumVal(IDEM, "Enable default optimizations")));
+    clEnumVal(NONE , "No optimizations"),
+    clEnumVal(ALL, "Copy All"),
+    clEnumVal(IDEM, "Copy IDEM")));
+
+// basic instrumentation or optimized instrumentation
+enum Instrumentation {
+    BASIC,
+    OPT
+};
+
+// commandline arguments for instrumentation level
+cl::opt<Instrumentation> InstrumentationLevel(cl::desc("Choose instrumentation level:"),
+cl::values(
+    clEnumVal(BASIC , "Basic Instrumentation"),
+    clEnumVal(OPT, "Optimized Instrumentation")));
 
 bool CamelPass::runOnModule(Module &M){
 
@@ -27,7 +39,8 @@ bool CamelPass::runOnModule(Module &M){
     if (OptimizationLevel != NONE){
 
         // analyze all tasks
-        analysisInfo.AnalyzeModule(M);
+
+        analysisInfo.AnalyzeModule(M, InstrumentationLevel);
 
         errs() << "\nVERSIONING \n";
 

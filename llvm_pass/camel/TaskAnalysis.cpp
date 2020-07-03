@@ -4,7 +4,7 @@
 //added for AR
 //added for CEM
 
-void TaskAnalysis::AnalyzeModule(Module &M){
+void TaskAnalysis::AnalyzeModule(Module &M, bool optimize){
 
     errs() << "\nSTARTING ANALYSIS\n"; 
 
@@ -15,9 +15,20 @@ void TaskAnalysis::AnalyzeModule(Module &M){
             continue;
         }
 
+        // do not inline commit function (if naked function)
+        if (F.getName().contains("commit")){
+            F.addFnAttr(Attribute::NoInline);
+            continue;
+        }
+
         if (isTask(&F)) {
 
             errs() << "Analyzing task: " + F.getName() + "\n";
+
+            if (optimize){
+                F.addFnAttr(Attribute::NoInline);
+                F.addFnAttr(Attribute::OptimizeNone);
+            }
 
             //prevent task inlining incase task boundaries are violated by compiler opts
             //F.addFnAttr(Attribute::NoInline);

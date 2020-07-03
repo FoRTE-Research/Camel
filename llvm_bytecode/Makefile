@@ -1,5 +1,6 @@
 #Usage: make crc= mode= board=
 
+
 # Benchmarks
 override outputs += camel_ar.bc camel_ar.ll camel_ar.s \
 	camel_ar_mod.bc camel_ar_mod.ll camel_ar_mod.s camel_ar.out \
@@ -50,6 +51,11 @@ CRC = $(crc)
 #Can take value: NONE, ALL, IDEM
 MODE = $(mode)
 
+INST = $(inst)
+
+COMMIT = $(commit)
+
+
 override BFLAGS += \
 	--target=msp430 \
 	-D$(DEVICE) \
@@ -84,12 +90,12 @@ override LLCFLAGS += \
 
 all: $(outputs)
 
-#pipeline: C code (CLANG)-> LLVM IR (OPT)-> LLVM IR Mod (LLC)-> Assembly code (MSP430-GCC) -> executable
-#some auxilary steps: LLVM IR .bc (LLVM-DIS)-> LLVM readable code .ll
-#some auxilary steps: LLVM IR .bc (LLC)-> Assembly .s 
+# pipeline: C code (CLANG)-> LLVM IR (OPT)-> LLVM IR Mod (LLC)-> Assembly code (MSP430-GCC) -> executable
+# some auxilary steps: LLVM IR .bc (LLVM-DIS)-> LLVM readable code .ll
+# some auxilary steps: LLVM IR .bc (LLC)-> Assembly .s 
 
 %.bc : %.c
-	$(CLANG) -emit-llvm -c -O -Xclang -disable-llvm-passes -fheinous-gnu-extensions $(BFLAGS) -D$(CRC) -D$(MODE) $< -o $@
+	$(CLANG) -emit-llvm -c -O -Xclang -disable-llvm-passes -fheinous-gnu-extensions $(BFLAGS) -D$(COMMIT) -D$(CRC) $< -o $@
 	
 %.ll : %.bc
 	$(DIS) $< -o $@
@@ -99,7 +105,7 @@ all: $(outputs)
 
 %_mod.bc: %.bc
 	cd ../llvm_pass && cmake . && make && cd ../llvm_bytecode
-	$(OPT)  -load $(CAMEL) --CamelPass -$(MODE) $< > $@
+	$(OPT)  -load $(CAMEL) --CamelPass -$(MODE) -$(INST) $< > $@
 
 %_mod.ll : %_mod.bc
 	$(DIS) $< -o $@

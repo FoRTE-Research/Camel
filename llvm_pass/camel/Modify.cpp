@@ -481,3 +481,4 @@ void Modify::cpas_s(Instruction *before, vector<Instruction*> varList) {
     IRBuilder<> builder(before);
     CallInst *call = builder.CreateMemCpy(bCast1, 2, bCast2, 2, arg3);   
 }
+
