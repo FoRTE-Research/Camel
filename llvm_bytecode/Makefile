@@ -51,7 +51,7 @@ CRC = $(crc)
 #Can take value: NONE, ALL, IDEM
 MODE = $(mode)
 
-INST = $(inst)
+INST = $(optimize)
 
 COMMIT = $(commit)
 
@@ -95,7 +95,7 @@ all: $(outputs)
 # some auxilary steps: LLVM IR .bc (LLC)-> Assembly .s 
 
 %.bc : %.c
-	$(CLANG) -emit-llvm -c -O -Xclang -disable-llvm-passes -fheinous-gnu-extensions $(BFLAGS) -D$(COMMIT) -D$(CRC) $< -o $@
+	$(CLANG) -emit-llvm -c -O -Xclang -disable-llvm-passes -fheinous-gnu-extensions $(BFLAGS) -D$(COMMIT) -D$(CRC) -D$(MODE) $< -o $@
 	
 %.ll : %.bc
 	$(DIS) $< -o $@
@@ -118,7 +118,7 @@ all: $(outputs)
 
 #opt level is O3 by default	
 %_opt.bc: %_mod.bc
-	$(OPT) -$(op) $< > $@ 
+	$(OPT) -$(opt) $< > $@ 
 
 %_opt.ll : %_opt.bc
 	$(DIS) $< -o $@

@@ -15,7 +15,7 @@ void TaskAnalysis::AnalyzeModule(Module &M, bool optimize){
             continue;
         }
 
-        // do not inline commit function (if naked function)
+        // do not inline commit naked function 
         if (F.getName().contains("commit")){
             F.addFnAttr(Attribute::NoInline);
             continue;

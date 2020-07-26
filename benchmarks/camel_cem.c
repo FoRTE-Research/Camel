@@ -241,7 +241,7 @@ void camel_recover(){
 
 #endif
 
-#elif NOINLINE
+#elif NAKED
 #ifdef CRC_ON
 void commit() {
 				do {

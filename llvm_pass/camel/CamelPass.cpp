@@ -17,15 +17,15 @@ cl::values(
 
 // basic instrumentation or optimized instrumentation
 enum Instrumentation {
-    BASIC,
-    OPT
+    TASKS,
+    MAIN
 };
 
 // commandline arguments for instrumentation level
 cl::opt<Instrumentation> InstrumentationLevel(cl::desc("Choose instrumentation level:"),
 cl::values(
-    clEnumVal(BASIC , "Basic Instrumentation"),
-    clEnumVal(OPT, "Optimized Instrumentation")));
+    clEnumVal(TASKS , "Apply opt level on everything"),
+    clEnumVal(MAIN, "Apply opt level only on main")));
 
 bool CamelPass::runOnModule(Module &M){
 
