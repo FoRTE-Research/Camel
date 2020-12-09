@@ -96,9 +96,9 @@ camel_buffer_t *safe, *unsafe;
 void camel_init(){
   WDTCTL = WDTPW | WDTHOLD; // Stop WDT
 
-  P1DIR |= BIT0;
-  //Turn both LEDs on
-  P1OUT &= ~BIT0;
+//   P1DIR |= BIT0;
+//   //Turn both LEDs on
+//   P1OUT &= ~BIT0;
 
 #ifdef __MSP430FR6989__
   // Disable the GPIO power-on default high-impedance mode to activate
@@ -464,6 +464,9 @@ int main(){
         }
     }
     
+    P9DIR |= BIT7;
+    P9OUT |= BIT7;
+
     task_done();
 }
 

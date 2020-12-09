@@ -113,9 +113,9 @@ camel_buffer_t *safe, *unsafe;
 void camel_init(){
   WDTCTL = WDTPW | WDTHOLD; // Stop WDT
 
-  P1DIR |= BIT0;
-  //Turn both LEDs on
-  P1OUT &= ~BIT0;
+//   P1DIR |= BIT0;
+//   //Turn both LEDs on
+//   P1OUT &= ~BIT0;
 
 #ifdef __MSP430FR6989__
   // Disable the GPIO power-on default high-impedance mode to activate
@@ -301,6 +301,9 @@ void task_selectMode()
 	if(GV(count) >= 3) pin_state=2;
 	if(GV(count)>=5) pin_state=0;
 	if (GV(count) >= 7) {
+
+		P9DIR |= BIT7;
+		P9OUT |= BIT7;
 
 		task_done();
 	}

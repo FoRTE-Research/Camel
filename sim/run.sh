@@ -7,7 +7,7 @@ make clean
 
 for opt in O0 O1 O2 O3; do
     echo "Generating files for " $opt
-    make optlvl=$opt benchmark=bc
+    make optlvl=$opt benchmark=cem
 done
 
 for file in *.bc; do

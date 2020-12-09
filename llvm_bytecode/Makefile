@@ -105,7 +105,7 @@ all: $(outputs)
 
 %_mod.bc: %.bc
 	cd ../llvm_pass && cmake . && make && cd ../llvm_bytecode
-	$(OPT)  -load $(CAMEL) --CamelPass -$(MODE) -$(INST) $< > $@
+	$(OPT) -load $(CAMEL) --CamelPass -$(MODE) -$(INST) $< > $@
 
 %_mod.ll : %_mod.bc
 	$(DIS) $< -o $@
