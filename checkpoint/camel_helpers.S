@@ -7,30 +7,30 @@
 ; First argument is start pointer,
 ; second argument is length
 ; Third argument is CRC init value
-.text
-.balign 2
-.global __fast_hw_crc
-.type __fast_hw_crc, @function
-__fast_hw_crc:
-  #define R_PTR R12
-  #define R_LEN R13
-  #define R_INI R14
+; .text
+; .balign 2
+; .global __fast_hw_crc
+; .type __fast_hw_crc, @function
+; __fast_hw_crc:
+;   #define R_PTR R12
+;   #define R_LEN R13
+;   #define R_INI R14
 
-  MOV.W R_INI,  &CRCINIRES
-  ADD.W R_PTR,  R_LEN
-  ; TODO: Loop unrolling - on C side, ensure that buffer is even number of bytes long
-  _fast_hw_crc_loop:
-    MOV.W   @R_PTR, &CRCDIRB
-    INCD.W  R_PTR
-    CMP     R_LEN, R_PTR
-    JL      _fast_hw_crc_loop
-  MOV.W &CRCINIRES, R12
-  RET
+;   MOV.W R_INI,  &CRCINIRES
+;   ADD.W R_PTR,  R_LEN
+;   ; TODO: Loop unrolling - on C side, ensure that buffer is even number of bytes long
+;   _fast_hw_crc_loop:
+;     MOV.W   @R_PTR, &CRCDIRB
+;     INCD.W  R_PTR
+;     CMP     R_LEN, R_PTR
+;     JL      _fast_hw_crc_loop
+;   MOV.W &CRCINIRES, R12
+;   RET
 
-  #undef  R_PTR
-  #undef  R_LEN
-  #undef  R_INI
-.size __fast_hw_crc, .-__fast_hw_crc
+;   #undef  R_PTR
+;   #undef  R_LEN
+;   #undef  R_INI
+; .size __fast_hw_crc, .-__fast_hw_crc
 
 ; Calculate the CRC in software for devices without HW CRC
 ; First argument is start pointer,

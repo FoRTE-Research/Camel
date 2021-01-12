@@ -109,9 +109,9 @@ camel_buffer_t *safe, *unsafe;
 void camel_init(){
   WDTCTL = WDTPW | WDTHOLD; // Stop WDT
 
-//   P1DIR |= BIT0;
-//   //Turn both LEDs on
-//   P1OUT &= ~BIT0;
+  P1DIR |= BIT0;
+  //Turn both LEDs on
+  P1OUT &= ~BIT0;
 
 #ifdef __MSP430FR6989__
   // Disable the GPIO power-on default high-impedance mode to activate
@@ -283,6 +283,10 @@ void task_done() {
 
 void task_init()
 {
+
+	//printf("task: %s\n", "task_init");
+	//cout << "task_init" << endl;
+	
 	int i;
 	unsigned message_length = sizeof(PLAINTEXT) - 1; // skip the terminating null byte
 
@@ -299,10 +303,16 @@ void task_init()
 	//branch vars
 	GV(check) = 0;
 	GV(check_final) = 0;
+	//GV(count) = 0;
+	//TRANSITION_TO(task_pad);
 }
 
 void task_pad()
 {
+
+	//printf("task: %s\n", "task_pad");
+
+	//cout << "task_pad" << endl;
 	int i;
 
 	if (GV(block_offset) >= GV(message_length)) {
@@ -311,6 +321,7 @@ void task_pad()
 		P9OUT |= BIT7;
 
 		task_done();
+		//TRANSITION_TO(task_print_cyphertext);
 	}
 
 	digit_t zero = 0;
@@ -324,43 +335,62 @@ void task_pad()
 	for (i = 1; i < NUM_DIGITS; ++i)
 		GV(block)[i] = 0;
 
+	//GV(exponent_next) = GV(exponent);
 	GV(exponent) = pubkey.e;
 
 	GV(block_offset) += NUM_DIGITS - NUM_PAD_DIGITS;
 
 	GV(check) = 2;
+	//TRANSITION_TO(task_exp);
 }
 
 void task_exp()
 {
 
+	//printf("task: %s\n", "task_exp");
+	//cout << "task_exp" << endl;
+
 	if (GV(exponent) & 0x1) {
 		GV(exponent) >>= 1;
+		GV(check_final) = 0;
         GV(check) = 0;
+		//TRANSITION_TO(task_mult_block);
 	} else {
 		GV(exponent) >>= 1;
+		GV(check_final) = 1;
         GV(check) = 1;
+		//TRANSITION_TO(task_square_base);
 	}
 }
 
 void task_mult_block()
 {
 
+	//cout << "task_mult_block" << endl;
     GV(check_final) = 0;
-
+	// TODO: pass args to mult: message * base
+	//GV(next_task) = TASK_REF(task_mult_block_get_result);
+	//TRANSITION_TO(task_mult_mod);
 }
 
 void task_mult_block_get_result()
 {
+
+	//cout << "task_mult_block_get_result" << endl;
+	//printf("task: %s\n", "task_mult_block_Get_result");
+
 	int i;
 
 	for (i = NUM_DIGITS - 1; i >= 0; --i) { // reverse for printing
 		GV(block)[i] = GV(product)[i];
 	}
 
+	// On last iteration we don't need to square base
 	if (GV(exponent) > 0) {
 
 		GV(check) = 1;
+		GV(check_final) = 1;
+		//TRANSITION_TO(task_square_base);
 
 	} else { // block is finished, save it
 
@@ -374,20 +404,33 @@ void task_mult_block_get_result()
 			}
 
 		} 
-		
+		// else {
+
+		// 	// carry on encoding, though
+		// }
+
+
 		GV(check) = 0;
+		//TRANSITION_TO(task_pad);
 	}
 
 }
 
 void task_square_base()
 {
-	GV(check_final) = 1;
 
+	//cout << "task_square_base" << endl;
+
+	GV(check_final) = 1;
+	//GV(next_task) = TASK_REF(task_square_base_get_result);
+	//TRANSITION_TO(task_mult_mod);
 }
 
 void task_square_base_get_result()
 {
+	//cout << "task_square_base_get_result" << endl;
+	//printf("task: %s\n", "task_square_base_get_Result");
+
 	int i;
 
 	for (i = 0; i < NUM_DIGITS; ++i) {
@@ -395,17 +438,27 @@ void task_square_base_get_result()
 	}
 
 	GV(check) = 2;
+	//TRANSITION_TO(task_exp);
 }
 
 void task_mult_mod()
 {
+
+	//cout << "task_mult_mod" << endl;
+	//printf("task: %s\n", "task_mult_mod");
+
+
 	GV(digit) = 0;
 	GV(carry) = 0;
 
+	//TRANSITION_TO(task_mult);
 }
 
 void task_mult()
 {
+	//cout << "task_mult" << endl;
+
+	//printf("task: %s\n", "task_mult");
 	int i;
 	digit_t a, b, c;
 	digit_t dp, p;
@@ -431,15 +484,27 @@ void task_mult()
 	p &= DIGIT_MASK;
 
 	GV(product)[GV(digit)] = p;
+	//GV(print_which) = 0;
 	GV(digit)++;
+
+	//printf("num:%d\n ", GV(digit));
 
 	if (GV(digit) < NUM_DIGITS * 2) {
 		GV(carry) = c;
+		//TRANSITION_TO(task_mult);
 	} 
+	// else {
+	// 	//GV(next_task_print) = TASK_REF(task_reduce_digits);
+	// 	//TRANSITION_TO(task_print_product);
+	// }
 }
 
 void task_reduce_digits()
 {
+	//cout << "task_reduce_digits" << endl;
+
+	//printf("task: %s\n", "task_reduce_digits");
+
 	int d;
 
 	d = 2 * NUM_DIGITS;
@@ -449,15 +514,21 @@ void task_reduce_digits()
 
 	if (GV(product)[d] == 0) {
 		GV(check) = 0;
+		//TRANSITION_TO(task_init);
 	}
 
 	GV(reduce) = d;
 
 	GV(check) = 1;
+	//TRANSITION_TO(task_reduce_normalizable);
 }
 
 void task_reduce_normalizable()
 {
+
+	//cout << "task_reduce_normalizable" << endl;
+	//printf("task: %s\n", "task_reduce_normailzable");
+
 	int i;
 	bool normalizable = true;
 
@@ -478,22 +549,30 @@ void task_reduce_normalizable()
 	if (!normalizable && GV(reduce) == NUM_DIGITS - 1) {
 
 		GV(check) = 0;
+		//transition_to(GV(next_task));
 	}
 
 	if (normalizable) {
 
 		GV(check) = 1;
+		//TRANSITION_TO(task_reduce_normalize);
 	} else {
 
 		GV(check) = 2;
+		//TRANSITION_TO(task_reduce_n_divisor);
 	}
 }
 void task_reduce_normalize()
 {
+	//printf("task: %s\n", "task_reduce_normalize");
+	//cout << "task_reduce_normalize" << endl;
+
 	digit_t m, n, d, s;
 	unsigned borrow;
 
 	int i;
+	// To call the print task, we need to proxy the values we don't touch
+	//GV(print_which) = 0;
 
 	borrow = 0;
 	for (i = 0; i < NUM_DIGITS; ++i) {
@@ -518,22 +597,32 @@ void task_reduce_normalize()
 
 	if (GV(offset) > 0) { 
 		GV(check) = 2;
+		//GV(next_task_print) = TASK_REF(task_reduce_n_divisor);
 	} else {
 		GV(check) = 0;
+		//GV(next_task_print) = GV(next_task);
 	}
+	//TRANSITION_TO(task_print_product);
 }
 
 void task_reduce_n_divisor()
 {
+
+	//cout << "task_reduce_n_divisor" << endl;
+
 	unsigned op1 = NUM_DIGITS - 1;
 	unsigned op2 = NUM_DIGITS -2;
 
 	GV(n_div) = ( GV(modulus)[op1]<< DIGIT_BITS) + GV(modulus)[op2];
 
+	//TRANSITION_TO(task_reduce_quotient);
 }
 
 void task_reduce_quotient()
 {
+
+	//cout << "task_reudce_quotient" << endl;
+
 	uint32_t qn, n_q; 
 
 	unsigned op1 = NUM_DIGITS - 1;
@@ -556,33 +645,38 @@ void task_reduce_quotient()
 
 	GV(reduce)--;
 
+	//TRANSITION_TO(task_reduce_multiply);
 }
 
 void task_reduce_multiply()
 {
+	//cout << "task_reduce_multiply" << endl;
 	int i;
-	digit_t m, n;
-	unsigned c, offset;
-
-	offset = GV(reduce) + 1 - NUM_DIGITS;
+	digit_t m = 0;
+	digit_t n= 0;
+	unsigned c = 0; 
+	//int offset = 0;
+	int offset = GV(reduce) + 1 - NUM_DIGITS;
+	//cout << offset << endl;
 
 	for (i = 0; i < offset; ++i) {
 		GV(product2)[i] = 0;
 	}
-
 	c = 0;
 	for (i = offset; i < 2 * NUM_DIGITS; ++i) {
 
 		m = c;
 		if (i < offset + NUM_DIGITS) {
 
-			unsigned op = i - offset;
-
+			int op = i - offset;
 			n = GV(modulus)[op];
+
 			m += GV(quotient) * n;
 		} else {
 			n = 0;
+
 		}
+
 
 		c = m >> DIGIT_BITS;
 		m &= DIGIT_MASK;
@@ -590,11 +684,15 @@ void task_reduce_multiply()
 		GV(product2)[i] = m;
 
 	}
-
+	//GV(next_task_print) = TASK_REF(task_reduce_compare);
+	//TRANSITION_TO(task_print_product);
 }
 
 void task_reduce_compare()
 {
+	
+	//cout << "task_reduce_compare" << endl;
+
 	int i;
 	char relation = '=';
 
@@ -611,11 +709,19 @@ void task_reduce_compare()
 
 	if (relation == '<') {
 		GV(check) = 0;
+		//TRANSITION_TO(task_reduce_add);
 	} 
+	// else {
+	// 	GV(check) = 1;
+	// 	//TRANSITION_TO(task_reduce_subtract);
+	// }
 }
+
 
 void task_reduce_add()
 {
+
+	//cout << "task_reduce_add" << endl;
 	int i, j;
 	digit_t m, n, c;
 	unsigned offset;
@@ -645,6 +751,9 @@ void task_reduce_add()
 
 void task_reduce_subtract()
 {
+
+	//cout << "task_reduce_subtract" << endl;
+
 	int i;
 	digit_t m, s, qn;
 	unsigned borrow, offset;
@@ -669,6 +778,13 @@ void task_reduce_subtract()
 
 		}
 	}
+
+	// if (GV(reduce) + 1 > NUM_DIGITS) {
+	// 	GV(next_task_print) = TASK_REF(task_reduce_quotient);
+	// } else { 
+	// 	GV(next_task_print) = GV(next_task);
+	// }
+	// TRANSITION_TO(task_print_product);
 }
 
 void task_commit() {
@@ -746,7 +862,7 @@ int main() {
 
 					if (MGV(check) == 0) {
 
-						TASK(task_reduce_compare);
+						TASK(task_reduce_add);
 
 					}
 

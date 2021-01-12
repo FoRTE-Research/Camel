@@ -2,26 +2,30 @@
 
 
 # Benchmarks
-override outputs += camel_ar.bc camel_ar.ll camel_ar.s \
-	camel_ar_mod.bc camel_ar_mod.ll camel_ar_mod.s camel_ar.out \
-	camel_ar_opt.bc camel_ar_opt.ll camel_ar_opt.s camel_ar_opt.out
+# override outputs += camel_ar.bc camel_ar.ll camel_ar.s \
+# 	camel_ar_mod.bc camel_ar_mod.ll camel_ar_mod.s camel_ar.out \
+# 	camel_ar_opt.bc camel_ar_opt.ll camel_ar_opt.s camel_ar_opt.out
 
-override outputs += camel_bc.bc camel_bc.ll camel_bc.s\
-	camel_bc_mod.bc camel_bc_mod.ll camel_bc_mod.s camel_bc.out\
-	camel_bc_opt.bc camel_bc_opt.ll camel_bc_opt.s camel_bc_opt.out
+# override outputs += camel_bc.bc camel_bc.ll camel_bc.s\
+# 	camel_bc_mod.bc camel_bc_mod.ll camel_bc_mod.s camel_bc.out\
+# 	camel_bc_opt.bc camel_bc_opt.ll camel_bc_opt.s camel_bc_opt.out
 
-override outputs += camel_cem.bc camel_cem.ll camel_cem.s \
-	camel_cem_mod.bc camel_cem_mod.ll camel_cem_mod.s camel_cem.out \
-	camel_cem_opt.bc camel_cem_opt.ll camel_cem_opt.s camel_cem_opt.out
+# override outputs += camel_cem.bc camel_cem.ll camel_cem.s \
+# 	camel_cem_mod.bc camel_cem_mod.ll camel_cem_mod.s camel_cem.out \
+# 	camel_cem_opt.bc camel_cem_opt.ll camel_cem_opt.s camel_cem_opt.out
 
-override outputs += camel_cuckoo.bc camel_cuckoo.ll camel_cuckoo.s \
-	camel_cuckoo_mod.bc camel_cuckoo_mod.ll camel_cuckoo_mod.s camel_cuckoo.out \
-	camel_cuckoo_opt.bc camel_cuckoo_opt.ll camel_cuckoo_opt.s camel_cuckoo_opt.out
+# override outputs += camel_cuckoo.bc camel_cuckoo.ll camel_cuckoo.s \
+# 	camel_cuckoo_mod.bc camel_cuckoo_mod.ll camel_cuckoo_mod.s camel_cuckoo.out \
+# 	camel_cuckoo_opt.bc camel_cuckoo_opt.ll camel_cuckoo_opt.s camel_cuckoo_opt.out
 
-override outputs += camel_rsa.bc camel_rsa.ll camel_rsa.s \
-	camel_rsa_mod.s camel_rsa_mod.bc camel_rsa_mod.ll camel_rsa.out \
-	camel_rsa_opt.bc camel_rsa_opt.ll camel_rsa_opt.s camel_rsa_opt.out
+# override outputs += camel_rsa.bc camel_rsa.ll camel_rsa.s \
+# 	camel_rsa_mod.s camel_rsa_mod.bc camel_rsa_mod.ll camel_rsa.out \
+# 	camel_rsa_opt.bc camel_rsa_opt.ll camel_rsa_opt.s camel_rsa_opt.out
 
+override outputs += camel_demo.bc camel_demo.ll camel_demo.s \
+	camel_demo_mod.s camel_demo_mod.bc camel_demo_mod.ll camel_demo.out \
+	camel_demo_opt.bc camel_demo_opt.ll camel_demo_opt.s camel_demo_opt.out
+	
 
 #Path to benchmarks source code
 VPATH = ../benchmarks
@@ -43,7 +47,7 @@ LLC = $(LLVM_DIR)/bin/llc
 GCC = $(GCC_BIN)/msp430-elf-gcc
 
 #Can take values: __MSP430FR6989__, __MSP430F5529__
-DEVICE  = $(board)
+DEVICE = $(board)
 
 #Can take values: CRC_ON, CRC_OFF
 CRC = $(crc)
@@ -81,7 +85,7 @@ override CFLAGS += \
 	-Wall \
 	-MD \
 	-L $(GCC_INCLUDE) \
-	-T ../ld/msp430fr6989.ld \
+	-T ../ld/msp430g2553.ld \
 	../checkpoint/camel_helpers.S
 
 override LLCFLAGS += \
@@ -118,7 +122,7 @@ all: $(outputs)
 
 #opt level is O3 by default	
 %_opt.bc: %_mod.bc
-	$(OPT) -$(opt) $< > $@ 
+	$(OPT) -$(INST) $< > $@ 
 
 %_opt.ll : %_opt.bc
 	$(DIS) $< -o $@

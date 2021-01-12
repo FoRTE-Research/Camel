@@ -6,8 +6,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "macros.h"
-#include "camel_ckpt_defines.h"
+#include "../checkpoint/macros.h"
+#include "../checkpoint/camel_ckpt_defines.h"
 
 //Original size of buffer 3492
 //////////////////////////////////////////////////////////////////
@@ -43,7 +43,7 @@
 #define BLOCK_SIZE         16
 
 #define NUM_LETTERS_IN_SAMPLE        2
-#define LETTER_MASK             	0x3F
+#define LETTER_MASK             	0x00FF
 #define LETTER_SIZE_BITS             8
 #define NUM_LETTERS (LETTER_MASK + 1)
 //////////////////////////////////////////////////////////////////////
@@ -127,9 +127,9 @@ camel_buffer_t *safe, *unsafe;
 void camel_init(){
   WDTCTL = WDTPW | WDTHOLD; // Stop WDT
 
-//   P1DIR |= BIT0;
-//   //Turn both LEDs on
-//   P1OUT &= ~BIT0;
+  P1DIR |= BIT0;
+  //Turn both LEDs on
+  P1OUT &= ~BIT0;
 
 #ifdef __MSP430FR6989__
   // Disable the GPIO power-on default high-impedance mode to activate
@@ -193,6 +193,10 @@ void camel_recover(){
 		}
     #endif
 }
+
+#if (CRC_ON && CRC_OFF) || !(CRC_ON || CRC_OFF)
+#error You must define exactly one of CRC_ON and CRC_OFF
+#endif
 
 #if (CRC_ON && CRC_OFF) || !(CRC_ON || CRC_OFF)
 #error You must define exactly one of CRC_ON and CRC_OFF
@@ -556,4 +560,3 @@ static void (*reset_vector)(void) = camel_recover;
 #else
 #error Board not supported
 #endif
-

@@ -14,6 +14,7 @@
         "unordered_map": "cpp",
         "*.txt": "c",
         "stdint.h": "c",
-        "camel_ckpt_defines.h": "c"
+        "camel_ckpt_defines.h": "c",
+        "macros.h": "c"
     }
 }
