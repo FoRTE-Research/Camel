@@ -66,6 +66,7 @@ _rc_loop_c:
   JNZ		_rc_loop_c
   POP   R9
   POP   R8
+  MOV             r_crc, R12  ;  Return value in R12
   RET
 
   #undef  r_crc
