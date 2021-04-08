@@ -36,6 +36,14 @@
 ; First argument is start pointer,
 ; second argument is length
 ; Third argument is CRC init value
+
+; TODO: I was having a problem with this that I think stems from a spurious checkpoint recovery,
+; where the check for an existing SRAM checkpoint in the recovery routine just happens to pass.
+; Then a bunch of nonsense is passed to this function and it spends forever doing a CRC because
+; it thinks the message length is 0xFFFF; eventually the WDT resets and we go around again.
+; Solution: check reset interrupt vector, if reset is from WDT instead of power-on then just
+; jump straight to crt0_start.
+
 .text
 .balign 2
 .global __fast_sw_crc
@@ -66,6 +74,7 @@ _rc_loop_c:
   JNZ		_rc_loop_c
   POP   R9
   POP   R8
+  MOV             r_crc, R12  ;  Return value in R12
   RET
 
   #undef  r_crc
