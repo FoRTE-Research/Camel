@@ -106,7 +106,7 @@ void camel_recover(){
 
 #ifdef INLINE
 #ifdef CRC_ON
-#define commit()  do{                                                                                                      \
+#define commit() do{                                                                                                      \
                     _Pragma("GCC diagnostic ignored \"-Wint-conversion\"")                                                \
 										if(camel.flag == CKPT_1_FLG){																																					\
 											safe = &(camel.buf2);																																								\
@@ -199,16 +199,15 @@ void commit() {
 
 void task_init() {
 
-    GV(debounce) = 0;
 }
 
-void task_waitS1(){
-    GV(debounce) = 0;
-    while(GV(debounce) < 1000){
+void waitS1(){
+    uint16_t debounce = 0;
+    while(debounce < 1000){
         if(!(P1IN & BIT3)){     // If S1 (P1.3) pressed
-            GV(debounce++);
+            debounce++;
         } else{
-            GV(debounce) = 0;
+            debounce = 0;
         }
     }
     while(!(P1IN & BIT3));      // Wait for negedge
@@ -217,19 +216,19 @@ void task_waitS1(){
 void task_red(){
     P2OUT &= ~(RED | GREEN | BLUE);
     P2OUT |= RED;
-    //waitS1();
+    waitS1();
 }
 
 void task_green(){
     P2OUT &= ~(RED | GREEN | BLUE);
     P2OUT |= GREEN;
-    //waitS1();
+    waitS1();
 }
 
 void task_blue(){
     P2OUT &= ~(RED | GREEN | BLUE);
     P2OUT |= BLUE;
-    //waitS1();
+    waitS1();
 }
 
 void task_done() {
@@ -253,16 +252,9 @@ int main(void){
 
         TASK(task_red);
 
-        TASK(task_waitS1);
-
         TASK(task_green);
 
-        TASK(task_waitS1);
-
         TASK(task_blue);
-
-        TASK(task_waitS1);
-
     }
 }
 
